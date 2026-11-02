@@ -1,4 +1,4 @@
-import data from './assets/islands/v09/layout-data.js?build=57b3cd365ae7';
+import data from './assets/islands/v09/layout-data.js?build=0cc2c823a278';
 export const QINGHE=data;
 export const BRIDGE=data.bridge;
 const grid=data.grid;

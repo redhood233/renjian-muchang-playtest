@@ -1,7 +1,7 @@
-import * as T from './vendor/three.module.js?build=57b3cd365ae7';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=57b3cd365ae7';
-import {SETTLEMENT as S} from './config.js?build=57b3cd365ae7';
-import {groundHeight} from './island-layout.js?build=57b3cd365ae7';
+import * as T from './vendor/three.module.js?build=0cc2c823a278';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=0cc2c823a278';
+import {SETTLEMENT as S} from './config.js?build=0cc2c823a278';
+import {groundHeight} from './island-layout.js?build=0cc2c823a278';
 // Bind existing authored models to gameplay slots; no asset transforms are edited.
 export class SettlementView {
  constructor(root,scene){

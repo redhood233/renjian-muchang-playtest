@@ -45,11 +45,13 @@ footer{position:absolute;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-b
 
 /* Mode menus reuse the current card skin. Leave room for a fourth resume button. */
 .home-page.with-resume .home-fan{top:18%}
-.home-page.with-resume .home-fan img{max-height:36dvh;width:auto}
+.home-page.with-resume .home-fan img{max-height:36dvh;width:min(29vw,calc(36dvh * .5625))}
 @media(orientation:landscape) and (max-height:500px){
  .home-page h1{font-size:28px;margin:2vh 0}
  .home-page .home-fan{top:15%}
  .home-page .home-fan img{max-height:32dvh;width:auto}
+ .home-page.with-resume .home-fan{top:15%}
+ .home-page.with-resume .home-fan img{max-height:30dvh;width:min(29vw,calc(30dvh * .5625))}
  .home-page .home-actions{gap:5px;bottom:max(10px,env(safe-area-inset-bottom))}
  .home-page .home-actions button{min-height:38px;padding:5px 14px;font-size:16px}
 }

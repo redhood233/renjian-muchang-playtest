@@ -1,5 +1,5 @@
-import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=57b3cd365ae7';
-import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=57b3cd365ae7';
+import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=0cc2c823a278';
+import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=0cc2c823a278';
 
 const center = bounds => ({x:(bounds[0][0]+bounds[1][0])/2,y:(bounds[0][1]+bounds[1][1])/2});
 const rect = (p,w,h) => ({min:[p.x-w/2,p.y-h/2],max:[p.x+w/2,p.y+h/2]});

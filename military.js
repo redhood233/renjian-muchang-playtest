@@ -1,8 +1,8 @@
-import {MILITARY as M,CONFIG as C,SETTLEMENT as S} from './config.js?build=57b3cd365ae7';
-import {complete} from './settlement.js?build=57b3cd365ae7';
-import {BRIDGE,islandId,nearestWalkable} from './island-layout.js?build=57b3cd365ae7';
-import {formation,strike} from './combat.js?build=57b3cd365ae7';
-import {structureDamage} from './civilization.js?build=57b3cd365ae7';
+import {MILITARY as M,CONFIG as C,SETTLEMENT as S} from './config.js?build=0cc2c823a278';
+import {complete} from './settlement.js?build=0cc2c823a278';
+import {BRIDGE,islandId,nearestWalkable} from './island-layout.js?build=0cc2c823a278';
+import {formation,strike} from './combat.js?build=0cc2c823a278';
+import {structureDamage} from './civilization.js?build=0cc2c823a278';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const living=(w,a)=>a.ids.map(id=>w.get(id)).filter(e=>e?.soldier&&!e.garrison);
 const fighting=e=>e&&!e.dead&&e.soldier&&!e.returning;

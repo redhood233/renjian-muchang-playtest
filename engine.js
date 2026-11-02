@@ -1,13 +1,13 @@
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=57b3cd365ae7';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=57b3cd365ae7';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=57b3cd365ae7';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=57b3cd365ae7';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=57b3cd365ae7';
-import {CIVILIZATION as V} from './config.js?build=57b3cd365ae7';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets} from './civilization.js?build=57b3cd365ae7';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=57b3cd365ae7';
-import {strike,separate} from './combat.js?build=57b3cd365ae7';
-import {validGameplayState} from './gameplay-save.js?build=57b3cd365ae7';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=0cc2c823a278';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=0cc2c823a278';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=0cc2c823a278';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=0cc2c823a278';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=0cc2c823a278';
+import {CIVILIZATION as V} from './config.js?build=0cc2c823a278';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets} from './civilization.js?build=0cc2c823a278';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=0cc2c823a278';
+import {strike,separate} from './combat.js?build=0cc2c823a278';
+import {validGameplayState} from './gameplay-save.js?build=0cc2c823a278';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {

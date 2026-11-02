@@ -1,5 +1,5 @@
-import {TutorialButtonGuidance,hasButtonGuidance} from './tutorial-button-guidance.js?build=57b3cd365ae7';
-import {GOD_LABELS,PROLOGUE as P} from './prologue-data.js?build=57b3cd365ae7';
+import {TutorialButtonGuidance,hasButtonGuidance} from './tutorial-button-guidance.js?build=0cc2c823a278';
+import {GOD_LABELS,PROLOGUE as P} from './prologue-data.js?build=0cc2c823a278';
 export class PrologueView {
  constructor({changed,focus,continueGame,project}){
   Object.assign(this,{changed,focus,continueGame,project,key:'',typed:0,guardUntil:0,world:null});
