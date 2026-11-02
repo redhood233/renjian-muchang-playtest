@@ -1,14 +1,18 @@
-const url = new URL('./rules.json?build=0cc2c823a278', import.meta.url);
+const url = new URL('./rules.json?build=a2168afe9bb0', import.meta.url);
 const rules = typeof window === 'undefined' ? JSON.parse(await (await import('node:fs/promises')).readFile(url, 'utf8')) : await (await fetch(url)).json();
+import {mapPoint,mapArea} from './world-space.js?build=a2168afe9bb0';
+export const GEOGRAPHY=Object.freeze(rules.geography);
+export const worldPoint=p=>mapPoint(p,GEOGRAPHY);
 export const CONFIG = Object.freeze(rules.config);
 export const SKILLS = Object.freeze(rules.skills);
 export const CLIMATE = Object.freeze(rules.climate);
 export const TEXT = Object.freeze(rules.texts || {});
 
-export const SETTLEMENT=Object.freeze(rules.settlement);
-export const HUSBANDRY=Object.freeze(rules.husbandry);
+const areas=a=>Object.fromEntries(Object.entries(a).map(([k,v])=>[k,mapArea(v,GEOGRAPHY,k==='house')]));
+export const SETTLEMENT=Object.freeze({...rules.settlement,expansion:areas(rules.settlement.expansion),pastureExpansion:areas(rules.settlement.pastureExpansion)});
+export const HUSBANDRY=Object.freeze({...rules.husbandry,pens:rules.husbandry.pens.map(worldPoint)});
 export const SOCIETY=Object.freeze(rules.society);
-export const WILDLIFE=Object.freeze(rules.wildlife);
+export const WILDLIFE=Object.freeze({...rules.wildlife,homes:rules.wildlife.homes.map(a=>a.map(worldPoint))});
 
 export const MILITARY=Object.freeze(rules.military);
 export const CIVILIZATION=Object.freeze(rules.civilization);

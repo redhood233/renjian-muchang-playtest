@@ -1,5 +1,5 @@
-import * as T from './vendor/three.module.js?build=0cc2c823a278';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=0cc2c823a278';
+import * as T from './vendor/three.module.js?build=a2168afe9bb0';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=a2168afe9bb0';
 // Source parts have the same skin, bind matrix and local transform. Merge only
 // opaque parts; keep the original transparent face as a separate sorted draw.
 const cache=new WeakMap();

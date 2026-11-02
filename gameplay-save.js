@@ -1,5 +1,5 @@
-import {HUSBANDRY as H} from './config.js?build=0cc2c823a278';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=0cc2c823a278';
+import {HUSBANDRY as H} from './config.js?build=a2168afe9bb0';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=a2168afe9bb0';
 const finite=(v,min=0)=>Number.isFinite(v)&&v>=min;
 export function validGameplayState(s){
  if(!Array.isArray(s.animals)||!Array.isArray(s.islands?.[0]?.buildings)||!Array.isArray(s.islands?.[1]?.pens)||!Number.isInteger(s.navRevision)||s.navRevision<0||!Array.isArray(s.beastBirthCredit)||s.beastBirthCredit.length!==2||!s.beastBirthCredit.every(v=>finite(v)))return false;
@@ -20,7 +20,12 @@ export function validGameplayState(s){
   if(e.houseId!==null){const home=lots.find(b=>b.id===e.houseId);if(!home||home.state!=='complete'||home.kind!=='house'||home.upgrading)return false;homes.set(e.houseId,(homes.get(e.houseId)||0)+1);if(homes.get(e.houseId)>5)return false;}
   if(e.inside&&!e.houseId)return false;
  }
- if(c.army){const a=c.army;if(!Array.isArray(a.ids)||!a.ids.length||new Set(a.ids).size!==a.ids.length||a.ids.some(id=>!s.entities.some(e=>e.id===id&&e.country===c.id&&e.soldier))||!['campaign','raid','defend','liberation'].includes(a.operation)||!finite(a.rations)||!finite(a.cargo)||!finite(a.musterElapsed)||!finite(a.reinforce))return false;}
+ if(c.army){const a=c.army;if(!Array.isArray(a.ids)||!a.ids.length||new Set(a.ids).size!==a.ids.length||a.ids.some(id=>!s.entities.some(e=>e.id===id&&e.country===c.id&&e.soldier))||!['campaign','raid','defend','liberation'].includes(a.operation)||!finite(a.rations)||!finite(a.cargo)||!finite(a.musterElapsed)||!finite(a.reinforce))return false;
+  if(a.front&&(!Number.isFinite(a.front.x)||!Number.isFinite(a.front.y)))return false;
+  if(a.heading&&(!Number.isFinite(a.heading.x)||!Number.isFinite(a.heading.y)))return false;
+  if(a.orderState&&!['mustering','marching','regrouping','engaging'].includes(a.orderState))return false;
+  if(a.front?._route){const r=a.front._route;if(!Number.isSafeInteger(r.key)||!Number.isSafeInteger(r.revision)||!Array.isArray(r.nodes)||r.nodes.length>1000||r.nodes.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)))return false;}
+ }
  }
  if(!s.session||!['challenge','sandbox'].includes(s.session.mode)||!finite(s.session.seconds,.001)||!finite(s.session.souls,1))return false;
  const m=s.military;if(!m||!Array.isArray(m.sites)||m.sites.length!==3||!Array.isArray(m.occupation)||m.occupation.length!==2)return false;

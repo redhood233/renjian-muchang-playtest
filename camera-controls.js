@@ -1,6 +1,8 @@
-export const DEFAULT_CAMERA={x:51.5,y:28,zoom:1,yaw:0,pitch:Math.atan2(70,55)};
+import {GEOGRAPHY as G,worldPoint} from './config.js?build=a2168afe9bb0';
+const low=worldPoint({x:4,y:8}),high=worldPoint({x:98,y:52});
+export const DEFAULT_CAMERA={...worldPoint({x:51.5,y:28}),zoom:1/G.scale,yaw:0,pitch:Math.atan2(70,55)};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-export function constrain(c){c.x=clamp(c.x,4,98);c.y=clamp(c.y,8,52);c.zoom=clamp(c.zoom,1,7);c.pitch=clamp(c.pitch,25*Math.PI/180,80*Math.PI/180);c.yaw=Math.atan2(Math.sin(c.yaw),Math.cos(c.yaw));return c;}
+export function constrain(c){c.x=clamp(c.x,low.x,high.x);c.y=clamp(c.y,low.y,high.y);c.zoom=clamp(c.zoom,1/G.scale,7);c.pitch=clamp(c.pitch,25*Math.PI/180,80*Math.PI/180);c.yaw=Math.atan2(Math.sin(c.yaw),Math.cos(c.yaw));return c;}
 export function pairGesture(a,b){return{distance:Math.hypot(b.x-a.x,b.y-a.y),angle:Math.atan2(b.y-a.y,b.x-a.x),y:(a.y+b.y)/2};}
 export class CameraControls{
  constructor(canvas,camera,{enabled,project,onTap,threshold=6}){Object.assign(this,{canvas,camera,enabled,project,onTap,threshold});this.points=new Map();this.blockTap=false;this.transition=null;

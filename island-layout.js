@@ -1,32 +1,54 @@
-import data from './assets/islands/v09/layout-data.js?build=0cc2c823a278';
-export const QINGHE=data;
-export const BRIDGE=data.bridge;
-const grid=data.grid;
+import data from './assets/islands/v09/layout-data.js?build=a2168afe9bb0';
+import {GEOGRAPHY as G,worldPoint} from './config.js?build=a2168afe9bb0';
+// Derive a larger world without changing the level artist's source data.
+const building=o=>o.blocking||/^(Cottage |牧场建筑 |Village Hall |Academy |Granary |Windmill )/.test(o.name);
+const bases=data.objects.filter(o=>building(o)&&!o.name.includes('Repair')&&!/_/.test(o.name.split(' | ')[0]));
+function anchor(name){const stem=name.replace(/\.\d{3}$/,'');return bases.filter(o=>stem===o.name.replace(/\.\d{3}$/,'')||stem.startsWith(o.name.replace(/\.\d{3}$/,'')+'_')).sort((a,b)=>a.name.length-b.name.length)[0];}
+function bounds(min,max,name){const base=anchor(name),k=base?G.buildingScale:1,center=base?worldPoint({x:(base.bounds[0][0]+base.bounds[1][0])/2,y:(base.bounds[0][1]+base.bounds[1][1])/2}):{x:0,y:0};
+ const convert=v=>{const p=worldPoint({x:v[0],y:v[1]});const a=[center.x+(p.x-center.x)*k,center.y+(p.y-center.y)*k];if(v.length>2){const foot=(base?.bounds[0][2]??0)*G.scale;a.push(foot+(v[2]*G.scale-foot)*k);}return a;};return [convert(min),convert(max)];}
+const grid={...data.grid,...worldPoint({x:data.grid.x,y:data.grid.y}),step:data.grid.step*G.scale,heights:data.grid.heights.map(h=>h===null?null:h*G.scale)};
+export const obstacles=data.obstacles.map(o=>{const b=bounds(o.min,o.max,o.name);return {...o,min:b[0],max:b[1]};});
+export const BRIDGE={...data.bridge,a:worldPoint(data.bridge.a),b:worldPoint(data.bridge.b),width:data.bridge.width*G.scale*G.bridgeWidthScale,height:data.bridge.height*G.scale};
+const position=worldPoint({x:data.transform.position[0],y:data.transform.position[2]});
+export const QINGHE={...data,grid,obstacles,bridge:BRIDGE,centers:data.centers.map(worldPoint),objects:data.objects.map(o=>({...o,bounds:bounds(...o.bounds,o.name)})),transform:{scale:data.transform.scale*G.scale,position:[position.x,data.transform.position[1]*G.scale,position.y]}};
 function cell(x,y){const i=Math.round((x-grid.x)/grid.step),j=Math.round((y-grid.y)/grid.step);return i<0||j<0||i>=grid.cols||j>=grid.rows?-1:j*grid.cols+i;}
-function sample(x,y){return grid.heights[cell(x,y)]??null;}
+function terrain(x,y){return grid.heights[cell(x,y)]??null;}
+function projection(p){const a=BRIDGE.a,b=BRIDGE.b,dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);return {u:((p.x-a.x)*dx+(p.y-a.y)*dy)/(len*len),d:Math.abs((p.x-a.x)*dy-(p.y-a.y)*dx)/len};}
+export function onBridge(p,margin=0){if(!p)return false;const {u,d}=projection(p);return u>=-.025&&u<=1.025&&d<=BRIDGE.width/2-margin;}
+function interpolated(p){const x=(p.x-grid.x)/grid.step,y=(p.y-grid.y)/grid.step,i=Math.floor(x),j=Math.floor(y),a=x-i,b=y-j;const v=[terrain(grid.x+i*grid.step,grid.y+j*grid.step),terrain(grid.x+(i+1)*grid.step,grid.y+j*grid.step),terrain(grid.x+i*grid.step,grid.y+(j+1)*grid.step),terrain(grid.x+(i+1)*grid.step,grid.y+(j+1)*grid.step)];if(v.some(h=>h===null))return terrain(p.x,p.y)??-.5*G.scale;return v[0]*(1-a)*(1-b)+v[1]*a*(1-b)+v[2]*(1-a)*b+v[3]*a*b;}
+// The original narrow bridge raster has empty edge cells. Interpolate a finite
+// centreline profile instead of treating those holes as underwater ground.
+const deckProfile=Array.from({length:81},(_,i)=>{const u=-.05+i*1.1/80;return {u,h:terrain(BRIDGE.a.x+(BRIDGE.b.x-BRIDGE.a.x)*u,BRIDGE.a.y+(BRIDGE.b.y-BRIDGE.a.y)*u)};}).filter(p=>p.h!==null);
+function deck(p){const u=projection(p).u,i=deckProfile.findIndex(v=>v.u>=u);if(i<=0)return deckProfile[0].h;const a=deckProfile[i-1],b=deckProfile[i];return a.h+(b.h-a.h)*(u-a.u)/(b.u-a.u);}
+function sample(x,y){const p={x,y};return onBridge(p)?deck(p):terrain(x,y);}
 export function islandId(p){if(!p)return null;const id=grid.ids[cell(p.x,p.y)];return id===0||id===1?id:null;}
-export function onBridge(p,margin=0){const a=BRIDGE.a,b=BRIDGE.b,dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),u=((p.x-a.x)*dx+(p.y-a.y)*dy)/(len*len),d=Math.abs((p.x-a.x)*dy-(p.y-a.y)*dx)/len;return u>=-.025&&u<=1.025&&d<=BRIDGE.width/2-margin&&sample(p.x,p.y)!==null;}
 export function castable(p){return islandId(p)!==null||onBridge(p);}
-export function groundHeight(p){const x=(p.x-grid.x)/grid.step,y=(p.y-grid.y)/grid.step,i=Math.floor(x),j=Math.floor(y),a=x-i,b=y-j;const values=[sample(grid.x+i*grid.step,grid.y+j*grid.step),sample(grid.x+(i+1)*grid.step,grid.y+j*grid.step),sample(grid.x+i*grid.step,grid.y+(j+1)*grid.step),sample(grid.x+(i+1)*grid.step,grid.y+(j+1)*grid.step)];if(values.some(v=>v===null))return sample(p.x,p.y)??-.5;return values[0]*(1-a)*(1-b)+values[1]*a*(1-b)+values[2]*(1-a)*b+values[3]*a*b;}
-export const obstacles=data.obstacles;
+export function groundHeight(p){return onBridge(p)?deck(p):interpolated(p);}
 // Per-world completed extension buildings overlay the remote v09 terrain graph.
 function blocked(p,extra){return extra.some(o=>p.x>o.min[0]-.225&&p.x<o.max[0]+.225&&p.y>o.min[1]-.225&&p.y<o.max[1]+.225);}
 function extraSegmentClear(a,b,extra){for(const o of extra){let low=0,high=1;for(const [k,axis] of [['x',0],['y',1]]){const d=b[k]-a[k],min=o.min[axis]-.225,max=o.max[axis]+.225;if(Math.abs(d)<1e-10){if(a[k]<min||a[k]>max){low=2;break;}}else{const u=(min-a[k])/d,v=(max-a[k])/d;low=Math.max(low,Math.min(u,v));high=Math.min(high,Math.max(u,v));}}if(low<=high)return false;}return true;}
-export function walkable(p,extra=[]){if(blocked(p,extra))return false;const k=cell(p.x,p.y),h=grid.heights[k];if(h==null||h<-.18||grid.slopes[k]<.55)return false;if(onBridge(p,.2))return true;const id=islandId(p);if(id===null)return false;const r=.22;if(obstacles.some(o=>p.x>o.min[0]-r&&p.x<o.max[0]+r&&p.y>o.min[1]-r&&p.y<o.max[1]+r))return false;return [[r,0],[-r,0],[0,r],[0,-r]].every(([x,y])=>{const q={x:p.x+x,y:p.y+y};return (islandId(q)===id||onBridge(q))&&Math.abs((sample(q.x,q.y)??-99)-h)<.5;});}
-export function segmentClear(a,b,extra=[]){if(!extraSegmentClear(a,b,extra))return false;for(const o of obstacles){let low=0,high=1;for(const [k,axis] of [['x',0],['y',1]]){const delta=b[k]-a[k],min=o.min[axis]-.225,max=o.max[axis]+.225;if(Math.abs(delta)<1e-10){if(a[k]<min||a[k]>max){low=2;break;}}else{const u=(min-a[k])/delta,v=(max-a[k])/delta;low=Math.max(low,Math.min(u,v));high=Math.min(high,Math.max(u,v));}}if(low<=high)return false;}const n=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/.035));let last=groundHeight(a);for(let i=0;i<=n;i++){const p={x:a.x+(b.x-a.x)*i/n,y:a.y+(b.y-a.y)*i/n};if(!walkable(p))return false;const h=groundHeight(p);if(Math.abs(h-last)>.22)return false;last=h;}return true;}
-const step=.5,cols=221,rows=125;
-const point=i=>({x:(i%cols)*step,y:Math.floor(i/cols)*step-4});
-const index=p=>Math.round((p.y+4)/step)*cols+Math.round(p.x/step);
+export function walkable(p,extra=[]){if(blocked(p,extra))return false;if(onBridge(p,.3))return true;const k=cell(p.x,p.y),h=grid.heights[k];if(h==null||h<-.18*G.scale||grid.slopes[k]<.55)return false;const id=islandId(p);if(id===null)return false;const r=.22;if(obstacles.some(o=>p.x>o.min[0]-r&&p.x<o.max[0]+r&&p.y>o.min[1]-r&&p.y<o.max[1]+r))return false;return [[r,0],[-r,0],[0,r],[0,-r]].every(([x,y])=>{const q={x:p.x+x,y:p.y+y};return (islandId(q)===id||onBridge(q))&&Math.abs((sample(q.x,q.y)??-99)-h)<.5;});}
+export function segmentClear(a,b,extra=[]){if(!extraSegmentClear(a,b,extra))return false;for(const o of obstacles){let low=0,high=1;for(const [k,axis] of [['x',0],['y',1]]){const delta=b[k]-a[k],min=o.min[axis]-.225,max=o.max[axis]+.225;if(Math.abs(delta)<1e-10){if(a[k]<min||a[k]>max){low=2;break;}}else{const u=(min-a[k])/delta,v=(max-a[k])/delta;low=Math.max(low,Math.min(u,v));high=Math.min(high,Math.max(u,v));}}if(low<=high)return false;}const n=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/(.035*G.scale)));let last=groundHeight(a);for(let i=0;i<=n;i++){const p={x:a.x+(b.x-a.x)*i/n,y:a.y+(b.y-a.y)*i/n};if(!walkable(p))return false;const h=groundHeight(p);if(Math.abs(h-last)>.22*G.scale)return false;last=h;}return true;}
+const step=.5*G.scale,cols=221,rows=125,origin=worldPoint({x:0,y:-4});
+const point=i=>({x:origin.x+(i%cols)*step,y:origin.y+Math.floor(i/cols)*step});
+const index=p=>Math.round((p.y-origin.y)/step)*cols+Math.round((p.x-origin.x)/step);
 const mask=new Uint8Array(cols*rows);for(let i=0;i<mask.length;i++)mask[i]=walkable(point(i))?1:0;
 const neighbors=Array.from({length:mask.length},()=>[]);
-for(let i=0;i<mask.length;i++)if(mask[i]){const p=point(i);for(const dx of [-1,0,1])for(const dy of [-1,0,1]){if(!dx&&!dy)continue;const n=i+dy*cols+dx;if(n<0||n>=mask.length||!mask[n])continue;const q=point(n);if(Math.abs(q.x-p.x)<=.6&&segmentClear(p,q))neighbors[i].push([n,Math.hypot(dx,dy)*step]);}}
+for(let i=0;i<mask.length;i++)if(mask[i]){const p=point(i);for(const dx of [-1,0,1])for(const dy of [-1,0,1]){if(!dx&&!dy)continue;const n=i+dy*cols+dx;if(n<0||n>=mask.length||!mask[n])continue;const q=point(n);if(Math.abs(q.x-p.x)<=.6*G.scale&&segmentClear(p,q))neighbors[i].push([n,Math.hypot(dx,dy)*step]);}}
 // Keep spawning on the connected land/bridge network, excluding isolated cliff ledges.
 const visited=new Uint8Array(mask.length);let main=[];
 for(let i=0;i<mask.length;i++)if(mask[i]&&!visited[i]){const group=[i];visited[i]=1;for(let k=0;k<group.length;k++)for(const [n] of neighbors[group[k]])if(!visited[n]){visited[n]=1;group.push(n);}if(group.length>main.length)main=group;}
 mask.fill(0);for(const i of main)mask[i]=1;
 export function reachable(p,extra=[]){return walkable(p,extra)&&gridPoint(p,extra)!==null;}
-export function nearestWalkable(p,id=null,extra=[]){if(reachable(p,extra)&&(id===null||islandId(p)===id))return{x:p.x,y:p.y};let best=null,d=Infinity;for(let i=0;i<mask.length;i++)if(mask[i]){const q=point(i),v=(q.x-p.x)**2+(q.y-p.y)**2;if(v<d&&!blocked(q,extra)&&(id===null||islandId(q)===id)){best=q;d=v;}}return best;}
-function gridPoint(p,extra=[]){let best=null,d=Infinity;const x=Math.round(p.x/step),y=Math.round((p.y+4)/step);for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const i=(y+dy)*cols+x+dx;if(!mask[i])continue;const q=point(i),v=(q.x-p.x)**2+(q.y-p.y)**2;if(v<d&&!blocked(q,extra)&&segmentClear(p,q,extra)){best=i;d=v;}}return best;}
+export function nearestWalkable(p,id=null,extra=[]){if(reachable(p,extra)&&(id===null||islandId(p)===id))return{x:p.x,y:p.y};let best=null,d=Infinity,bestIndex=Infinity;
+ const consider=i=>{if(i<0||i>=mask.length||!mask[i])return;const q=point(i),v=(q.x-p.x)**2+(q.y-p.y)**2;if((v<d||v===d&&i<bestIndex)&&!blocked(q,extra)&&(id===null||islandId(q)===id)){best=q;d=v;bestIndex=i;}};
+ // Building edges normally need only a nearby node. Stop only when the next
+ // ring cannot contain a closer node; distant shore searches retain the full scan.
+ const x=Math.round((p.x-origin.x)/step),y=Math.round((p.y-origin.y)/step);
+ for(let r=0;r<=8;r++){for(let yy=y-r;yy<=y+r;yy++)for(let xx=x-r;xx<=x+r;xx++){if(r&&Math.abs(xx-x)!==r&&Math.abs(yy-y)!==r)continue;if(xx>=0&&xx<cols&&yy>=0&&yy<rows)consider(yy*cols+xx);}if(d<((r+.5)*step)**2)return best;}
+ for(let i=0;i<mask.length;i++)consider(i);return best;
+}
+function gridPoint(p,extra=[]){let best=null,d=Infinity;const x=Math.round((p.x-origin.x)/step),y=Math.round((p.y-origin.y)/step);for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const i=(y+dy)*cols+x+dx;if(!mask[i])continue;const q=point(i),v=(q.x-p.x)**2+(q.y-p.y)**2;if(v<d&&!blocked(q,extra)&&segmentClear(p,q,extra)){best=i;d=v;}}return best;}
 
 export function route(a,b,extra=[]){const dest=nearestWalkable(b,null,extra);if(!dest)return[];if(segmentClear(a,dest,extra))return[dest];const start=gridPoint(a,extra),end=gridPoint(dest,extra);if(start===null||end===null)return[];
  const heap=[],cost=new Float64Array(mask.length).fill(Infinity),parent=new Int32Array(mask.length).fill(-1),closed=new Uint8Array(mask.length);

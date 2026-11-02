@@ -1,4 +1,4 @@
-import {drawRageBubbles} from './rage-bubbles.js?build=0cc2c823a278';
+import {drawRageBubbles} from './rage-bubbles.js?build=a2168afe9bb0';
 // Bounded, deterministic presentation: all ages come from simulation time.
 const TAU=Math.PI*2,clamp=x=>Math.max(0,Math.min(1,x));
 function ellipse(g,x,y,rx,ry,color,alpha=1){if(rx<=0||ry<=0)return;g.globalAlpha=clamp(alpha);g.fillStyle=color;g.beginPath();g.ellipse(x,y,rx,ry,0,0,TAU);g.fill();}

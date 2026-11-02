@@ -1,7 +1,7 @@
-import {World} from './engine.js?build=0cc2c823a278';
-import {CampaignWorld} from './campaign.js?build=0cc2c823a278';
-import {CONFIG as C,MODES} from './config.js?build=0cc2c823a278';
-import {assignHomes} from './civilization.js?build=0cc2c823a278';
+import {World} from './engine.js?build=a2168afe9bb0';
+import {CampaignWorld} from './campaign.js?build=a2168afe9bb0';
+import {CONFIG as C,MODES} from './config.js?build=a2168afe9bb0';
+import {assignHomes} from './civilization.js?build=a2168afe9bb0';
 export const MODE_NAMES={prologue:'序章',level1:'第一关',sandbox:'沙盒模式'};
 export function modeOf(world){return world.campaign?(world.inPrologue?'prologue':'level1'):world.session?.mode==='sandbox'?'sandbox':world.session?.entryMode||'level1';}
 export function createGame(mode,seed=Date.now()){
@@ -20,7 +20,7 @@ export function createGame(mode,seed=Date.now()){
  world.mana=rule.initialMana;return world;
 }
 export function restoreGame(json){return CampaignWorld.restore(json);}
-const PROFILE_KEY='rjmc-full-profile-v1',PREFIX='rjmc-full-save-v8';
+const PROFILE_KEY='rjmc-full-profile-v1',PREFIX=`rjmc-full-save-v${C.version}`;
 const fresh=()=>({version:1,hasEnteredStory:false,prologueCompleted:false,level1Completed:false,lastMode:null});
 // Storage can be disabled on phones. Progress remains usable for this session.
 export class GameLibrary {

@@ -1,7 +1,7 @@
 {
   "status": "农牧经营、固定地编优先扩张、身份神力；表现层由独立协作者接入",
   "config": {
-    "version": 8,
+    "version": 9,
     "duration": 300,
     "goal": 60,
     "mana": 30,
@@ -399,7 +399,14 @@
     "separationSpeed": 3,
     "decisionSeconds": 0.4,
     "panicLoss": 0.3,
-    "raidReserveSeconds": 4
+    "raidReserveSeconds": 4,
+    "formationSpacing": 1.05,
+    "landColumns": 5,
+    "bridgeColumns": 4,
+    "marchSpeed": 2.8,
+    "cohesionRadius": 2.2,
+    "cohesionFraction": 0.65,
+    "combatLeash": 1.45
   },
   "civilization": {
     "thresholds": [
@@ -478,5 +485,12 @@
       "duration": 300,
       "goal": 100
     }
+  },
+  "geography": {
+    "scale": 1.35,
+    "pivotX": 52,
+    "pivotY": 29,
+    "buildingScale": 0.63,
+    "bridgeWidthScale": 2.4
   }
 }

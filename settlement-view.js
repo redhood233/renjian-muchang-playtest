@@ -1,7 +1,7 @@
-import * as T from './vendor/three.module.js?build=0cc2c823a278';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=0cc2c823a278';
-import {SETTLEMENT as S} from './config.js?build=0cc2c823a278';
-import {groundHeight} from './island-layout.js?build=0cc2c823a278';
+import * as T from './vendor/three.module.js?build=a2168afe9bb0';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=a2168afe9bb0';
+import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=a2168afe9bb0';
+import {groundHeight} from './island-layout.js?build=a2168afe9bb0';
 // Bind existing authored models to gameplay slots; no asset transforms are edited.
 export class SettlementView {
  constructor(root,scene){
@@ -9,6 +9,10 @@ export class SettlementView {
   const definitions=[FARM_LOTS,PASTURE_LOTS];
   root.traverse(node=>{const name=node.userData.sourceName||node.name;
    for(const [country,lots] of definitions.entries()){const lot=lots.find(b=>b.zone==='house'&&b.sourceNames.includes(name));if(!lot)continue;
+    // Shrink every component around the same authored building centre/foot.
+    const box=new T.Box3().setFromObject(node),anchor=new T.Vector3(lot.x,lot.footprint.baseY??box.min.y,lot.y);
+    const at=node.getWorldPosition(new T.Vector3()).sub(anchor).multiplyScalar(G.buildingScale).add(anchor);
+    node.parent.worldToLocal(at);node.position.copy(at);node.scale.multiplyScalar(G.buildingScale);node.updateMatrixWorld(true);
     node.userData.gameplayBuilding=true;if(!this.originals.has(lot.id))this.originals.set(lot.id,[]);this.originals.get(lot.id).push(node);this.baseScale.set(node,node.scale.y);this.worldTransforms.set(node,node.matrixWorld.clone());
     if(!lot.special&&!this.templates.has(country))this.templates.set(country,node);
     this.ground.set(lot.id,new T.Box3().setFromObject(node).min.y);

@@ -1,6 +1,6 @@
-import {loadModel,environmentTexture} from './mobile-runtime.js?build=0cc2c823a278';
-import * as T from './vendor/three.module.js?build=0cc2c823a278';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=0cc2c823a278';
+import {loadModel,environmentTexture} from './mobile-runtime.js?build=a2168afe9bb0';
+import * as T from './vendor/three.module.js?build=a2168afe9bb0';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=a2168afe9bb0';
 // Source v16's world-space cloud field. Static cloud shadows intentionally remain static.
 export const cloudGLSL=`
 float envHash(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
@@ -19,7 +19,7 @@ export async function installEnvironment(view,root,meta){
   if(o.geometry.hasAttribute('_meadow')){o.material=o.material.clone();o.material.map=farm;o.material.needsUpdate=true;}
   if(o.userData.sourceName?.startsWith('牧场岛地形')){o.material=new T.MeshStandardMaterial({map:pasture,roughnessMap:roughness,roughness:1,metalness:0});}
  });
- for(const o of oldBridge)o.removeFromParent();root.add(bridge.scene);
+ for(const o of oldBridge)o.removeFromParent();bridge.scene.userData.expandedBridge=true;root.add(bridge.scene);
  meta.environment=16;meta.environmentConfig=config;
  for(const [name,ramps] of Object.entries(config.grass))if(meta.palettes[name])meta.palettes[name].ramps=ramps.map(stops=>({stops}));
  // Replace the former two-light setup, retaining the main shadow map.

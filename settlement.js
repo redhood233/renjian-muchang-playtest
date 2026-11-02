@@ -1,5 +1,5 @@
-import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=0cc2c823a278';
-import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=0cc2c823a278';
+import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=a2168afe9bb0';
+import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=a2168afe9bb0';
 
 const center = bounds => ({x:(bounds[0][0]+bounds[1][0])/2,y:(bounds[0][1]+bounds[1][1])/2});
 const rect = (p,w,h) => ({min:[p.x-w/2,p.y-h/2],max:[p.x+w/2,p.y+h/2]});
@@ -12,7 +12,7 @@ function fixedLots(){
  const definitions=[...homes.map(o=>[o,'house']),...specials.map(([name,kind])=>[QINGHE.objects.find(o=>sourceName(o)===name),kind]),...QINGHE.objects.filter(o=>/^Wheat Plot \d+$/.test(sourceName(o))).map(o=>[o,'field'])];
  return definitions.filter(([o])=>o).map(([o,kind],i)=>({id:'farm-fixed-'+i,zone:kind==='field'?'field':'house',special:kind==='house'||kind==='field'?null:kind,
   kind:kind==='field'?'field':'house',source:'authored',sourceNames:QINGHE.objects.filter(p=>p.name===o.name||sourceName(p).startsWith(sourceName(o)+'_')||(kind==='field'&&p.name.startsWith('Wheat '+String(Number(sourceName(o).slice(-2))+1).padStart(2,'0')+' |'))).map(p=>p.name),
-  ...center(o.bounds),footprint:{min:o.bounds[0].slice(0,2),max:o.bounds[1].slice(0,2)},state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
+  ...center(o.bounds),footprint:{min:o.bounds[0].slice(0,2),max:o.bounds[1].slice(0,2),baseY:o.bounds[0][2]},state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
 }
 // Source scene coordinates are read-only. Houses extend north; fields extend south.
 // All authored footprints and roads stay reserved even before their buildings exist.
@@ -35,7 +35,7 @@ function extensionLots(authored,country=0){
 }
 const authored=fixedLots();
 export const FARM_LOTS=Object.freeze([...authored,...extensionLots(authored)].map(l=>Object.freeze(l)));
-const pastoralFixed=QINGHE.objects.filter(o=>o.name.startsWith('牧场建筑 | ')).map((o,i,all)=>({id:'pasture-fixed-'+i,zone:'house',special:i===all.length-1?'academy':i===all.length-2?'granary':i===all.length-3?'hall':null,kind:'house',source:'authored',sourceNames:[o.name],...center(o.bounds),footprint:{min:o.bounds[0].slice(0,2),max:o.bounds[1].slice(0,2)},state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
+const pastoralFixed=QINGHE.objects.filter(o=>o.name.startsWith('牧场建筑 | ')).map((o,i,all)=>({id:'pasture-fixed-'+i,zone:'house',special:i===all.length-1?'academy':i===all.length-2?'granary':i===all.length-3?'hall':null,kind:'house',source:'authored',sourceNames:[o.name],...center(o.bounds),footprint:{min:o.bounds[0].slice(0,2),max:o.bounds[1].slice(0,2),baseY:o.bounds[0][2]},state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
 const penLots=H.pens.map((p,i)=>({id:p.id,zone:'pasture',special:null,kind:'pasture',source:'authored',sourceNames:[],x:p.x,y:p.y,footprint:rect(p,2,2),state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
 export const PASTURE_LOTS=Object.freeze([...pastoralFixed,...penLots,...extensionLots([...pastoralFixed,...penLots],1)].map(l=>Object.freeze(l)));
 export function initSettlement(w,c){

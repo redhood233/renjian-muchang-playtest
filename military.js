@@ -1,8 +1,8 @@
-import {MILITARY as M,CONFIG as C,SETTLEMENT as S} from './config.js?build=0cc2c823a278';
-import {complete} from './settlement.js?build=0cc2c823a278';
-import {BRIDGE,islandId,nearestWalkable} from './island-layout.js?build=0cc2c823a278';
-import {formation,strike} from './combat.js?build=0cc2c823a278';
-import {structureDamage} from './civilization.js?build=0cc2c823a278';
+import {MILITARY as M,CONFIG as C,SETTLEMENT as S} from './config.js?build=a2168afe9bb0';
+import {complete} from './settlement.js?build=a2168afe9bb0';
+import {BRIDGE,islandId,nearestWalkable} from './island-layout.js?build=a2168afe9bb0';
+import {formation,strike,weapon} from './combat.js?build=a2168afe9bb0';
+import {structureDamage} from './civilization.js?build=a2168afe9bb0';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const living=(w,a)=>a.ids.map(id=>w.get(id)).filter(e=>e?.soldier&&!e.garrison);
 const fighting=e=>e&&!e.dead&&e.soldier&&!e.returning;
@@ -46,7 +46,7 @@ export function draft(w,c,operation=null){
 function returning(w,c,a,dt){
  const troops=living(w,a),slots=formation(w,c,a.ids,nearestWalkable(c,c.id,w.blockers()));
  for(const e of troops){e.returning=true;e.returnOrder??=slots[a.ids.indexOf(e.id)];e.order=e.returnOrder;
-  if(distance(e,e.order)<1.5){const share=1/Math.max(1,living(w,a).length),loot=a.cargo*share,rations=a.rations*share;
+  if(distance(e,e.order)<1.8){const share=1/Math.max(1,living(w,a).length),loot=a.cargo*share,rations=a.rations*share;
    const capacity=C.foodLimit*(complete(c,'granary').length?S.granaryStorage:1);c.food=Math.max(c.food,Math.min(capacity,c.food+loot+rations));a.cargo-=loot;a.rations-=rations;
    e.soldier=false;e.returning=false;e.targetId=null;e.order=null;e.returnOrder=null;e.action='自动生产';a.delivered=(a.delivered||0)+loot;
   }
@@ -73,9 +73,22 @@ function occupy(w,c,a){
  w.change('island-occupied',{country:c.id,subject,garrisonIds:guards.map(e=>e.id)});w.message(`${c.name}攻占敌方城镇，留下驻军`);w.retreat(c);
 }
 function orders(w,c,a,troops,anchor){
- const slots=formation(w,c,a.ids,anchor),hostile=w.entities.filter(e=>!e.dead&&!e.inside&&!e.returning&&e.country!==c.id&&(e.soldier||e.kind==='undead'||a.operation==='raid'&&e.adult));
+ const hostile=w.entities.filter(e=>!e.dead&&!e.inside&&!e.returning&&e.country!==c.id&&(e.soldier||e.kind==='undead'||a.operation==='raid'&&e.adult));
+ a.front??={...a.muster};a.heading??={x:c.id?-1:1,y:0};
+ let front=a.state==='mustering'?a.muster:a.front;
+ let slots=formation(w,c,a.ids,front,a.heading);
+ const present=troops.filter(e=>!e.joining),ready=present.filter(e=>distance(e,slots[a.ids.indexOf(e.id)])<M.cohesionRadius).length;
+ const engaged=present.some(e=>hostile.some(v=>distance(e,v)<=weapon(w,e).range*.95));
+ if(a.state!=='mustering'){
+  if(engaged)a.orderState='engaging';
+  else if(ready>=Math.ceil(present.length*M.cohesionFraction)){
+   const before={...a.front};w.move(a.front,anchor,M.decisionSeconds,M.marchSpeed);
+   const dx=a.front.x-before.x,dy=a.front.y-before.y;if(Math.hypot(dx,dy)>.01)a.heading={x:dx,y:dy};
+   a.orderState='marching';slots=formation(w,c,a.ids,a.front,a.heading);
+  }else a.orderState='regrouping';
+ }else {a.front={...a.muster};a.orderState='mustering';}
  const assigned=new Map();
- for(const e of troops){e.order=slots[a.ids.indexOf(e.id)];let targets=hostile.filter(v=>distance(e,v)<(a.state==='mustering'?4:11)&&(distance(v,anchor)<6||distance(v,e)<4));
+ for(const e of troops){e.order=slots[a.ids.indexOf(e.id)];const reach=weapon(w,e).range+M.combatLeash;let targets=hostile.filter(v=>distance(e.order,v)<reach+.5&&distance(e,v)<reach+1);
   if(a.operation==='liberation')targets=targets.filter(v=>v.garrison);else if(a.operation==='defend')targets=targets.filter(v=>v.soldier||v.kind==='undead');
   targets.sort((x,y)=>(Number(y.soldier)-Number(x.soldier))*4+((assigned.get(x.id)||0)-(assigned.get(y.id)||0))*2+distance(e,x)-distance(e,y));
   const old=targets.find(v=>v.id===e.targetId),target=old&&distance(e,old)<6?old:targets[0];e.targetId=target?.id??null;if(target)assigned.set(target.id,(assigned.get(target.id)||0)+1);
@@ -147,5 +160,5 @@ export function soldierAction(w,e,c,dt){
  if(e.returning||a?.returning){e.action='停战返乡';w.move(e,e.order||c,dt,C.soldierSpeed);if(detached&&distance(e,e.order)<1){e.soldier=false;e.returning=false;}return;}
  if(e.joining){e.action='增援集结';w.move(e,a.muster,dt,C.soldierSpeed);if(distance(e,a.muster)<2)e.joining=false;return;}
  const target=w.get(e.targetId);
- if(target&&!target.inside&&!target.returning){e.action='交战中';strike(w,e,target,dt,C.soldierDamage);}else{e.action=a.state==='mustering'?'城内集结':'列队推进';if(e.order)w.move(e,e.order,dt,C.soldierSpeed);}
+ if(target&&!target.inside&&!target.returning){e.action='交战中';strike(w,e,target,dt,C.soldierDamage,e.order);}else{e.action=a.state==='mustering'?'城内集结':a.orderState==='regrouping'?'等待队友整队':'列队推进';if(e.order)w.move(e,e.order,dt,C.soldierSpeed);}
 }

@@ -1,6 +1,6 @@
-import {cloudGLSL} from './environment-v16.js?v=16.3&build=0cc2c823a278';
-import * as T from './vendor/three.module.js?build=0cc2c823a278';
-import {QINGHE} from './island-layout.js?build=0cc2c823a278';
+import {cloudGLSL} from './environment-v16.js?v=16.3&build=a2168afe9bb0';
+import * as T from './vendor/three.module.js?build=a2168afe9bb0';
+import {QINGHE} from './island-layout.js?build=a2168afe9bb0';
 // Reconstruct the source shoreline material: lace foam, two narrow retreat lines,
 // linear shallow-water fade and a five-second phase. The source distance field is retained.
 export function sourceWater(time,buffer,meta,version=9){
@@ -22,7 +22,7 @@ export function sourceWater(time,buffer,meta,version=9){
   `+shader.fragmentShader;
   shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance=diffuseColor.rgb*.35;');
   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-   vec2 p=vec2((vWaterWorld.x-${QINGHE.transform.position[0]})/.5,(${QINGHE.transform.position[2]}-vWaterWorld.z)/.5);
+   vec2 p=vec2((vWaterWorld.x-${QINGHE.transform.position[0]})/${QINGHE.transform.scale},(${QINGHE.transform.position[2]}-vWaterWorld.z)/${QINGHE.transform.scale});
    vec2 uv=(p-vec2(${meta.min.join(',')}))/vec2(${meta.size.join(',')});
    float sourceDistance=texture2D(sourceShore,clamp(uv,0.,1.)).r+length((uv-clamp(uv,0.,1.))*vec2(${meta.size.join(',')}));
    float d=max(0.,sourceDistance);
@@ -41,5 +41,5 @@ export function sourceWater(time,buffer,meta,version=9){
   if(modern)shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
 vec2 ripple=vec2(sin(vWaterWorld.x*1.9+sourceTime*.7),cos(vWaterWorld.z*2.3-sourceTime*.55));normal=normalize(normal+vec3(ripple.x,0.,ripple.y)*.075);`);
  };material.customProgramCacheKey=()=> 'source-shore-'+version;
- const sea=new T.Mesh(new T.PlaneGeometry(modern?3000:500,modern?3000:500),material);sea.name='Source shoreline water';sea.rotation.x=-Math.PI/2;sea.position.y=-.5;sea.receiveShadow=true;return sea;
+ const sea=new T.Mesh(new T.PlaneGeometry(modern?3000:500,modern?3000:500),material);sea.name='Source shoreline water';sea.rotation.x=-Math.PI/2;sea.position.y=QINGHE.transform.position[1];sea.receiveShadow=true;return sea;
 }
