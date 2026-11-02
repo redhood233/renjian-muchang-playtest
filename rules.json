@@ -456,5 +456,27 @@
     "offeringFood": 4,
     "offeringMana": 3,
     "tradeSeconds": 12
+  },
+  "modes": {
+    "level1": {
+      "initialPopulation": 12,
+      "initialHouses": 3,
+      "initialFields": 2,
+      "initialPastures": 1,
+      "initialFood": 120,
+      "initialMana": 40,
+      "duration": 300,
+      "goal": 100
+    },
+    "sandbox": {
+      "initialPopulation": 10,
+      "initialHouses": 2,
+      "initialFields": 2,
+      "initialPastures": 1,
+      "initialFood": 80,
+      "initialMana": 30,
+      "duration": 300,
+      "goal": 100
+    }
   }
 }

@@ -42,3 +42,14 @@ footer{position:absolute;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-b
  #aimHint{top:auto;bottom:calc(var(--skillh) + 34px);max-width:46vw;font-size:11px;padding:3px 7px}
  #weather{bottom:calc(var(--skillh) + 64px);max-width:48vw;padding:5px;gap:4px}#weather button{min-width:0;font-size:12px;padding:6px 7px}
 }
+
+/* Mode menus reuse the current card skin. Leave room for a fourth resume button. */
+.home-page.with-resume .home-fan{top:18%}
+.home-page.with-resume .home-fan img{max-height:36dvh;width:auto}
+@media(orientation:landscape) and (max-height:500px){
+ .home-page h1{font-size:28px;margin:2vh 0}
+ .home-page .home-fan{top:15%}
+ .home-page .home-fan img{max-height:32dvh;width:auto}
+ .home-page .home-actions{gap:5px;bottom:max(10px,env(safe-area-inset-bottom))}
+ .home-page .home-actions button{min-height:38px;padding:5px 14px;font-size:16px}
+}

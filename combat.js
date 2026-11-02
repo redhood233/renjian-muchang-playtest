@@ -1,5 +1,5 @@
-import {walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js';
-import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js';
+import {walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js?build=57b3cd365ae7';
+import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js?build=57b3cd365ae7';
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function weapon(w,e){const era=e.kind==='human'?(w.islands[e.country].era||0):0;return {range:V.weaponRange[era],cooldown:V.weaponCooldown[era],kind:V.weapons[era]};}
 export function strike(w,e,v,dt,damage){

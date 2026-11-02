@@ -1,6 +1,6 @@
-import {cloudGLSL} from './environment-v16.js?v=16.3';
-import * as T from './vendor/three.module.js';
-import {QINGHE} from './island-layout.js';
+import {cloudGLSL} from './environment-v16.js?v=16.3&build=57b3cd365ae7';
+import * as T from './vendor/three.module.js?build=57b3cd365ae7';
+import {QINGHE} from './island-layout.js?build=57b3cd365ae7';
 // Reconstruct the source shoreline material: lace foam, two narrow retreat lines,
 // linear shallow-water fade and a five-second phase. The source distance field is retained.
 export function sourceWater(time,buffer,meta,version=9){

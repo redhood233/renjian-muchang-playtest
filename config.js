@@ -1,4 +1,4 @@
-const url = new URL('./rules.json', import.meta.url);
+const url = new URL('./rules.json?build=57b3cd365ae7', import.meta.url);
 const rules = typeof window === 'undefined' ? JSON.parse(await (await import('node:fs/promises')).readFile(url, 'utf8')) : await (await fetch(url)).json();
 export const CONFIG = Object.freeze(rules.config);
 export const SKILLS = Object.freeze(rules.skills);
@@ -12,3 +12,4 @@ export const WILDLIFE=Object.freeze(rules.wildlife);
 
 export const MILITARY=Object.freeze(rules.military);
 export const CIVILIZATION=Object.freeze(rules.civilization);
+export const MODES=Object.freeze(rules.modes);

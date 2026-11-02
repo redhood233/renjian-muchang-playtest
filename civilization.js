@@ -1,6 +1,6 @@
-import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js';
-import {complete} from './settlement.js';
-import {nearestWalkable} from './island-layout.js';
+import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js?build=57b3cd365ae7';
+import {complete} from './settlement.js?build=57b3cd365ae7';
+import {nearestWalkable} from './island-layout.js?build=57b3cd365ae7';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const roofHit=(b,p,r)=>Math.hypot(Math.max(b.footprint.min[0],Math.min(p.x,b.footprint.max[0]))-p.x,Math.max(b.footprint.min[1],Math.min(p.y,b.footprint.max[1]))-p.y)<=r;
 export function meteorTargets(w,p,r){

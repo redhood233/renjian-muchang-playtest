@@ -1,5 +1,5 @@
-import * as T from './vendor/three.module.js';
-import {QINGHE,groundHeight,islandId} from './island-layout.js';
+import * as T from './vendor/three.module.js?build=57b3cd365ae7';
+import {QINGHE,groundHeight,islandId} from './island-layout.js?build=57b3cd365ae7';
 const clamp=x=>Math.max(0,Math.min(1,x));
 // Presentation-only accumulation, driven by simulation time so pause freezes it.
 export class WeatherState {

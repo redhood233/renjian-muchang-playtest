@@ -1,11 +1,12 @@
-import * as T from './vendor/three.module.js';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js';
+import * as T from './vendor/three.module.js?build=57b3cd365ae7';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=57b3cd365ae7';
 // Combine only identical-material static decorations. Positions, UVs, normals and
 // vertex colors are copied unchanged; terrain stays separate for pointer picking.
 export function batchSourceDecorations(root){
  root.updateMatrixWorld(true);const inverse=root.matrixWorld.clone().invert(),groups=new Map();
  root.traverse(o=>{if(!o.isMesh||o.isSkinnedMesh||o.isInstancedMesh||Array.isArray(o.material)||['terrain','bridge','prototype'].includes(o.userData.role)||o.geometry.hasAttribute('_meadow'))return;
-  for(let parent=o.parent;parent&&parent!==root;parent=parent.parent)if(['terrain','bridge','prototype'].includes(parent.userData.role))return;
+  if(o.userData.gameplayBuilding)return;
+  for(let parent=o.parent;parent&&parent!==root;parent=parent.parent)if(parent.userData.gameplayBuilding||['terrain','bridge','prototype'].includes(parent.userData.role))return;
   const key=o.material.uuid+'|'+Object.keys(o.geometry.attributes).sort().join(',')+'|'+!!o.geometry.index;
   if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o);
  });
