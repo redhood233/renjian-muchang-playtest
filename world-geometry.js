@@ -1,6 +1,6 @@
-import * as T from './vendor/three.module.js?build=1b40af8f75d8';
-import {GEOGRAPHY as G} from './config.js?build=1b40af8f75d8';
-import {BRIDGE} from './island-layout.js?build=1b40af8f75d8';
+import * as T from './vendor/three.module.js?build=a256348c5d71';
+import {GEOGRAPHY as G} from './config.js?build=a256348c5d71';
+import {BRIDGE} from './island-layout.js?build=a256348c5d71';
 // Deform only the transverse axis, preserving the source ramp/height profile.
 // The navigation deck uses the same endpoints and width multiplier.
 export function expandBridgeMesh(root){

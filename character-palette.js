@@ -1,5 +1,5 @@
-import {renderCharacterInstances} from './character-instances.js?build=1b40af8f75d8';
-import * as T from './vendor/three.module.js?build=1b40af8f75d8';
+import {renderCharacterInstances} from './character-instances.js?build=a256348c5d71';
+import * as T from './vendor/three.module.js?build=a256348c5d71';
 // One upload for all independent skeletons, without reducing pose frequency.
 const capacity=256,bones=40,width=256,height=256,data=new Float32Array(width*height*4);
 const texture=new T.DataTexture(data,width,height,T.RGBAFormat,T.FloatType);texture.needsUpdate=true;

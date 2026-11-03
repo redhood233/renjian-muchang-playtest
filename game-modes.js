@@ -1,7 +1,7 @@
-import {World} from './engine.js?build=1b40af8f75d8';
-import {CampaignWorld} from './campaign.js?build=1b40af8f75d8';
-import {CONFIG as C,MODES} from './config.js?build=1b40af8f75d8';
-import {assignHomes} from './civilization.js?build=1b40af8f75d8';
+import {World} from './engine.js?build=a256348c5d71';
+import {CampaignWorld} from './campaign.js?build=a256348c5d71';
+import {CONFIG as C,MODES} from './config.js?build=a256348c5d71';
+import {assignHomes} from './civilization.js?build=a256348c5d71';
 export const MODE_NAMES={prologue:'序章',level1:'第一关',sandbox:'沙盒模式'};
 export function modeOf(world){return world.campaign?(world.inPrologue?'prologue':'level1'):world.session?.mode==='sandbox'?'sandbox':world.session?.entryMode||'level1';}
 export function createGame(mode,seed=Date.now()){

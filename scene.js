@@ -1,28 +1,28 @@
-import {ARMY_PRESENTATION as AP} from './config.js?build=1b40af8f75d8';
-import {installFollowVisibility} from './follow-visibility.js?build=1b40af8f75d8';
-import {ArmyStandards} from './army-standards.js?build=1b40af8f75d8';
-import {TrackingCamera} from './tracking-camera.js?build=1b40af8f75d8';
-import {expandBridgeMesh} from './world-geometry.js?build=1b40af8f75d8';
-import {FallenResidents} from './fallen-residents.js?build=1b40af8f75d8';
-import {SettlementView} from './settlement-view.js?build=1b40af8f75d8';
-import {loadModel,mobileMode,pixelRatio} from './mobile-runtime.js?build=1b40af8f75d8';
-import {WeatherPresentation} from './weather-presentation.js?build=1b40af8f75d8';
-import {previewRing} from './target-preview.js?build=1b40af8f75d8';
-import {Gravestones} from './gravestones.js?build=1b40af8f75d8';
-import {installEnvironment} from './environment-v16.js?v=16.3&build=1b40af8f75d8';
-import {batchSourceDecorations} from './source-batching.js?build=1b40af8f75d8';
-import {SourceSheep} from './source-sheep.js?build=1b40af8f75d8';
-import {HarvestEffects} from './harvest-effects.js?build=1b40af8f75d8';
-import {updateCharacterPalettes} from './character-palette.js?build=1b40af8f75d8';
-import {loadCharacters} from './character-assets.js?build=1b40af8f75d8';
-import {CharacterView} from './character-view.js?build=1b40af8f75d8';
-import {SpellEffects} from './spell-effects.js?build=1b40af8f75d8';
-import {SourceColorPipeline} from './source-color.js?v=16.3&build=1b40af8f75d8';
-import {SceneryMotion} from './scenery-motion.js?v=16.3&build=1b40af8f75d8';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=1b40af8f75d8';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=1b40af8f75d8';
-import {QINGHE,BRIDGE,groundHeight,islandId} from './island-layout.js?build=1b40af8f75d8';
-import * as T from './vendor/three.module.js?build=1b40af8f75d8';
+import {ARMY_PRESENTATION as AP} from './config.js?build=a256348c5d71';
+import {installFollowVisibility} from './follow-visibility.js?build=a256348c5d71';
+import {ArmyStandards} from './army-standards.js?build=a256348c5d71';
+import {TrackingCamera} from './tracking-camera.js?build=a256348c5d71';
+import {expandBridgeMesh} from './world-geometry.js?build=a256348c5d71';
+import {FallenResidents} from './fallen-residents.js?build=a256348c5d71';
+import {SettlementView} from './settlement-view.js?build=a256348c5d71';
+import {loadModel,mobileMode,pixelRatio} from './mobile-runtime.js?build=a256348c5d71';
+import {WeatherPresentation} from './weather-presentation.js?build=a256348c5d71';
+import {previewRing} from './target-preview.js?build=a256348c5d71';
+import {Gravestones} from './gravestones.js?build=a256348c5d71';
+import {installEnvironment} from './environment-v16.js?v=16.3&build=a256348c5d71';
+import {batchSourceDecorations} from './source-batching.js?build=a256348c5d71';
+import {SourceSheep} from './source-sheep.js?build=a256348c5d71';
+import {HarvestEffects} from './harvest-effects.js?build=a256348c5d71';
+import {updateCharacterPalettes} from './character-palette.js?build=a256348c5d71';
+import {loadCharacters} from './character-assets.js?build=a256348c5d71';
+import {CharacterView} from './character-view.js?build=a256348c5d71';
+import {SpellEffects} from './spell-effects.js?build=a256348c5d71';
+import {SourceColorPipeline} from './source-color.js?v=16.3&build=a256348c5d71';
+import {SceneryMotion} from './scenery-motion.js?v=16.3&build=a256348c5d71';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=a256348c5d71';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=a256348c5d71';
+import {QINGHE,BRIDGE,groundHeight,islandId} from './island-layout.js?build=a256348c5d71';
+import * as T from './vendor/three.module.js?build=a256348c5d71';
 const materials=new Map();
 const mat=color=>{if(!materials.has(color))materials.set(color,new T.MeshStandardMaterial({color,roughness:1,flatShading:true}));return materials.get(color);};
 const box=new T.BoxGeometry(1,1,1),orb=new T.IcosahedronGeometry(1,1);
@@ -56,7 +56,7 @@ export class WorldView{
  project(p){this.projectVector??=new T.Vector3();const v=this.projectVector.set(p.x,groundHeight(p)+1,p.y).project(this.camera);return{x:(v.x+1)*this.w/2,y:(1-v.y)*this.h/2};}
  unproject(p){this.ray.setFromCamera(new T.Vector2(p.x/this.w*2-1,1-p.y/this.h*2),this.camera);const hit=this.ray.intersectObjects(this.groundMeshes||[],false)[0];if(hit)return{x:hit.point.x,y:hit.point.z};const v=new T.Vector3();this.ray.ray.intersectPlane(this.plane,v);return{x:v.x,y:v.z};}
  pick(p){this.ray.setFromCamera(new T.Vector2(p.x/this.w*2-1,1-p.y/this.h*2),this.camera);for(const hit of this.ray.intersectObjects([...this.objects.values(),...this.standards.nodes.values()],true)){let o=hit.object;while(o&&!o.userData.entity)o=o.parent;if(o?.userData.entity?.kind)return o.userData.entity;}return null;}
- render(world,camera,skill,target){if(!this.ready)return;this.standards.update(world);this.trackingCamera=this.follow.update(world,this.w,this.h);if(this.followVisibility)this.followVisibility.value=this.trackingCamera?AP.followClearance:0;this.cameraAt(camera);this.settlements.update(world);
+ render(world,camera,skill,target){if(!this.ready)return;this.standards.update(world);this.trackingCamera=this.follow.update(world,this.w,this.h,id=>this.objects.get('e'+id)?.rotation.y);if(this.followVisibility)this.followVisibility.value=this.trackingCamera?AP.followClearance:0;this.cameraAt(camera);this.settlements.update(world);
  const entries=[];
  for(const e of world.entities)if(!e.dead&&!e.inside)entries.push(['e'+e.id,e.kind==='human'?'actor.human':'actor.'+e.kind,e]);const live=new Set();for(const [key,id,e]of entries){if(e.hp<=0)continue;live.add(key);let obj=this.objects.get(key);if(obj?.userData.assetId!==id){if(obj)this.releaseActor(obj);if(id==='actor.human'){obj=new CharacterView(this.characters[e.country],e).root;}else{obj=new T.Group();obj.userData.assetId=id;let asset;{const cacheKey=id+((e.id||0)%2);if(!this.templates.has(cacheKey))this.templates.set(cacheKey,model(id,e.id||0));asset=this.templates.get(cacheKey).clone(true);}asset.traverse(m=>{if(m.isMesh)m.material=m.material.clone();});obj.add(asset);}this.objects.set(key,obj);this.group.add(obj);}const secondary=this.selection?.secondary?.includes(e.id);const lit=this.selection?.resident===e.id||this.selection?.affected?.includes(e.id)||secondary;const status=e.sick>0?'#71845c':e.soldier?'#9e5648':e.bless>0?'#a28e52':e.joy>0?'#a76d7b':null;const tint=lit?(this.selection?.resident===e.id?'#bda568':this.selection.color):status||'#000000',intensity=lit?(secondary?.4:1.15):status?.2:0;if(obj.userData.tint!==tint||obj.userData.intensity!==intensity){obj.userData.tint=tint;obj.userData.intensity=intensity;if(!obj.userData.character)obj.traverse(m=>{if(m.isMesh&&m.material.emissive){m.material.emissive.set(tint);m.material.emissiveIntensity=intensity;}});}obj.userData.entity=e;obj.position.set(e.x,groundHeight(e),e.y);const scale=e.kind==='human'?(e.adult?.65:.4):e.kind==='undead'?.65:1;obj.scale.setScalar(e.construction?.6:scale);if(e.construction)obj.position.y=-.6; if(obj.userData.character){const actor=obj.userData.character;for(const hit of world.visualEvents||[])if(hit.id==='actor-hit'&&hit.attackerId===e.id)actor.hit(hit);actor.update(this.standards.nodes.get(e.country)?.userData.era===0&&this.standards.nodes.get(e.country)?.userData.entity.carrierId===e.id?{...e,carryingStandard:true}:e,world.time);actor.highlight(tint,intensity,world.time);}else if(e.kind==='sheep'||e.kind==='undead'){obj.position.y=groundHeight(e);const prev=obj.userData.previous;if(prev&&Math.hypot(e.x-prev.x,e.y-prev.y)>.001)obj.rotation.y=Math.atan2(e.x-prev.x,e.y-prev.y);obj.userData.previous={x:e.x,y:e.y};}}
 

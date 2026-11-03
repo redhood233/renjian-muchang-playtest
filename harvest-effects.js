@@ -1,6 +1,6 @@
-import * as T from './vendor/three.module.js?build=1b40af8f75d8';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=1b40af8f75d8';
-import {groundHeight} from './island-layout.js?build=1b40af8f75d8';
+import * as T from './vendor/three.module.js?build=a256348c5d71';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=a256348c5d71';
+import {groundHeight} from './island-layout.js?build=a256348c5d71';
 // Cosmetic production cues only. No inventory, food or simulation state is changed.
 export class HarvestEffects {
  constructor(scene){this.scene=scene;this.items=[];this.lastTime=null;this.elapsed=0;this.cycle=0;}
