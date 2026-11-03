@@ -1,18 +1,18 @@
-import {GameLibrary,MODE_NAMES,createGame,restoreGame,modeOf,clockLabel} from './game-modes.js?build=a256348c5d71';
-import {releaseHint,positionReleaseHint} from './release-hint.js?build=a256348c5d71';
-import {pixelRatio} from './mobile-runtime.js?build=a256348c5d71';
-import {targetPreview} from './target-preview.js?build=a256348c5d71';
-import {GameAudio} from './game-audio.js?build=a256348c5d71';
-import {PROLOGUE} from './prologue-data.js?build=a256348c5d71';
-import {CampaignWorld} from './campaign.js?build=a256348c5d71';
-import {PrologueView} from './prologue-view.js?build=a256348c5d71';
-import {PauseState} from './pause-state.js?build=a256348c5d71';
-import {CameraControls,DEFAULT_CAMERA} from './camera-controls.js?build=a256348c5d71';
-import {WorldView} from './scene.js?v=16.3&build=a256348c5d71';
-import {World,distance} from './engine.js?build=a256348c5d71';
-import {CONFIG as C,SKILLS} from './config.js?build=a256348c5d71';
-import {GameInput} from './input.js?build=a256348c5d71';
-import {$,art,palettes,islandName,showHome,dialog,guide,ending,buildCards} from './ui.js?build=a256348c5d71';
+import {GameLibrary,MODE_NAMES,createGame,restoreGame,modeOf,clockLabel} from './game-modes.js?build=1ae0e6c83866';
+import {releaseHint,positionReleaseHint} from './release-hint.js?build=1ae0e6c83866';
+import {pixelRatio} from './mobile-runtime.js?build=1ae0e6c83866';
+import {targetPreview} from './target-preview.js?build=1ae0e6c83866';
+import {GameAudio} from './game-audio.js?build=1ae0e6c83866';
+import {PROLOGUE} from './prologue-data.js?build=1ae0e6c83866';
+import {CampaignWorld} from './campaign.js?build=1ae0e6c83866';
+import {PrologueView} from './prologue-view.js?build=1ae0e6c83866';
+import {PauseState} from './pause-state.js?build=1ae0e6c83866';
+import {CameraControls,DEFAULT_CAMERA} from './camera-controls.js?build=1ae0e6c83866';
+import {WorldView} from './scene.js?v=16.3&build=1ae0e6c83866';
+import {World,distance} from './engine.js?build=1ae0e6c83866';
+import {CONFIG as C,SKILLS} from './config.js?build=1ae0e6c83866';
+import {GameInput} from './input.js?build=1ae0e6c83866';
+import {$,art,palettes,islandName,showHome,dialog,guide,ending,buildCards} from './ui.js?build=1ae0e6c83866';
 const canvas=$('world'),view=new WorldView(canvas),saveKey=`rjmc-full-save-v${C.version}`;
 let world=new World(),running=false,group=0,selected=null,target=null,selectedResident=null,hoverSkill=null,expanded=false,weather='rain',resultShown=false,lastFrame=0,lastSave=0,lastSoul=0,toastEnd=0,saved=null,settings={sound:true,music:true,vibration:true};
 const camera={...DEFAULT_CAMERA};
@@ -65,7 +65,7 @@ function detail(){const e=world.get(selectedResident);if(!e||e.dead||e.hp<=0||se
 function point(p){view.cameraAt(camera);return view.unproject(p);}
 function aim(p){target=p&&selected&&document.elementFromPoint(p.x,p.y)===canvas?point(p):null;note();}
 function cast(p){if(!selected||world.paused||story?.blocksInput||document.elementFromPoint(p.x,p.y)!==canvas)return;const loc=point(p);if(!loc)return;const id=selected,r=world.cast(id,loc,weather);if(!r.ok){toast(r.message);return;}if(settings.vibration)navigator.vibrate?.(id==='meteor'?25:10);clearPick();}
-const controls=new CameraControls(canvas,camera,{enabled:()=>running&&$('dialog').hidden&&!world.result&&!story?.blocksInput,project:p=>{view.cameraAt(camera);return view.panPoint(p);},threshold:C.dragPixels,onNavigate:stopFollowing,onTap:p=>{if(selected)return;view.cameraAt(camera);let hit=view.pick(p);if(!hit&&matchMedia('(pointer:coarse)').matches){hit=[...world.entities.filter(e=>!e.dead&&!e.inside),...[...view.standards.nodes.values()].map(n=>({...n.userData.entity,x:n.position.x,y:n.position.z}))].map(e=>({e,p:view.project(e)})).map(v=>({...v,d:Math.hypot(v.p.x-p.x,v.p.y-p.y)})).filter(v=>v.d<22).sort((a,b)=>a.d-b.d)[0]?.e;}if(observe(hit))return;selectedResident=hit?.id===selectedResident?null:hit?.id??null;detail();}});
+const controls=new CameraControls(canvas,camera,{enabled:()=>running&&$('dialog').hidden&&!world.result&&!story?.blocksInput,project:p=>{view.cameraAt(camera);return view.panPoint(p);},threshold:C.dragPixels,onNavigate:stopFollowing,onGesture:g=>{if(!view.follow.target)return false;if(g.type==='drag')view.follow.orbitBy(-g.dx*.006,g.dy*.004);else {view.follow.zoomBy(g.factor);if(g.type==='pinch')view.follow.orbitBy(-g.twist,g.dy*.004);}return true;},onTap:p=>{if(selected)return;view.cameraAt(camera);let hit=view.pick(p);if(!hit&&matchMedia('(pointer:coarse)').matches){hit=[...world.entities.filter(e=>!e.dead&&!e.inside),...[...view.standards.nodes.values()].map(n=>({...n.userData.entity,x:n.position.x,y:n.position.z}))].map(e=>({e,p:view.project(e)})).map(v=>({...v,d:Math.hypot(v.p.x-p.x,v.p.y-p.y)})).filter(v=>v.d<22).sort((a,b)=>a.d-b.d)[0]?.e;}if(observe(hit))return;selectedResident=hit?.id===selectedResident?null:hit?.id??null;detail();}});
 const input=new GameInput(canvas,{controls,enabled:()=>running&&$('dialog').hidden&&!world.result&&!story?.blocksInput,aiming:()=>!!selected&&!world.paused,aim,release:cast,cancel:clearPick});
 story=new PrologueView({changed:()=>{clearPick();cards();syncPause();if(world.inPrologue&&world.phase!=='finale'&&world.phase!=='ready'&&!world.pending.length)save();},focus:p=>{if(p)controls.focus(p.x,p.y,3);},project:p=>view.project(p),continueGame:finishPrologue});
 canvas.addEventListener('pointerleave',()=>{if(input.owner===null)aim(null);});

@@ -1,20 +1,20 @@
-import {GEOGRAPHY as G,worldPoint} from './config.js?build=a256348c5d71';
+import {GEOGRAPHY as G,worldPoint} from './config.js?build=1ae0e6c83866';
 const low=worldPoint({x:4,y:8}),high=worldPoint({x:98,y:52});
 export const DEFAULT_CAMERA={...worldPoint({x:51.5,y:28}),zoom:1/G.scale,yaw:0,pitch:Math.atan2(70,55)};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function constrain(c){c.x=clamp(c.x,low.x,high.x);c.y=clamp(c.y,low.y,high.y);c.zoom=clamp(c.zoom,1/G.scale,7);c.pitch=clamp(c.pitch,25*Math.PI/180,80*Math.PI/180);c.yaw=Math.atan2(Math.sin(c.yaw),Math.cos(c.yaw));return c;}
 export function pairGesture(a,b){return{distance:Math.hypot(b.x-a.x,b.y-a.y),angle:Math.atan2(b.y-a.y,b.x-a.x),y:(a.y+b.y)/2};}
 export class CameraControls{
- constructor(canvas,camera,{enabled,project,onTap,onNavigate=()=>{},threshold=6}){Object.assign(this,{canvas,camera,enabled,project,onTap,onNavigate,threshold});this.points=new Map();this.blockTap=false;this.transition=null;
+ constructor(canvas,camera,{enabled,project,onTap,onNavigate=()=>{},onGesture=()=>false,threshold=6}){Object.assign(this,{canvas,camera,enabled,project,onTap,onNavigate,onGesture,threshold});this.points=new Map();this.blockTap=false;this.transition=null;
   canvas.addEventListener('pointerdown',e=>this.down(e));canvas.addEventListener('pointermove',e=>this.move(e));canvas.addEventListener('pointerup',e=>this.up(e));
   for(const event of ['pointercancel','lostpointercapture'])canvas.addEventListener(event,e=>this.cancel(e));
-  canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{if(!enabled())return;e.preventDefault();this.onNavigate();this.transition=null;this.zoomAt({x:e.clientX,y:e.clientY},Math.exp(-clamp(e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?canvas.clientHeight:1),-240,240)*.002));},{passive:false});
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('wheel',e=>{if(!enabled())return;e.preventDefault();const factor=Math.exp(-clamp(e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?canvas.clientHeight:1),-240,240)*.002);if(this.onGesture({type:'zoom',factor}))return;this.onNavigate();this.transition=null;this.zoomAt({x:e.clientX,y:e.clientY},factor);},{passive:false});
  }
  down(e){if(!this.enabled()||!(e.button===0||e.button===2))return;this.transition=null;if(!this.points.size)this.blockTap=false;const p={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,button:e.button};this.points.set(e.pointerId,p);if(this.points.size>1||e.button===2)this.blockTap=true;this.canvas.setPointerCapture(e.pointerId);}
  move(e){const prev=this.points.get(e.pointerId);if(!prev)return;if(!this.enabled()){this.clear();return;}const old=[...this.points.values()].map(p=>({...p}));const p={...prev,x:e.clientX,y:e.clientY};this.points.set(e.pointerId,p);
   if(this.points.size>2){this.blockTap=true;return;}
-  if(this.points.size===2){this.onNavigate();const before=pairGesture(...old),after=pairGesture(...this.points.values());this.blockTap=true;if(before.distance<12||after.distance<12)return;this.camera.zoom*=after.distance/before.distance;this.camera.yaw-=Math.atan2(Math.sin(after.angle-before.angle),Math.cos(after.angle-before.angle));this.camera.pitch+=(after.y-before.y)*.004;constrain(this.camera);return;}
-  if(Math.hypot(p.x-p.startX,p.y-p.startY)>this.threshold)this.blockTap=true;if(!this.blockTap)return;this.onNavigate();
+  if(this.points.size===2){const before=pairGesture(...old),after=pairGesture(...this.points.values());this.blockTap=true;if(before.distance<12||after.distance<12)return;if(this.onGesture({type:'pinch',factor:after.distance/before.distance,twist:Math.atan2(Math.sin(after.angle-before.angle),Math.cos(after.angle-before.angle)),dy:after.y-before.y}))return;this.onNavigate();this.camera.zoom*=after.distance/before.distance;this.camera.yaw-=Math.atan2(Math.sin(after.angle-before.angle),Math.cos(after.angle-before.angle));this.camera.pitch+=(after.y-before.y)*.004;constrain(this.camera);return;}
+  if(Math.hypot(p.x-p.startX,p.y-p.startY)>this.threshold)this.blockTap=true;if(!this.blockTap)return;if(this.onGesture({type:'drag',dx:p.x-prev.x,dy:p.y-prev.y}))return;this.onNavigate();
   if(p.button===2){this.camera.yaw-=(p.x-prev.x)*.006;this.camera.pitch+=(p.y-prev.y)*.004;}
   else{const a=this.project(prev),b=this.project(p);if(a&&b){this.camera.x+=a.x-b.x;this.camera.y+=a.y-b.y;}}
   constrain(this.camera);

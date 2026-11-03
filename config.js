@@ -1,6 +1,6 @@
-const url = new URL('./rules.json?build=a256348c5d71', import.meta.url);
+const url = new URL('./rules.json?build=1ae0e6c83866', import.meta.url);
 const rules = typeof window === 'undefined' ? JSON.parse(await (await import('node:fs/promises')).readFile(url, 'utf8')) : await (await fetch(url)).json();
-import {mapPoint,mapArea} from './world-space.js?build=a256348c5d71';
+import {mapPoint,mapArea} from './world-space.js?build=1ae0e6c83866';
 export const GEOGRAPHY=Object.freeze(rules.geography);
 export const worldPoint=p=>mapPoint(p,GEOGRAPHY);
 export const CONFIG = Object.freeze(rules.config);
@@ -19,3 +19,5 @@ export const CIVILIZATION=Object.freeze(rules.civilization);
 export const MODES=Object.freeze(rules.modes);
 
 export const ARMY_PRESENTATION=Object.freeze(rules.armyPresentation);
+
+export const ERA_BUILDINGS=Object.freeze(rules.eraBuildings);

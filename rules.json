@@ -520,6 +520,39 @@
       1.35,
       12
     ],
-    "followClearance": 6
+    "followClearance": 6,
+    "followZoomMin": 0.75,
+    "followZoomMax": 1.5,
+    "followPitchMin": -0.18,
+    "followPitchMax": 0.75
+  },
+  "eraBuildings": {
+    "heights": [
+      0,
+      1.05,
+      1.65
+    ],
+    "specialHeights": [
+      0,
+      1.2,
+      1.8
+    ],
+    "palettes": {
+      "wall": "#d9d2bf",
+      "steel": "#657d85",
+      "glass": "#507f98",
+      "light": "#89ebe1",
+      "foundation": "#69695f",
+      "wood": "#705542",
+      "farmRoof": "#b75f48",
+      "pastureRoof": "#537a94"
+    },
+    "temporary": true,
+    "sourceProject": "Godot 神明也疯狂",
+    "sourcePath": "scripts/world_view.gd",
+    "sourceFunctions": [
+      "_draw_era_building",
+      "_draw_era_agriculture"
+    ]
   }
 }

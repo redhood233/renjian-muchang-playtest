@@ -1,28 +1,28 @@
-import {ARMY_PRESENTATION as AP} from './config.js?build=a256348c5d71';
-import {installFollowVisibility} from './follow-visibility.js?build=a256348c5d71';
-import {ArmyStandards} from './army-standards.js?build=a256348c5d71';
-import {TrackingCamera} from './tracking-camera.js?build=a256348c5d71';
-import {expandBridgeMesh} from './world-geometry.js?build=a256348c5d71';
-import {FallenResidents} from './fallen-residents.js?build=a256348c5d71';
-import {SettlementView} from './settlement-view.js?build=a256348c5d71';
-import {loadModel,mobileMode,pixelRatio} from './mobile-runtime.js?build=a256348c5d71';
-import {WeatherPresentation} from './weather-presentation.js?build=a256348c5d71';
-import {previewRing} from './target-preview.js?build=a256348c5d71';
-import {Gravestones} from './gravestones.js?build=a256348c5d71';
-import {installEnvironment} from './environment-v16.js?v=16.3&build=a256348c5d71';
-import {batchSourceDecorations} from './source-batching.js?build=a256348c5d71';
-import {SourceSheep} from './source-sheep.js?build=a256348c5d71';
-import {HarvestEffects} from './harvest-effects.js?build=a256348c5d71';
-import {updateCharacterPalettes} from './character-palette.js?build=a256348c5d71';
-import {loadCharacters} from './character-assets.js?build=a256348c5d71';
-import {CharacterView} from './character-view.js?build=a256348c5d71';
-import {SpellEffects} from './spell-effects.js?build=a256348c5d71';
-import {SourceColorPipeline} from './source-color.js?v=16.3&build=a256348c5d71';
-import {SceneryMotion} from './scenery-motion.js?v=16.3&build=a256348c5d71';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=a256348c5d71';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=a256348c5d71';
-import {QINGHE,BRIDGE,groundHeight,islandId} from './island-layout.js?build=a256348c5d71';
-import * as T from './vendor/three.module.js?build=a256348c5d71';
+import {ARMY_PRESENTATION as AP} from './config.js?build=1ae0e6c83866';
+import {installFollowVisibility} from './follow-visibility.js?build=1ae0e6c83866';
+import {ArmyStandards} from './army-standards.js?build=1ae0e6c83866';
+import {TrackingCamera} from './tracking-camera.js?build=1ae0e6c83866';
+import {expandBridgeMesh} from './world-geometry.js?build=1ae0e6c83866';
+import {FallenResidents} from './fallen-residents.js?build=1ae0e6c83866';
+import {SettlementView} from './settlement-view.js?build=1ae0e6c83866';
+import {loadModel,mobileMode,pixelRatio} from './mobile-runtime.js?build=1ae0e6c83866';
+import {WeatherPresentation} from './weather-presentation.js?build=1ae0e6c83866';
+import {previewRing} from './target-preview.js?build=1ae0e6c83866';
+import {Gravestones} from './gravestones.js?build=1ae0e6c83866';
+import {installEnvironment} from './environment-v16.js?v=16.3&build=1ae0e6c83866';
+import {batchSourceDecorations} from './source-batching.js?build=1ae0e6c83866';
+import {SourceSheep} from './source-sheep.js?build=1ae0e6c83866';
+import {HarvestEffects} from './harvest-effects.js?build=1ae0e6c83866';
+import {updateCharacterPalettes} from './character-palette.js?build=1ae0e6c83866';
+import {loadCharacters} from './character-assets.js?build=1ae0e6c83866';
+import {CharacterView} from './character-view.js?build=1ae0e6c83866';
+import {SpellEffects} from './spell-effects.js?build=1ae0e6c83866';
+import {SourceColorPipeline} from './source-color.js?v=16.3&build=1ae0e6c83866';
+import {SceneryMotion} from './scenery-motion.js?v=16.3&build=1ae0e6c83866';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=1ae0e6c83866';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=1ae0e6c83866';
+import {QINGHE,BRIDGE,groundHeight,islandId} from './island-layout.js?build=1ae0e6c83866';
+import * as T from './vendor/three.module.js?build=1ae0e6c83866';
 const materials=new Map();
 const mat=color=>{if(!materials.has(color))materials.set(color,new T.MeshStandardMaterial({color,roughness:1,flatShading:true}));return materials.get(color);};
 const box=new T.BoxGeometry(1,1,1),orb=new T.IcosahedronGeometry(1,1);
@@ -42,7 +42,7 @@ export class WorldView{
  constructor(canvas,{environmentVersion=16}={}){this.environmentVersion=environmentVersion;this.weatherPresentation=new WeatherPresentation();this.vfx=new SpellEffects(this);this.ready=false;this.loadMs=0;this.templates=new Map();this.lastTime=0;this.renderer=new T.WebGLRenderer({canvas,antialias:true});this.renderer.setPixelRatio(pixelRatio());this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=T.PCFShadowMap;this.renderer.setClearColor('#799a9b');this.renderer.toneMapping=T.AgXToneMapping;this.renderer.toneMappingExposure=2**.35;this.scene=new T.Scene();this.standards=new ArmyStandards(this.scene);this.follow=new TrackingCamera();this.bodies=new FallenResidents(this.scene);this.gravestones=new Gravestones(this.scene);this.harvest=new HarvestEffects(this.scene);this.scene.add(new T.AmbientLight(new T.Color(.55,.68,.78),.42*Math.PI));const sky=new T.DirectionalLight(new T.Color(.68,.82,1),.18);sky.position.set(35,94,-5);this.scene.add(sky);const sun=new T.DirectionalLight(new T.Color(1,.88,.67),2.2);this.sun=sun;sun.target.position.set(40,0,28);sun.position.set(40-37.9049,75.8098,28+53.0669);this.scene.add(sun.target);sun.castShadow=true;sun.shadow.mapSize.set(mobileMode?1024:4096,mobileMode?1024:4096);Object.assign(sun.shadow.camera,{left:-70,right:70,top:55,bottom:-55,far:160});sun.shadow.bias=-.0002;sun.shadow.normalBias=.02;sun.shadow.radius=4;this.scene.add(sun);this.camera=new T.OrthographicCamera(-55,55,35,-35,.1,250);this.ray=new T.Raycaster();this.plane=new T.Plane(new T.Vector3(0,1,0),0);this.objects=new Map();this.islands=new Map();this.group=new T.Group();this.scene.add(this.group);this.scenery=new SceneryMotion(this.scene);this.ring=new T.Mesh(new T.RingGeometry(.96,1,64),new T.MeshBasicMaterial({color:'#e6b3a5',side:T.DoubleSide,transparent:true,opacity:.8}));this.ring.rotation.x=-Math.PI/2;this.ring.position.y=.15;this.scene.add(this.ring);this.fxGroup=new T.Group();this.scene.add(this.fxGroup);this.fxPool=[];this.overlay=document.createElement('div');this.overlay.style.cssText='position:fixed;inset:0;pointer-events:none;overflow:hidden';canvas.after(this.overlay);}
  releaseActor(o){this.group.remove(o);if(o.userData.character){o.userData.character.dispose();return;}o.traverse(m=>{if(m.isMesh)m.material.dispose();});}
  clearVisuals(){this.follow.clear();this.trackingCamera=null;this.standards.clear();this.bodies.clear();this.weatherPresentation.clear();this.gravestones.clear();this.harvest.clear();this.vfx.clear();this.objects.forEach(o=>this.releaseActor(o));this.objects.clear();}
- async load(){if(this.ready)return;const start=performance.now();const actors=Promise.all([loadCharacters(),this.harvest.load(),this.gravestones.load()]);const base=new URL('./assets/islands/v09/',import.meta.url);const [gltf,meta,plants,shore,lut,actorAssets]=await Promise.all([loadModel(new URL('island.gltf',base).href,'island'),fetch(new URL('source-scene.json',base)).then(r=>{if(!r.ok)throw new Error('场景资料加载失败');return r.json();}),fetch(new URL('plants.bin',base)).then(r=>{if(!r.ok)throw new Error('植被资料加载失败');return r.arrayBuffer();}),fetch(new URL('shore.bin',base)).then(r=>{if(!r.ok)throw new Error('岸线资料加载失败');return r.arrayBuffer();}),fetch(new URL('display-lut.bin',base)).then(r=>{if(!r.ok)throw new Error('显示色彩资料加载失败');return r.arrayBuffer();}),actors]);[this.characters]=actorAssets;this.colorPipeline=new SourceColorPipeline(this.renderer,lut,{environment:this.environmentVersion===16});this.sourceMeta=meta;const root=gltf.scene;root.name='V09 dual islands';root.scale.setScalar(QINGHE.transform.scale);root.position.fromArray(QINGHE.transform.position);if(this.environmentVersion===16)this.environmentConfig=await installEnvironment(this,root,meta);this.groundMeshes=[];root.traverse(o=>{if(o.isMesh){o.castShadow=o.userData.role!=='prototype';o.receiveShadow=true;if(o.userData.role==='terrain'||o.userData.role==='bridge')this.groundMeshes.push(o);}});this.scene.add(root);root.updateMatrixWorld(true);expandBridgeMesh(root);this.qinghe=root;this.sourceRoot=root;this.settlements=new SettlementView(root,this.scene);this.batchedDraws=batchSourceDecorations(root);this.scenery.attach(root,meta,plants,shore);this.sheep=new SourceSheep();await this.sheep.load(root,meta);root.updateMatrixWorld(true);this.followVisibility=installFollowVisibility(root);this.ready=true;this.loadMs=performance.now()-start;}
+ async load(){if(this.ready)return;const start=performance.now();const actors=Promise.all([loadCharacters(),this.harvest.load(),this.gravestones.load()]);const base=new URL('./assets/islands/v09/',import.meta.url);const [gltf,meta,plants,shore,lut,actorAssets]=await Promise.all([loadModel(new URL('island.gltf',base).href,'island'),fetch(new URL('source-scene.json',base)).then(r=>{if(!r.ok)throw new Error('场景资料加载失败');return r.json();}),fetch(new URL('plants.bin',base)).then(r=>{if(!r.ok)throw new Error('植被资料加载失败');return r.arrayBuffer();}),fetch(new URL('shore.bin',base)).then(r=>{if(!r.ok)throw new Error('岸线资料加载失败');return r.arrayBuffer();}),fetch(new URL('display-lut.bin',base)).then(r=>{if(!r.ok)throw new Error('显示色彩资料加载失败');return r.arrayBuffer();}),actors]);[this.characters]=actorAssets;this.colorPipeline=new SourceColorPipeline(this.renderer,lut,{environment:this.environmentVersion===16});this.sourceMeta=meta;const root=gltf.scene;root.name='V09 dual islands';root.scale.setScalar(QINGHE.transform.scale);root.position.fromArray(QINGHE.transform.position);if(this.environmentVersion===16)this.environmentConfig=await installEnvironment(this,root,meta);this.groundMeshes=[];root.traverse(o=>{if(o.isMesh){o.castShadow=o.userData.role!=='prototype';o.receiveShadow=true;if(o.userData.role==='terrain'||o.userData.role==='bridge')this.groundMeshes.push(o);}});this.scene.add(root);root.updateMatrixWorld(true);expandBridgeMesh(root);this.qinghe=root;this.sourceRoot=root;this.settlements=new SettlementView(root,this.scene);this.batchedDraws=batchSourceDecorations(root);this.scenery.attach(root,meta,plants,shore);this.sheep=new SourceSheep();await this.sheep.load(root,meta);root.updateMatrixWorld(true);this.followVisibility=installFollowVisibility(root);this.settlements.prepareModel=model=>installFollowVisibility(model,this.followVisibility);this.ready=true;this.loadMs=performance.now()-start;}
  renderEffects(world){this.gravestones.update(world.corpses,this.selection?.corpses||[]);}
 
  resize(w,h){this.w=w;this.h=h;this.renderer.setSize(w,h,false);}

@@ -1,7 +1,7 @@
 // Only source scenery is clipped near the observation camera. Terrain, actors
 // and gameplay collisions stay intact, including shared/batched tree meshes.
-export function installFollowVisibility(root){
- const radius={value:0},seen=new Set();root.traverse(o=>{if(!o.isMesh||['terrain','bridge'].includes(o.userData.role)||o.geometry.hasAttribute('_meadow'))return;
+export function installFollowVisibility(root,radius={value:0}){
+ const seen=new Set();root.traverse(o=>{if(!o.isMesh||['terrain','bridge'].includes(o.userData.role)||o.geometry.hasAttribute('_meadow'))return;
   for(const m of Array.isArray(o.material)?o.material:[o.material]){if(seen.has(m)||!m.isMeshStandardMaterial&&!m.isMeshLambertMaterial&&!m.isMeshPhongMaterial)continue;seen.add(m);const before=m.onBeforeCompile,key=m.customProgramCacheKey();m.onBeforeCompile=(s,r)=>{before.call(m,s,r);s.uniforms.followRadius=radius;s.vertexShader='varying vec3 followWorld;\n'+s.vertexShader;s.vertexShader=s.vertexShader.replace('#include <worldpos_vertex>',`#include <worldpos_vertex>
 vec4 followVertex=vec4(transformed,1.);
 #ifdef USE_INSTANCING

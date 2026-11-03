@@ -1,5 +1,5 @@
-import {CONFIG as C,SOCIETY as R} from './config.js?build=a256348c5d71';
-import {complete} from './settlement.js?build=a256348c5d71';
+import {CONFIG as C,SOCIETY as R} from './config.js?build=1ae0e6c83866';
+import {complete} from './settlement.js?build=1ae0e6c83866';
 export function available(e){return !!e&&!e.dead&&e.adult&&!e.soldier&&e.sick<=0&&e.joy<=0&&e.rage<=0&&e.wounded<=0&&!e.faithWork&&e.action!=='守卫岛屿';}
 export function initSociety(w){for(const c of w.islands){c.kingId=w.humans(c.id)[0]?.id??null;c.warIntent=0;c.exhaustion=0;c.unrest=0;c.leaderVacancy=0;c.scholarClock=0;const king=w.get(c.kingId);if(king){king.role='king';king.king=true;}}}
 export function enrage(w,target){

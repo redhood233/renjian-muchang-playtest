@@ -1,5 +1,5 @@
-import data from './assets/islands/v09/layout-data.js?build=a256348c5d71';
-import {GEOGRAPHY as G,worldPoint} from './config.js?build=a256348c5d71';
+import data from './assets/islands/v09/layout-data.js?build=1ae0e6c83866';
+import {GEOGRAPHY as G,worldPoint} from './config.js?build=1ae0e6c83866';
 // Derive a larger world without changing the level artist's source data.
 const building=o=>o.blocking||/^(Cottage |牧场建筑 |Village Hall |Academy |Granary |Windmill )/.test(o.name);
 const bases=data.objects.filter(o=>building(o)&&!o.name.includes('Repair')&&!/_/.test(o.name.split(' | ')[0]));

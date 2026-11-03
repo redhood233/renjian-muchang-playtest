@@ -1,4 +1,4 @@
-import {CONFIG as C,SKILLS} from './config.js?build=a256348c5d71';
+import {CONFIG as C,SKILLS} from './config.js?build=1ae0e6c83866';
 export const $=id=>document.getElementById(id);
 export const names=['生命','天气','死亡'],art=['love','weather','death'];
 export const islandName=id=>id===0?'农耕岛':'畜牧岛';

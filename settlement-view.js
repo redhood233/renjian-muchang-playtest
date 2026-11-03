@@ -1,12 +1,13 @@
-import * as T from './vendor/three.module.js?build=a256348c5d71';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=a256348c5d71';
-import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=a256348c5d71';
-import {groundHeight} from './island-layout.js?build=a256348c5d71';
+import {EraBuildingView} from './era-building-models.js?build=1ae0e6c83866';
+import * as T from './vendor/three.module.js?build=1ae0e6c83866';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=1ae0e6c83866';
+import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=1ae0e6c83866';
+import {groundHeight} from './island-layout.js?build=1ae0e6c83866';
 // Bind existing authored models to gameplay slots; no asset transforms are edited.
 export class SettlementView {
  constructor(root,scene){
   this.scene=scene;this.originals=new Map();this.templates=new Map();this.baseScale=new WeakMap();this.worldTransforms=new WeakMap();this.ground=new Map();this.clones=new Map();
-  this.abandoned=new WeakMap();
+  this.abandoned=new WeakMap();this.eraBuildings=new EraBuildingView(scene);
   const definitions=[FARM_LOTS,PASTURE_LOTS];
   root.traverse(node=>{const name=node.userData.sourceName||node.name;
    for(const [country,lots] of definitions.entries()){const lot=lots.find(b=>b.zone==='house'&&b.sourceNames.includes(name));if(!lot)continue;
@@ -33,15 +34,16 @@ export class SettlementView {
   group.position.set(lot.x,this.ground.get(lot.id)??groundHeight(lot),lot.y);this.scene.add(group);this.clones.set(lot.id,group);return group;
  }
  update(world){
-  if(this.world!==world){for(const node of this.clones.values()){this.scene.remove(node);node.traverse(o=>{if(o.isMesh)for(const m of Array.isArray(o.material)?o.material:[o.material])if(m.userData.abandonmentOwned)m.dispose();});}this.clones.clear();this.world=world;}
-  for(const c of world.islands)for(const lot of c.buildings||[]){if(lot.zone!=='house')continue;
+  if(this.world!==world){this.eraBuildings.clear();for(const node of this.clones.values()){this.scene.remove(node);node.traverse(o=>{if(o.isMesh)for(const m of Array.isArray(o.material)?o.material:[o.material])if(m.userData.abandonmentOwned)m.dispose();});}this.clones.clear();this.world=world;}
+  for(const c of world.islands)for(const lot of c.buildings||[]){const era=c.era||0,empty=world.humans(c.id).length===0;if(lot.zone!=='house'){this.eraBuildings.update(lot,c,{visible:lot.state==='complete',growth:1,y:groundHeight(lot),tint:root=>this.tint(root,empty),prepare:this.prepareModel});continue;}
    const visible=lot.state==='complete'||lot.state==='building',growth=lot.state==='complete'?1:Math.max(.05,Math.min(1,lot.progress/S.buildSeconds));
    const original=this.originals.get(lot.id)||[],placeholder=lot.special&&lot.kind==='house';
-   const empty=world.humans(c.id).length===0;
-   for(const node of original){node.visible=visible&&!placeholder;node.scale.y=this.baseScale.get(node)*growth;this.tint(node,empty);}
+
+   for(const node of original){node.visible=visible&&!placeholder&&!era;node.scale.y=this.baseScale.get(node)*growth;this.tint(node,empty);}
    let clone=this.clones.get(lot.id);
-   if(visible&&(placeholder||!original.length))clone??=this.make(lot,c.id);
-   if(clone){clone.visible=visible&&(!!placeholder||!original.length);clone.scale.y=clone.userData.baseFit*growth;this.tint(clone,empty);}
+   if(!era&&visible&&(placeholder||!original.length))clone??=this.make(lot,c.id);
+   this.eraBuildings.update(lot,c,{visible,growth,y:this.ground.get(lot.id)??groundHeight(lot),tint:root=>this.tint(root,empty),prepare:this.prepareModel});
+   if(clone){clone.visible=!era&&visible&&(!!placeholder||!original.length);clone.scale.y=clone.userData.baseFit*growth;this.tint(clone,empty);}
   }
  }
 }

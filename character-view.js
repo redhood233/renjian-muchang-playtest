@@ -1,9 +1,9 @@
-import {createCrown,updateCrown} from './royal-crown.js?build=a256348c5d71';
-import {attachPalette} from './character-palette.js?build=a256348c5d71';
-import {batchOpaque} from './character-batch.js?build=a256348c5d71';
-import * as T from './vendor/three.module.js?build=a256348c5d71';
-import {clone} from './vendor/SkeletonUtils.js?build=a256348c5d71';
-import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=a256348c5d71';
+import {createCrown,updateCrown} from './royal-crown.js?build=1ae0e6c83866';
+import {attachPalette} from './character-palette.js?build=1ae0e6c83866';
+import {batchOpaque} from './character-batch.js?build=1ae0e6c83866';
+import * as T from './vendor/three.module.js?build=1ae0e6c83866';
+import {clone} from './vendor/SkeletonUtils.js?build=1ae0e6c83866';
+import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=1ae0e6c83866';
 export class CharacterView {
  constructor(source,e){
   this.look=appearance(e.id,e.country);if(e.king)this.look.hat=-1;this.root=new T.Group();this.root.userData.assetId='actor.human';this.root.userData.character=this;
