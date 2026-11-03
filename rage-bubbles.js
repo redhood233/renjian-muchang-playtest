@@ -1,7 +1,7 @@
 const clamp=x=>Math.max(0,Math.min(1,x));
 export function drawRageBubbles(g,v,world,scale){
  const states=v.rageBubbles??=new Map(),active=new Set(),time=world.time,placed=[];
- for(const a of world.entities){if(a.dead||a.inside||!(a.commanding||a.soldier&&!a.returning))continue;active.add(a.id);let state=states.get(a.id);if(!state||time<state.born){state={born:time};states.set(a.id,state);}Object.assign(state,{x:a.x,y:a.y,king:!!a.commanding,exit:null});}
+ for(const a of world.entities){if(a.dead||a.inside||!(a.rage>0))continue;active.add(a.id);let state=states.get(a.id);if(!state||time<state.born){state={born:time};states.set(a.id,state);}Object.assign(state,{x:a.x,y:a.y,king:!!a.commanding,exit:null});}
  for(const [id,state]of states){if(!active.has(id)){state.exit??=time;if(time-state.exit>.22){states.delete(id);continue;}}const age=time-state.born,fade=state.exit===null?1:1-clamp((time-state.exit)/.22),pop=age<.3?.6+.4*clamp(age/.16)+.12*Math.sin(clamp(age/.3)*Math.PI):1;
  const anchor=v.project(state),r=Math.max(12,Math.min(20,scale*.25))*(state.king?1.13:1)*pop*fade;
  let x=anchor.x,y=anchor.y-r-9-Math.sin(time*2+id)*1.5;

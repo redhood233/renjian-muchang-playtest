@@ -1,6 +1,6 @@
-import {meteorTargets} from './civilization.js?build=b210d042c6ea';
-import {CONFIG,SKILLS} from './config.js?build=b210d042c6ea';
-import {distance} from './engine.js?build=b210d042c6ea';
+import {meteorTargets} from './civilization.js?build=1b40af8f75d8';
+import {CONFIG,SKILLS} from './config.js?build=1b40af8f75d8';
+import {distance} from './engine.js?build=1b40af8f75d8';
 export function targetPreview(world,id,p,weather='rain'){
  const result={affected:[],secondary:[],corpses:[]};
  if(!id||!p||world.validate(id,p,weather))return result;

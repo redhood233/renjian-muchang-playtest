@@ -1,4 +1,4 @@
-import {drawRageBubbles} from './rage-bubbles.js?build=b210d042c6ea';
+import {drawRageBubbles} from './rage-bubbles.js?build=1b40af8f75d8';
 // Bounded, deterministic presentation: all ages come from simulation time.
 const TAU=Math.PI*2,clamp=x=>Math.max(0,Math.min(1,x));
 function ellipse(g,x,y,rx,ry,color,alpha=1){if(rx<=0||ry<=0)return;g.globalAlpha=clamp(alpha);g.fillStyle=color;g.beginPath();g.ellipse(x,y,rx,ry,0,0,TAU);g.fill();}
@@ -39,7 +39,7 @@ export function drawSpellFeedback(g,v,world,events,scale){
   const weather=world.islands?.[a.country]?.weather;if(weather?.left>0){const u=(phase*.4)%1;if(weather.kind==='cold')ellipse(g,q.x+s*(.15+u*.5),q.y-s*.9-u*s*.2,s*(.08+u*.2),s*.1,'#e5ece5',.3*(1-u));if(weather.kind==='hot')ellipse(g,q.x+s*.25,q.y-s*(1-u*.5),s*.04,s*.09,'#b5d9de',Math.sin(u*Math.PI)*.7);}
   if(a.king&&a.commanding){ring(g,v,a,.65,'#c9984d',.25+.12*Math.sin(time*4),1.5);}
   if(a.sick>0){for(let j=0;j<2;j++){const u=(phase*.4+j*.5)%1;ellipse(g,q.x+Math.sin(phase+j)*s*.35,q.y-u*s*1.4,s*(.2+u*.2),s*.2,'#859768',.3*(1-u));}}
-  else if(a.soldier&&!a.returning){const pulse=.5+.5*Math.sin(phase*3);glow(g,q.x,q.y-s*.45,s*.55,'#bf5140',.05+pulse*.08);}
+  else if(a.rage>0){const pulse=.5+.5*Math.sin(phase*3);glow(g,q.x,q.y-s*.45,s*.55,'#bf5140',.05+pulse*.08);}
   if(a.bless>0&&a.adult&&!a.sick&&!a.soldier){const u=(phase*.55)%1;glow(g,q.x,q.y-s*.4,s*.8,'#edcf79',.12);ellipse(g,q.x+Math.sin(phase)*s*.35,q.y-u*s*1.6,s*.07,s*.13,'#f6dda0',1-u);}
   if(a.joy>0&&a.adult){const u=(phase*.32)%1;heart(g,q.x+Math.sin(phase)*s*.25,q.y-s*(.9+u),s*.23,Math.sin(u*Math.PI)*.8);}
   if(a.kind==='undead'){ring(g,v,a,.4,'#b694d5',.4,1);glow(g,q.x,q.y-s*.5,s*.7,'#ad82d5',.2);}

@@ -495,5 +495,31 @@
     "pivotY": 29,
     "buildingScale": 0.63,
     "bridgeWidthScale": 2.4
+  },
+  "armyPresentation": {
+    "colors": [
+      "#b65a45",
+      "#5689ae"
+    ],
+    "scales": [
+      1,
+      1,
+      1
+    ],
+    "carLead": 1.4,
+    "droneHeight": 3.8,
+    "kingCamera": [
+      3.8,
+      0.65,
+      2.5,
+      4
+    ],
+    "soldierCamera": [
+      0.8,
+      0.25,
+      1.35,
+      12
+    ],
+    "followClearance": 6
   }
 }

@@ -1,5 +1,5 @@
-import * as T from './vendor/three.module.js?build=b210d042c6ea';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=b210d042c6ea';
+import * as T from './vendor/three.module.js?build=1b40af8f75d8';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=1b40af8f75d8';
 let source,pending;
 export function loadCrown(){return pending??=new GLTFLoader().loadAsync(new URL('./assets/characters/royal/crown.glb',import.meta.url).href).then(g=>{source=g.scene;const bounds=new T.Box3().setFromObject(source),size=bounds.getSize(new T.Vector3()),center=bounds.getCenter(new T.Vector3()),scale=.68/Math.max(size.x,size.z);source.scale.multiplyScalar(scale);source.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);}).catch(e=>{pending=null;throw e;});}
 export function createCrown(){if(!source)throw Error('Crown asset is not loaded');const group=new T.Group();group.name='RoyalCrown';const model=source.clone(true),materials=[];model.traverse(o=>{if(!o.isMesh)return;o.material=o.material.clone();o.material.roughness=.48;o.material.metalness=.2;o.castShadow=true;materials.push(o.material);});group.add(model);group.userData.materials=materials;return group;}

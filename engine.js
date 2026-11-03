@@ -1,13 +1,13 @@
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=b210d042c6ea';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=b210d042c6ea';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=b210d042c6ea';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=b210d042c6ea';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=b210d042c6ea';
-import {CIVILIZATION as V} from './config.js?build=b210d042c6ea';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets} from './civilization.js?build=b210d042c6ea';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=b210d042c6ea';
-import {strike,separate} from './combat.js?build=b210d042c6ea';
-import {validGameplayState} from './gameplay-save.js?build=b210d042c6ea';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=1b40af8f75d8';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=1b40af8f75d8';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=1b40af8f75d8';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=1b40af8f75d8';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=1b40af8f75d8';
+import {CIVILIZATION as V} from './config.js?build=1b40af8f75d8';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets} from './civilization.js?build=1b40af8f75d8';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=1b40af8f75d8';
+import {strike,separate} from './combat.js?build=1b40af8f75d8';
+import {validGameplayState} from './gameplay-save.js?build=1b40af8f75d8';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {
@@ -67,6 +67,7 @@ export class World {
   if(!e||e.dead)return;this.visualEvents.push({id:'death',x:e.x,y:e.y,time:this.time,king:!!e.king,human:e.kind==='human',cause});e.dead=true;if(e.commanding)this.retreat(this.islands[e.country]);
    if(e.kind==='beast'||e.kind==='sheep'){const c=this.islands[e.country];if(e.kind==='beast')c.faith=Math.min(100,(c.faith||0)+3);const food=e.kind==='beast'?B.meatFood:H.meatFood;c.food=Math.min(C.foodLimit*(complete(c,'granary').length?S.granaryStorage:1),c.food+food);if(e.kind==='sheep'){c.harvested++;c.meatCollected+=food;}this.change('animal-killed',{animalId:e.id,country:e.country,kind:e.kind,cause,food});return;}
   if(e.kind==='human'){
+   if(e.king||e.role==='king'){const nation=this.islands[e.country];nation.warIntent=0;this.retreat(nation);this.change('royal-expedition-cancelled',{country:e.country,kingId:e.id,cause});}
    this.souls++;this.mana+=C.soulMana;
    const nation=this.islands[e.country];nation.faith=Math.min(100,(nation.faith||0)+5);if(e.soldier||e.action==='守卫岛屿')nation.exhaustion=Math.min(100,nation.exhaustion+R.casualtyExhaustion);
    this.change('human-died',{personId:e.id,country:e.country,role:e.role,cause});
