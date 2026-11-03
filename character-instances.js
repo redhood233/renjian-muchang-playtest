@@ -1,4 +1,4 @@
-import * as T from './vendor/three.module.js?build=ae7840b412f1';
+import * as T from './vendor/three.module.js?build=bf17b8d54899';
 // Batch residents with identical geometry/materials. Bone poses remain independent
 // in the shared palette. Transparent faces are kept individually sorted by Three.
 const groups=new Map();

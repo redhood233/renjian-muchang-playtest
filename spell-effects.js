@@ -1,6 +1,6 @@
-import {drawSpellFeedback,drawSoulFlights} from './spell-feedback.js?build=ae7840b412f1';
-import * as T from './vendor/three.module.js?build=ae7840b412f1';
-import {groundHeight,islandId} from './island-layout.js?build=ae7840b412f1';
+import {drawSpellFeedback,drawSoulFlights} from './spell-feedback.js?build=bf17b8d54899';
+import * as T from './vendor/three.module.js?build=bf17b8d54899';
+import {groundHeight,islandId} from './island-layout.js?build=bf17b8d54899';
 // Animation time is simulation time: pausing, resuming and backgrounding stay in sync.
 export class SpellEffects{
  constructor(view){this.view=view;this.active=[];this.images={};this.spritePool=[];this.textures={};this.depth=0;for(const n of ['meteor','lightning','wheat','spirit']){const im=new Image();im.src=new URL('./assets/ui/compact/painted-'+n+'.webp',import.meta.url);this.images[n]=im;this.textures[n]=new T.TextureLoader().load(im.src);this.textures[n].colorSpace=T.SRGBColorSpace;}this.canvas=document.createElement('canvas');this.canvas.className='vfx-canvas';document.body.append(this.canvas);this.soulCanvas=document.createElement("canvas");this.soulCanvas.className="soul-flight-canvas";document.body.append(this.soulCanvas);}
@@ -11,7 +11,7 @@ export class SpellEffects{
  if(skill?.id==='weather'&&target){const island=world.islandAt(target);if(island){g.save();g.setLineDash([7,4]);g.strokeStyle=this.view.selection?.valid?'#d1d7b1':'#92978b';g.lineWidth=2;g.fillStyle='#d1d7b112';g.beginPath();this.boundaries??=new Map();let boundary=this.boundaries.get(island.id);if(!boundary){boundary=[];for(let j=0;j<=80;j++){const a=j*Math.PI/40;let r=1;for(let k=1;k<35;k+=.5)if(islandId({x:island.x+Math.cos(a)*k,y:island.y+Math.sin(a)*k})===island.id)r=k;boundary.push({x:island.x+Math.cos(a)*r,y:island.y+Math.sin(a)*r});}this.boundaries.set(island.id,boundary);}for(let j=0;j<boundary.length;j++){const q=v.project(boundary[j]);j?g.lineTo(q.x,q.y):g.moveTo(q.x,q.y);}g.closePath();g.fill();g.stroke();g.restore();}}
 
  for(const e of this.active){anchor(e);const t=world.time-e.time,p=v.project(e),s=scale,fade=Math.min(1,(5.5-t)/1.5);g.save();
- if(e.id==='actor-hit'&&t<.18){g.strokeStyle='#e4c8a1';g.globalAlpha=1-t/.18;g.lineWidth=1.5;g.beginPath();for(let j=0;j<3;j++){const a=j*2.1;g.moveTo(p.x+Math.cos(a)*s*.2,p.y+Math.sin(a)*s*.2);g.lineTo(p.x+Math.cos(a)*s*.55,p.y+Math.sin(a)*s*.55);}g.stroke();}
+ if(e.id==='actor-hit'&&!e.from&&t<.18){g.strokeStyle='#e4c8a1';g.globalAlpha=1-t/.18;g.lineWidth=1.5;g.beginPath();for(let j=0;j<3;j++){const a=j*2.1;g.moveTo(p.x+Math.cos(a)*s*.2,p.y+Math.sin(a)*s*.2);g.lineTo(p.x+Math.cos(a)*s*.55,p.y+Math.sin(a)*s*.55);}g.stroke();}
  if(e.id==='lightning'&&t<.5){const victim=e.targets?.slice().sort((a,b)=>Math.hypot(a.x-e.x,a.y-e.y)-Math.hypot(b.x-e.x,b.y-e.y))[0],q=v.project(victim||e);if(t<.16||t>.28&&t<.4)image('lightning',q.x,q.y,s*8,s*23,1);}
  if(e.id==='bless'&&t<1.8)for(const a of e.targets||[]){const actor=world.get(a.id);if(!actor||actor.dead||!actor.adult||actor.sick||actor.soldier)continue;anchor(actor);const q=v.project(actor),grow=Math.min(1,t*3);image('wheat',q.x,q.y,scale*.8,scale*1.4*grow,Math.min(1,(1.8-t)*2));}
  if(e.id==='undead')for(const b of e.corpses||[]){const q=v.project(b);image('spirit',q.x,q.y-Math.min(1,t)*s,s*2.4,s*4*Math.min(1,t*2),fade);}

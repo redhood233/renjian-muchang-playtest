@@ -1,14 +1,14 @@
-import {establishCity,kingPost,cityHall,shrineSite} from './civic-sites.js?build=ae7840b412f1';
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=ae7840b412f1';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=ae7840b412f1';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=ae7840b412f1';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=ae7840b412f1';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=ae7840b412f1';
-import {CIVILIZATION as V} from './config.js?build=ae7840b412f1';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=ae7840b412f1';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=ae7840b412f1';
-import {strike,separate} from './combat.js?build=ae7840b412f1';
-import {validGameplayState} from './gameplay-save.js?build=ae7840b412f1';
+import {kingPost,cityHall} from './civic-sites.js?build=bf17b8d54899';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=bf17b8d54899';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=bf17b8d54899';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=bf17b8d54899';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=bf17b8d54899';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=bf17b8d54899';
+import {CIVILIZATION as V} from './config.js?build=bf17b8d54899';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=bf17b8d54899';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=bf17b8d54899';
+import {strike,separate} from './combat.js?build=bf17b8d54899';
+import {validGameplayState} from './gameplay-save.js?build=bf17b8d54899';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {
@@ -168,6 +168,6 @@ export class World {
   if(!Array.isArray(s.animals)||!Array.isArray(s.islands[0].buildings)||!Array.isArray(s.islands[1].pens)||!Number.isInteger(s.changeSerial)||s.animals.some(a=>!s.islands[a.country]||!['sheep','beast'].includes(a.kind)||!Number.isFinite(a.hp)||!walkable(a)||!a.home||!walkable(a.home))||new Set([...s.entities,...s.animals].map(e=>e.id)).size!==s.entities.length+s.animals.length)throw Error('存档损坏，无法恢复');
   if(!validGameplayState(s))throw Error('存档损坏，无法恢复');
   for(const e of s.entities){e.king=e.role==='king';e.commanding=!!(e.king&&s.islands[e.country].army?.kingId===e.id&&!s.islands[e.country].army.returning);}
-  const world=Object.assign(Object.create(World.prototype),s,{paused:true,visualEvents:[],changes:[]});for(const c of world.islands)if(!c.cityCenter){establishCity(c);if(c.shrine.state==='none')Object.assign(c.shrine,shrineSite(world,c));c.residenceClock=0;assignHomes(world,c);}return world;
+  return Object.assign(Object.create(World.prototype),s,{paused:true,visualEvents:[],changes:[]});
  }
 }

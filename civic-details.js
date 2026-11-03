@@ -1,4 +1,4 @@
-import {CIVILIZATION as V,SOCIETY as R} from './config.js?build=ae7840b412f1';
+import {CIVILIZATION as V,SOCIETY as R} from './config.js?build=bf17b8d54899';
 const state=b=>({none:'尚未建造',planned:'等待重建',clearing:'清理地块',building:'建造中',repairing:'修缮中',complete:'已完工'}[b.state]||b.state);
 export function civicDetails(w,pick){const c=w.islands[pick?.country];if(!c)return null;
  if(pick.kind==='shrine'){const s=c.shrine,scientific=c.research>=V.faithCutoff;return {title:'神明祭台',point:s,lines:[state(s),`信仰 ${Math.floor(c.faith)} · 完好度 ${Math.round(s.health*100)}%`,scientific?'科学时代：停止供奉，仍可修缮':`余粮充足且信仰不低于20时，居民到场供奉${V.offeringFood}粮食，获得${V.offeringMana}灵力`,`已完成供奉 ${s.offerings||0} 次`,s.state==='building'||s.state==='repairing'?`施工 ${Math.floor(s.progress/V.shrineSeconds*100)}%`:'']};}

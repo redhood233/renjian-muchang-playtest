@@ -1,8 +1,8 @@
-import {establishCity} from './civic-sites.js?build=ae7840b412f1';
-import {World} from './engine.js?build=ae7840b412f1';
-import {CampaignWorld} from './campaign.js?build=ae7840b412f1';
-import {CONFIG as C,MODES} from './config.js?build=ae7840b412f1';
-import {assignHomes} from './civilization.js?build=ae7840b412f1';
+import {establishCity} from './civic-sites.js?build=bf17b8d54899';
+import {World} from './engine.js?build=bf17b8d54899';
+import {CampaignWorld} from './campaign.js?build=bf17b8d54899';
+import {CONFIG as C,MODES} from './config.js?build=bf17b8d54899';
+import {assignHomes} from './civilization.js?build=bf17b8d54899';
 export const MODE_NAMES={prologue:'序章',level1:'第一关',sandbox:'沙盒模式'};
 export function modeOf(world){return world.campaign?(world.inPrologue?'prologue':'level1'):world.session?.mode==='sandbox'?'sandbox':world.session?.entryMode||'level1';}
 export function createGame(mode,seed=Date.now()){
@@ -27,6 +27,8 @@ const fresh=()=>({version:1,hasEnteredStory:false,prologueCompleted:false,level1
 // Storage can be disabled on phones. Progress remains usable for this session.
 export class GameLibrary {
  constructor(storage){this.storage=storage;this.profile=fresh();this.saves={};
+  // Layout changes invalidate previous runs. Keep settings and chapter unlocks.
+  try{for(let version=1;version<C.version;version++)for(const suffix of ['',...Object.keys(MODE_NAMES).map(mode=>':'+mode)])storage?.removeItem(`rjmc-full-save-v${version}${suffix}`);}catch{}
   try{const p=JSON.parse(storage?.getItem(PROFILE_KEY)||'null');if(p?.version===1){for(const key of ['hasEnteredStory','prologueCompleted','level1Completed'])this.profile[key]=p[key]===true;if(Object.hasOwn(MODE_NAMES,p.lastMode))this.profile.lastMode=p.lastMode;}}catch{}
   for(const mode of Object.keys(MODE_NAMES)){try{const raw=storage?.getItem(PREFIX+':'+mode);if(raw){const world=restoreGame(raw);if(modeOf(world)===mode)this.saves[mode]=raw;}}catch{}}
   try{const old=storage?.getItem(PREFIX);if(old){const world=restoreGame(old),mode=modeOf(world);if(!this.saves[mode]){this.saves[mode]=old;this.write(PREFIX+':'+mode,old);}this.profile.lastMode??=mode;if(mode!=='sandbox')this.profile.hasEnteredStory=true;if(world.campaign?.phase==='challenge')this.profile.prologueCompleted=true;this.persist();}}catch{}

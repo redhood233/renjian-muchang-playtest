@@ -1,9 +1,10 @@
-import {createCrown,updateCrown} from './royal-crown.js?build=ae7840b412f1';
-import {attachPalette} from './character-palette.js?build=ae7840b412f1';
-import {batchOpaque} from './character-batch.js?build=ae7840b412f1';
-import * as T from './vendor/three.module.js?build=ae7840b412f1';
-import {clone} from './vendor/SkeletonUtils.js?build=ae7840b412f1';
-import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=ae7840b412f1';
+import {createCrown,updateCrown} from './royal-crown.js?build=bf17b8d54899';
+import {createWeapon} from './combat-presentation.js?build=bf17b8d54899';
+import {attachPalette} from './character-palette.js?build=bf17b8d54899';
+import {batchOpaque} from './character-batch.js?build=bf17b8d54899';
+import * as T from './vendor/three.module.js?build=bf17b8d54899';
+import {clone} from './vendor/SkeletonUtils.js?build=bf17b8d54899';
+import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=bf17b8d54899';
 export class CharacterView {
  constructor(source,e){
   this.look=appearance(e.id,e.country);if(e.king)this.look.hat=-1;this.root=new T.Group();this.root.userData.assetId='actor.human';this.root.userData.character=this;
@@ -15,6 +16,7 @@ export class CharacterView {
    if(!enabled){remove.push(o);return;}o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;this.meshes.push(o);
    if(r==='outfit'){o.material=o.material.clone();this.materials.push(o.material);} // Skin, face and hair retain the original palette.
   });for(const o of remove)o.removeFromParent();
+  for(const kind of ['sword','rifle','laser'])this.tools[kind]=createWeapon(kind);
   // All exported parts use one skin. Reuse its palette within this resident,
   // while keeping every resident's bones and skeleton independent.
   let skeleton;for(const mesh of this.meshes)if(mesh.isSkinnedMesh){if(!skeleton)skeleton=mesh.skeleton;else if(mesh.skeleton.bones.every((b,i)=>b===skeleton.bones[i]))mesh.skeleton=skeleton;}
@@ -39,8 +41,9 @@ export class CharacterView {
    let angle;if(time<(this.hitUntil||0)&&this.attackPoint)angle=Math.atan2(this.attackPoint.x-e.x,this.attackPoint.y-e.y);else if(distance>.001)angle=Math.atan2(e.x-this.previous.x,e.y-this.previous.y);
    if(angle!==undefined)this.root.rotation.y+=Math.atan2(Math.sin(angle-this.root.rotation.y),Math.cos(angle-this.root.rotation.y))*Math.min(1,dt*14);
   }
-  if(this.commandArm&&dt>0){this.commandPose=this.commandArm.quaternion.clone();if(e.commanding)this.commandArm.rotation.z-=.9;else if(e.carryingStandard){this.commandArm.rotation.z-=.55;this.commandArm.rotation.x-=.35;}else if(e.workSite&&e.action==='现场施工'||e.faithWork&&e.faithTask==='build'&&e.faithAt)this.commandArm.rotation.x+=.6+Math.sin(time*9)*.45;}
-  const tool=e.commanding?null:toolFor(e,this.look);if(tool!==this.tool){this.attached?.removeFromParent();this.tool=tool;this.attached=this.tools[tool];if(this.attached&&this.hand){this.hand.add(this.attached);this.attached.position.set(0,0,0);this.attached.rotation.set(0,0,0);this.attached.scale.setScalar(.7);this.attached.castShadow=true;}}
+  if(this.commandArm&&dt>0){this.commandPose=this.commandArm.quaternion.clone();if(e.commanding)this.commandArm.rotation.z-=.9;else if(e.carryingStandard){this.commandArm.rotation.z-=.55;this.commandArm.rotation.x-=.35;}else if(e.soldier){const attack=time<(this.hitUntil||0);this.commandArm.rotation.z-=.45;this.commandArm.rotation.x-=e.weapon==='sword'?(attack?Math.sin((this.hitUntil-time)*12)*.9:.3):1+(attack?.12:0);}else if(e.workSite&&e.action==='现场施工'||e.faithWork&&e.faithTask==='build'&&e.faithAt)this.commandArm.rotation.x+=.6+Math.sin(time*9)*.45;}
+  const tool=e.commanding?null:toolFor(e,this.look);if(tool!==this.tool){this.attached?.removeFromParent();this.tool=tool;this.attached=this.tools[tool];if(this.attached&&this.hand){this.hand.add(this.attached);this.attached.position.set(0,0,0);this.attached.rotation.set(0,0,0);const weapon=['sword','rifle','laser'].includes(tool);this.root.updateMatrixWorld(true);const handScale=this.hand.getWorldScale(new T.Vector3()).x/this.root.scale.x;this.attached.scale.setScalar(weapon?.8/Math.max(.0001,Math.abs(handScale)):.7);this.attached.castShadow=true;}}
+  if(this.attached&&['rifle','laser'].includes(tool)){this.root.updateMatrixWorld(true);this.attached.quaternion.copy(this.hand.getWorldQuaternion(new T.Quaternion()).invert().multiply(this.root.getWorldQuaternion(new T.Quaternion())));}
   // Subtle body responses use game time, so pausing freezes every pose.
   const phase=time*3+e.id;
   this.model.rotation.z=e.sick>0?Math.sin(phase)*.055:0;

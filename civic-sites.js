@@ -1,5 +1,5 @@
-import {nearestWalkable,walkable,islandId} from './island-layout.js?build=ae7840b412f1';
-import {CIVILIZATION as V} from './config.js?build=ae7840b412f1';
+import {nearestWalkable,walkable,islandId} from './island-layout.js?build=bf17b8d54899';
+import {CIVILIZATION as V} from './config.js?build=bf17b8d54899';
 export const cityHall=c=>c.buildings?.find(b=>b.special==='hall');
 export function establishCity(c){const hall=cityHall(c);if(!hall)return;hall.kind='hall';hall.state='complete';hall.health=1;c.cityCenter={buildingId:hall.id};}
 export function kingPost(w,c){const hall=cityHall(c);return nearestWalkable(hall?{x:hall.x,y:hall.footprint.max[1]+V.kingPostOffset}:c,c.id,w.blockers());}

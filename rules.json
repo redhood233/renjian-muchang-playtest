@@ -1,7 +1,7 @@
 {
   "status": "农牧经营、固定地编优先扩张、身份神力；表现层由独立协作者接入",
   "config": {
-    "version": 9,
+    "version": 10,
     "duration": 300,
     "goal": 60,
     "mana": 30,
@@ -440,7 +440,7 @@
     ],
     "weapons": [
       "sword",
-      "musket",
+      "rifle",
       "laser"
     ],
     "weaponRange": [
@@ -498,6 +498,7 @@
     "pivotX": 52,
     "pivotY": 29,
     "buildingScale": 0.63,
+    "cityHallMaxSize": 3.2,
     "bridgeWidthScale": 2.4
   },
   "armyPresentation": {

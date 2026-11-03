@@ -1,8 +1,8 @@
-import {EraBuildingView} from './era-building-models.js?build=ae7840b412f1';
-import * as T from './vendor/three.module.js?build=ae7840b412f1';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=ae7840b412f1';
-import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=ae7840b412f1';
-import {groundHeight} from './island-layout.js?build=ae7840b412f1';
+import {EraBuildingView} from './era-building-models.js?build=bf17b8d54899';
+import * as T from './vendor/three.module.js?build=bf17b8d54899';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=bf17b8d54899';
+import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=bf17b8d54899';
+import {groundHeight,buildingPlacement} from './island-layout.js?build=bf17b8d54899';
 // Bind existing authored models to gameplay slots; no asset transforms are edited.
 export class SettlementView {
  constructor(root,scene){
@@ -12,9 +12,9 @@ export class SettlementView {
   root.traverse(node=>{const name=node.userData.sourceName||node.name;
    for(const [country,lots] of definitions.entries()){const lot=lots.find(b=>b.zone==='house'&&b.sourceNames.includes(name));if(!lot)continue;
     // Shrink every component around the same authored building centre/foot.
-    const box=new T.Box3().setFromObject(node),anchor=new T.Vector3(lot.x,lot.footprint.baseY??box.min.y,lot.y);
-    const at=node.getWorldPosition(new T.Vector3()).sub(anchor).multiplyScalar(G.buildingScale).add(anchor);
-    node.parent.worldToLocal(at);node.position.copy(at);node.scale.multiplyScalar(G.buildingScale);node.updateMatrixWorld(true);
+    const placement=buildingPlacement(name),box=new T.Box3().setFromObject(node),anchor=new T.Vector3(placement?.origin.x??lot.x,placement?.foot??box.min.y,placement?.origin.y??lot.y),target=new T.Vector3(lot.x,placement?.floor??anchor.y,lot.y),scale=placement?.scale??G.buildingScale;
+    const at=node.getWorldPosition(new T.Vector3()).sub(anchor).multiplyScalar(scale).add(target);
+    node.parent.worldToLocal(at);node.position.copy(at);node.scale.multiplyScalar(scale);node.updateMatrixWorld(true);
     node.userData.gameplayBuilding=true;node.userData.entity={kind:'building',country,buildingId:lot.id};if(!this.originals.has(lot.id))this.originals.set(lot.id,[]);this.originals.get(lot.id).push(node);this.baseScale.set(node,node.scale.y);this.worldTransforms.set(node,node.matrixWorld.clone());
     if(!lot.special&&!this.templates.has(country))this.templates.set(country,node);
     this.ground.set(lot.id,new T.Box3().setFromObject(node).min.y);

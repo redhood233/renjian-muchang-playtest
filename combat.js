@@ -1,5 +1,5 @@
-import {BRIDGE,walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js?build=ae7840b412f1';
-import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js?build=ae7840b412f1';
+import {BRIDGE,walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js?build=bf17b8d54899';
+import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js?build=bf17b8d54899';
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const formationCache=new WeakMap();
 export function weapon(w,e){const era=e.kind==='human'?(w.islands[e.country].era||0):0;return {range:V.weaponRange[era],cooldown:V.weaponCooldown[era],kind:V.weapons[era]};}
@@ -14,7 +14,7 @@ export function strike(w,e,v,dt,damage,slot=null){
  }
  if(dist(e,v)<=reach+.08&&e.attack<=0&&segmentClear(e,v,w.blockers())){
   const hp=v.hp;w.damage(v,damage,e.kind==='undead'?'undead':'war');
-  if(v.hp<hp)w.visualEvents.push({id:'actor-hit',attackerId:e.id,targetId:v.id,x:v.x,y:v.y,time:w.time,weapon:profile.kind});
+  if(v.hp<hp)w.visualEvents.push({id:'actor-hit',attackerId:e.id,targetId:v.id,x:v.x,y:v.y,from:{x:e.x,y:e.y},time:w.time,weapon:profile.kind});
   e.attack=(e.kind==='undead'?C.attackInterval:profile.cooldown)*(e.soldier&&e.rage>0?.6:1);
  }
 }

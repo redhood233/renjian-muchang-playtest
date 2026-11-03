@@ -1,6 +1,6 @@
-import {establishCity} from './civic-sites.js?build=ae7840b412f1';
-import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=ae7840b412f1';
-import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=ae7840b412f1';
+import {establishCity} from './civic-sites.js?build=bf17b8d54899';
+import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=bf17b8d54899';
+import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=bf17b8d54899';
 
 const center = bounds => ({x:(bounds[0][0]+bounds[1][0])/2,y:(bounds[0][1]+bounds[1][1])/2});
 const rect = (p,w,h) => ({min:[p.x-w/2,p.y-h/2],max:[p.x+w/2,p.y+h/2]});

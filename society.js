@@ -1,6 +1,6 @@
-import {kingPost,schoolPost,cityHall} from './civic-sites.js?build=ae7840b412f1';
-import {CONFIG as C,SOCIETY as R} from './config.js?build=ae7840b412f1';
-import {complete} from './settlement.js?build=ae7840b412f1';
+import {kingPost,schoolPost,cityHall} from './civic-sites.js?build=bf17b8d54899';
+import {CONFIG as C,SOCIETY as R} from './config.js?build=bf17b8d54899';
+import {complete} from './settlement.js?build=bf17b8d54899';
 export function available(e){return !!e&&!e.dead&&e.adult&&!e.soldier&&e.sick<=0&&e.joy<=0&&e.rage<=0&&e.wounded<=0&&!e.faithWork&&e.action!=='守卫岛屿';}
 export function initSociety(w){for(const c of w.islands){c.kingId=w.humans(c.id)[0]?.id??null;c.warIntent=0;c.exhaustion=0;c.unrest=0;c.leaderVacancy=0;c.scholarClock=0;const king=w.get(c.kingId);if(king){king.role='king';king.king=true;Object.assign(king,kingPost(w,c));king.destination=kingPost(w,c);}}}
 export function enrage(w,target){

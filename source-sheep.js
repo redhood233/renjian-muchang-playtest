@@ -1,8 +1,8 @@
-import {GEOGRAPHY as G} from './config.js?build=ae7840b412f1';
-import {loadModel,environmentTexture} from './mobile-runtime.js?build=ae7840b412f1';
-import * as T from './vendor/three.module.js?build=ae7840b412f1';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=ae7840b412f1';
-import {clone} from './vendor/SkeletonUtils.js?build=ae7840b412f1';
+import {GEOGRAPHY as G} from './config.js?build=bf17b8d54899';
+import {loadModel,environmentTexture} from './mobile-runtime.js?build=bf17b8d54899';
+import * as T from './vendor/three.module.js?build=bf17b8d54899';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=bf17b8d54899';
+import {clone} from './vendor/SkeletonUtils.js?build=bf17b8d54899';
 export class SourceSheep {
  async load(root,meta){
   const gltf=await loadModel(new URL('./assets/islands/v09/sheep.glb',import.meta.url).href,'sheep');

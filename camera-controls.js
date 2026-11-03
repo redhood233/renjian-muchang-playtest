@@ -1,4 +1,4 @@
-import {GEOGRAPHY as G,worldPoint} from './config.js?build=ae7840b412f1';
+import {GEOGRAPHY as G,worldPoint} from './config.js?build=bf17b8d54899';
 const low=worldPoint({x:4,y:8}),high=worldPoint({x:98,y:52});
 export const DEFAULT_CAMERA={...worldPoint({x:51.5,y:28}),zoom:1/G.scale,yaw:0,pitch:Math.atan2(70,55)};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));

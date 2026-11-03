@@ -1,11 +1,21 @@
-import data from './assets/islands/v09/layout-data.js?build=ae7840b412f1';
-import {GEOGRAPHY as G,worldPoint} from './config.js?build=ae7840b412f1';
+import data from './assets/islands/v09/layout-data.js?build=bf17b8d54899';
+import {GEOGRAPHY as G,worldPoint} from './config.js?build=bf17b8d54899';
 // Derive a larger world without changing the level artist's source data.
 const building=o=>o.blocking||/^(Cottage |牧场建筑 |Village Hall |Academy |Granary |Windmill )/.test(o.name);
 const bases=data.objects.filter(o=>building(o)&&!o.name.includes('Repair')&&!/_/.test(o.name.split(' | ')[0]));
 function anchor(name){const stem=name.replace(/\.\d{3}$/,'');return bases.filter(o=>stem===o.name.replace(/\.\d{3}$/,'')||stem.startsWith(o.name.replace(/\.\d{3}$/,'')+'_')).sort((a,b)=>a.name.length-b.name.length)[0];}
-function bounds(min,max,name){const base=anchor(name),k=base?G.buildingScale:1,center=base?worldPoint({x:(base.bounds[0][0]+base.bounds[1][0])/2,y:(base.bounds[0][1]+base.bounds[1][1])/2}):{x:0,y:0};
- const convert=v=>{const p=worldPoint({x:v[0],y:v[1]});const a=[center.x+(p.x-center.x)*k,center.y+(p.y-center.y)*k];if(v.length>2){const foot=(base?.bounds[0][2]??0)*G.scale;a.push(foot+(v[2]*G.scale-foot)*k);}return a;};return [convert(min),convert(max)];}
+const pastureHall=data.objects.filter(o=>o.name.startsWith('牧场建筑 | ')).at(-3)?.name;
+// Move only the two public halls. Other authored lots retain their fixed positions.
+// Navigation bounds and visible components share this transform.
+export function buildingPlacement(name){const base=anchor(name);if(!base)return null;
+ const origin=worldPoint({x:(base.bounds[0][0]+base.bounds[1][0])/2,y:(base.bounds[0][1]+base.bounds[1][1])/2}),country=base.name.startsWith('Village Hall |')?0:base.name===pastureHall?1:null;
+ const target=country===null?origin:worldPoint(data.centers[country]),width=(base.bounds[1][0]-base.bounds[0][0])*G.scale*G.buildingScale,depth=(base.bounds[1][1]-base.bounds[0][1])*G.scale*G.buildingScale;
+ const scale=G.buildingScale*(country===null?1:Math.min(1,G.cityHallMaxSize/Math.max(width,depth))),foot=base.bounds[0][2]*G.scale;
+ const i=Math.round((target.x-grid.x)/grid.step),j=Math.round((target.y-grid.y)/grid.step),floor=country===null?foot:grid.heights[j*grid.cols+i]??foot;
+ return {origin,target,scale,foot,floor};
+}
+function bounds(min,max,name){const placement=buildingPlacement(name);
+ const convert=v=>{const p=worldPoint({x:v[0],y:v[1]});if(!placement)return [...Object.values(p),...(v.length>2?[v[2]*G.scale]:[])];const {origin,target,scale,foot,floor}=placement,a=[target.x+(p.x-origin.x)*scale,target.y+(p.y-origin.y)*scale];if(v.length>2)a.push(floor+(v[2]*G.scale-foot)*scale);return a;};return [convert(min),convert(max)];}
 const grid={...data.grid,...worldPoint({x:data.grid.x,y:data.grid.y}),step:data.grid.step*G.scale,heights:data.grid.heights.map(h=>h===null?null:h*G.scale)};
 export const obstacles=data.obstacles.map(o=>{const b=bounds(o.min,o.max,o.name);return {...o,min:b[0],max:b[1]};});
 export const BRIDGE={...data.bridge,a:worldPoint(data.bridge.a),b:worldPoint(data.bridge.b),width:data.bridge.width*G.scale*G.bridgeWidthScale,height:data.bridge.height*G.scale};

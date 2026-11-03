@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "resources": [
+    {
+      "id": "temp.weapon.sword",
+      "status": "temporary",
+      "source": "combat-presentation.js:createWeapon",
+      "purpose": "古代近战剑",
+      "replacement": "registerWeaponModel('sword', factory); 在角色首次创建前注册，工厂返回独立Object3D，以米为单位，手柄在原点，武器沿本地+Z朝前。"
+    },
+    {
+      "id": "temp.weapon.rifle",
+      "status": "temporary",
+      "source": "combat-presentation.js:createWeapon",
+      "purpose": "现代步枪",
+      "replacement": "registerWeaponModel('rifle', factory); 在角色首次创建前注册，工厂返回独立Object3D，以米为单位，手柄在原点，武器沿本地+Z朝前。"
+    },
+    {
+      "id": "temp.weapon.laser",
+      "status": "temporary",
+      "source": "combat-presentation.js:createWeapon",
+      "purpose": "未来激光枪",
+      "replacement": "registerWeaponModel('laser', factory); 在角色首次创建前注册，工厂返回独立Object3D，以米为单位，手柄在原点，武器沿本地+Z朝前。"
+    }
+  ]
+}

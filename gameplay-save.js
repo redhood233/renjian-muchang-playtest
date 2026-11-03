@@ -1,5 +1,5 @@
-import {HUSBANDRY as H} from './config.js?build=ae7840b412f1';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=ae7840b412f1';
+import {HUSBANDRY as H} from './config.js?build=bf17b8d54899';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=bf17b8d54899';
 const finite=(v,min=0)=>Number.isFinite(v)&&v>=min;
 export function validGameplayState(s){
  if(!Array.isArray(s.animals)||!Array.isArray(s.islands?.[0]?.buildings)||!Array.isArray(s.islands?.[1]?.pens)||!Number.isInteger(s.navRevision)||s.navRevision<0||!Array.isArray(s.beastBirthCredit)||s.beastBirthCredit.length!==2||!s.beastBirthCredit.every(v=>finite(v)))return false;

@@ -1,6 +1,6 @@
-import * as T from './vendor/three.module.js?build=ae7840b412f1';
-import {ARMY_PRESENTATION as P} from './config.js?build=ae7840b412f1';
-import {groundHeight,walkable} from './island-layout.js?build=ae7840b412f1';
+import * as T from './vendor/three.module.js?build=bf17b8d54899';
+import {ARMY_PRESENTATION as P} from './config.js?build=bf17b8d54899';
+import {groundHeight,walkable} from './island-layout.js?build=bf17b8d54899';
 const factories=new Map();
 // Art interface: factory({era,country,color}) => Object3D. Local +Z faces
 // forward; origin is ground level. Models are cosmetic, never extra soldiers.

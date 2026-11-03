@@ -1,6 +1,6 @@
-import * as T from './vendor/three.module.js?build=ae7840b412f1';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=ae7840b412f1';
-import {ERA_BUILDINGS as E} from './config.js?build=ae7840b412f1';
+import * as T from './vendor/three.module.js?build=bf17b8d54899';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=bf17b8d54899';
+import {ERA_BUILDINGS as E} from './config.js?build=bf17b8d54899';
 // TEMPORARY: port of Godot world_view.gd _draw_era_building / agriculture.
 // Provenance and replacement slots: assets/temporary/era-buildings/manifest.json.
 const replacements=new Map();
