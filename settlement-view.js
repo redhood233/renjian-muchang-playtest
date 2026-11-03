@@ -1,11 +1,12 @@
-import * as T from './vendor/three.module.js?build=a2168afe9bb0';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=a2168afe9bb0';
-import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=a2168afe9bb0';
-import {groundHeight} from './island-layout.js?build=a2168afe9bb0';
+import * as T from './vendor/three.module.js?build=b210d042c6ea';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=b210d042c6ea';
+import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=b210d042c6ea';
+import {groundHeight} from './island-layout.js?build=b210d042c6ea';
 // Bind existing authored models to gameplay slots; no asset transforms are edited.
 export class SettlementView {
  constructor(root,scene){
   this.scene=scene;this.originals=new Map();this.templates=new Map();this.baseScale=new WeakMap();this.worldTransforms=new WeakMap();this.ground=new Map();this.clones=new Map();
+  this.abandoned=new WeakMap();
   const definitions=[FARM_LOTS,PASTURE_LOTS];
   root.traverse(node=>{const name=node.userData.sourceName||node.name;
    for(const [country,lots] of definitions.entries()){const lot=lots.find(b=>b.zone==='house'&&b.sourceNames.includes(name));if(!lot)continue;
@@ -19,6 +20,10 @@ export class SettlementView {
    }
   });
  }
+ tint(root,empty){
+  let state=this.abandoned.get(root);if(!state){state={value:0};this.abandoned.set(root,state);root.traverse(o=>{if(!o.isMesh)return;const copy=source=>{const m=source.clone(),before=source.onBeforeCompile,key=source.customProgramCacheKey();m.userData.abandonmentOwned=true;m.onBeforeCompile=(shader,renderer)=>{before.call(m,shader,renderer);shader.uniforms.abandoned=state;if(!shader.fragmentShader.includes('uniform float abandoned;')){shader.fragmentShader='uniform float abandoned;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,vec3(dot(diffuseColor.rgb,vec3(.299,.587,.114))*.58),abandoned);');}};m.customProgramCacheKey=()=>key+'|abandoned';return m;};o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);});}
+  state.value=empty?1:0;
+ }
  make(lot,country){
   const template=this.templates.get(country);if(!template)return null;
   const group=new T.Group(),model=template.clone(true);this.worldTransforms.get(template).decompose(model.position,model.quaternion,model.scale);model.visible=true;group.add(model);group.updateMatrixWorld(true);
@@ -28,14 +33,15 @@ export class SettlementView {
   group.position.set(lot.x,this.ground.get(lot.id)??groundHeight(lot),lot.y);this.scene.add(group);this.clones.set(lot.id,group);return group;
  }
  update(world){
-  if(this.world!==world){for(const node of this.clones.values())this.scene.remove(node);this.clones.clear();this.world=world;}
+  if(this.world!==world){for(const node of this.clones.values()){this.scene.remove(node);node.traverse(o=>{if(o.isMesh)for(const m of Array.isArray(o.material)?o.material:[o.material])if(m.userData.abandonmentOwned)m.dispose();});}this.clones.clear();this.world=world;}
   for(const c of world.islands)for(const lot of c.buildings||[]){if(lot.zone!=='house')continue;
    const visible=lot.state==='complete'||lot.state==='building',growth=lot.state==='complete'?1:Math.max(.05,Math.min(1,lot.progress/S.buildSeconds));
    const original=this.originals.get(lot.id)||[],placeholder=lot.special&&lot.kind==='house';
-   for(const node of original){node.visible=visible&&!placeholder;node.scale.y=this.baseScale.get(node)*growth;}
+   const empty=world.humans(c.id).length===0;
+   for(const node of original){node.visible=visible&&!placeholder;node.scale.y=this.baseScale.get(node)*growth;this.tint(node,empty);}
    let clone=this.clones.get(lot.id);
    if(visible&&(placeholder||!original.length))clone??=this.make(lot,c.id);
-   if(clone){clone.visible=visible&&(!!placeholder||!original.length);clone.scale.y=clone.userData.baseFit*growth;}
+   if(clone){clone.visible=visible&&(!!placeholder||!original.length);clone.scale.y=clone.userData.baseFit*growth;this.tint(clone,empty);}
   }
  }
 }

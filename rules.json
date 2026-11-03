@@ -62,7 +62,8 @@
     "rageSeconds": 30,
     "appetiteSeconds": 36,
     "birthProductionMargin": 1.1,
-    "kingWarSize": 4
+    "kingWarSize": 4,
+    "bodySeconds": 8
   },
   "skills": [
     {
@@ -277,7 +278,9 @@
         "spacing": 4,
         "size": 2
       }
-    }
+    },
+    "workerSpeed": 3,
+    "workReach": 1.1
   },
   "husbandry": {
     "initialSheep": 12,

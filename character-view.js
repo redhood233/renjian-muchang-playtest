@@ -1,9 +1,9 @@
-import {createCrown,updateCrown} from './royal-crown.js?build=a2168afe9bb0';
-import {attachPalette} from './character-palette.js?build=a2168afe9bb0';
-import {batchOpaque} from './character-batch.js?build=a2168afe9bb0';
-import * as T from './vendor/three.module.js?build=a2168afe9bb0';
-import {clone} from './vendor/SkeletonUtils.js?build=a2168afe9bb0';
-import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=a2168afe9bb0';
+import {createCrown,updateCrown} from './royal-crown.js?build=b210d042c6ea';
+import {attachPalette} from './character-palette.js?build=b210d042c6ea';
+import {batchOpaque} from './character-batch.js?build=b210d042c6ea';
+import * as T from './vendor/three.module.js?build=b210d042c6ea';
+import {clone} from './vendor/SkeletonUtils.js?build=b210d042c6ea';
+import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=b210d042c6ea';
 export class CharacterView {
  constructor(source,e){
   this.look=appearance(e.id,e.country);if(e.king)this.look.hat=-1;this.root=new T.Group();this.root.userData.assetId='actor.human';this.root.userData.character=this;
@@ -39,7 +39,7 @@ export class CharacterView {
    let angle;if(time<(this.hitUntil||0)&&this.attackPoint)angle=Math.atan2(this.attackPoint.x-e.x,this.attackPoint.y-e.y);else if(distance>.001)angle=Math.atan2(e.x-this.previous.x,e.y-this.previous.y);
    if(angle!==undefined)this.root.rotation.y+=Math.atan2(Math.sin(angle-this.root.rotation.y),Math.cos(angle-this.root.rotation.y))*Math.min(1,dt*14);
   }
-  if(this.commandArm&&dt>0){this.commandPose=this.commandArm.quaternion.clone();if(e.commanding)this.commandArm.rotation.z-=.9;}
+  if(this.commandArm&&dt>0){this.commandPose=this.commandArm.quaternion.clone();if(e.commanding)this.commandArm.rotation.z-=.9;else if(e.workSite&&e.action==='现场施工')this.commandArm.rotation.x+=.6+Math.sin(time*9)*.45;}
   const tool=e.commanding?null:toolFor(e,this.look);if(tool!==this.tool){this.attached?.removeFromParent();this.tool=tool;this.attached=this.tools[tool];if(this.attached&&this.hand){this.hand.add(this.attached);this.attached.position.set(0,0,0);this.attached.rotation.set(0,0,0);this.attached.scale.setScalar(.7);this.attached.castShadow=true;}}
   // Subtle body responses use game time, so pausing freezes every pose.
   const phase=time*3+e.id;

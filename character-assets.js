@@ -1,6 +1,6 @@
-import {loadModel} from './mobile-runtime.js?build=a2168afe9bb0';
-import {loadCrown} from './royal-crown.js?build=a2168afe9bb0';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=a2168afe9bb0';
+import {loadModel} from './mobile-runtime.js?build=b210d042c6ea';
+import {loadCrown} from './royal-crown.js?build=b210d042c6ea';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=b210d042c6ea';
 let pending;
 export function loadCharacters(){return pending??=(async()=>{
  await loadCrown();

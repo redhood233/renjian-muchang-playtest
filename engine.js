@@ -1,13 +1,13 @@
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=a2168afe9bb0';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=a2168afe9bb0';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=a2168afe9bb0';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=a2168afe9bb0';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=a2168afe9bb0';
-import {CIVILIZATION as V} from './config.js?build=a2168afe9bb0';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets} from './civilization.js?build=a2168afe9bb0';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=a2168afe9bb0';
-import {strike,separate} from './combat.js?build=a2168afe9bb0';
-import {validGameplayState} from './gameplay-save.js?build=a2168afe9bb0';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=b210d042c6ea';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=b210d042c6ea';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=b210d042c6ea';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=b210d042c6ea';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=b210d042c6ea';
+import {CIVILIZATION as V} from './config.js?build=b210d042c6ea';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets} from './civilization.js?build=b210d042c6ea';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=b210d042c6ea';
+import {strike,separate} from './combat.js?build=b210d042c6ea';
+import {validGameplayState} from './gameplay-save.js?build=b210d042c6ea';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {
@@ -70,7 +70,7 @@ export class World {
    this.souls++;this.mana+=C.soulMana;
    const nation=this.islands[e.country];nation.faith=Math.min(100,(nation.faith||0)+5);if(e.soldier||e.action==='守卫岛屿')nation.exhaustion=Math.min(100,nation.exhaustion+R.casualtyExhaustion);
    this.change('human-died',{personId:e.id,country:e.country,role:e.role,cause});
-   this.corpses.push({id:e.id,country:e.country,x:e.x,y:e.y,life:C.corpseSeconds});
+   this.corpses.push({id:e.id,country:e.country,x:e.x,y:e.y,adult:e.adult,king:!!e.king,soldier:!!e.soldier,life:C.corpseSeconds});
    this.effects.push({x:e.x,y:e.y,soul:true,life:1.8});this.fx(e.x,e.y,`＋1魂 · ＋${C.soulMana}灵力`,'#e2b7ff');
    this.milestones.soul??=Number(this.time.toFixed(2));
   }

@@ -1,5 +1,5 @@
-import {CONFIG as C,SOCIETY as R} from './config.js?build=a2168afe9bb0';
-import {complete} from './settlement.js?build=a2168afe9bb0';
+import {CONFIG as C,SOCIETY as R} from './config.js?build=b210d042c6ea';
+import {complete} from './settlement.js?build=b210d042c6ea';
 export function available(e){return !!e&&!e.dead&&e.adult&&!e.soldier&&e.sick<=0&&e.joy<=0&&e.rage<=0&&e.wounded<=0&&!e.faithWork&&e.action!=='守卫岛屿';}
 export function initSociety(w){for(const c of w.islands){c.kingId=w.humans(c.id)[0]?.id??null;c.warIntent=0;c.exhaustion=0;c.unrest=0;c.leaderVacancy=0;c.scholarClock=0;const king=w.get(c.kingId);if(king){king.role='king';king.king=true;}}}
 export function enrage(w,target){
@@ -47,7 +47,7 @@ export function residentAction(w,e,c,dt){
  }
  if(e.role==='king'){e.action=e.commanding?'国王号令':e.rage>0?'国王 · 怒令征召':'国王 · 治理';return true;}
  if(e.role==='scholar'){e.action='学士 · 研究';return true;}
- if(e.workSite){e.action='建造 · 停产';return true;}
+ if(e.workSite){if(!['现场施工','前往工地'].includes(e.action))e.action='前往工地';return true;}
  if(w.restResident?.(e,c,dt))return true;
  return false;
 }

@@ -1,4 +1,4 @@
-import {MusicTrack} from './music-track.js?build=a2168afe9bb0';
+import {MusicTrack} from './music-track.js?build=b210d042c6ea';
 // Original skill effects; procedural score is a fallback for the local licensed BGM.
 const midi=n=>440*2**((n-69)/12);
 export const MUSIC={bpm:76,beats:64,melody:[74,0,77,81,79,77,74,0,72,0,74,77,76,72,69,0,70,0,74,77,79,77,74,0,72,76,79,81,79,76,72,0]};

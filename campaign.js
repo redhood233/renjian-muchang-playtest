@@ -1,9 +1,9 @@
-import {World} from './engine.js?build=a2168afe9bb0';
-import {CONFIG as C, SKILLS} from './config.js?build=a2168afe9bb0';
-import {housing} from './settlement.js?build=a2168afe9bb0';
-import {spawnAnimal} from './husbandry.js?build=a2168afe9bb0';
-import {nearestWalkable} from './island-layout.js?build=a2168afe9bb0';
-import {PROLOGUE as P,DIALOGUES,PHASES} from './prologue-data.js?build=a2168afe9bb0';
+import {World} from './engine.js?build=b210d042c6ea';
+import {CONFIG as C, SKILLS} from './config.js?build=b210d042c6ea';
+import {housing} from './settlement.js?build=b210d042c6ea';
+import {spawnAnimal} from './husbandry.js?build=b210d042c6ea';
+import {nearestWalkable} from './island-layout.js?build=b210d042c6ea';
+import {PROLOGUE as P,DIALOGUES,PHASES} from './prologue-data.js?build=b210d042c6ea';
 const harvestCauses=new Set(['lightning','meteor','plague','fire','undead']);
 const peaceful=new Set(['intro','peace','weather_intro','rain','stewardship','grow']);
 

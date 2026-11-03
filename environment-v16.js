@@ -1,6 +1,6 @@
-import {loadModel,environmentTexture} from './mobile-runtime.js?build=a2168afe9bb0';
-import * as T from './vendor/three.module.js?build=a2168afe9bb0';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=a2168afe9bb0';
+import {loadModel,environmentTexture} from './mobile-runtime.js?build=b210d042c6ea';
+import * as T from './vendor/three.module.js?build=b210d042c6ea';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=b210d042c6ea';
 // Source v16's world-space cloud field. Static cloud shadows intentionally remain static.
 export const cloudGLSL=`
 float envHash(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}

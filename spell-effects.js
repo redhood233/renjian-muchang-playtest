@@ -1,6 +1,6 @@
-import {drawSpellFeedback,drawSoulFlights} from './spell-feedback.js?build=a2168afe9bb0';
-import * as T from './vendor/three.module.js?build=a2168afe9bb0';
-import {groundHeight,islandId} from './island-layout.js?build=a2168afe9bb0';
+import {drawSpellFeedback,drawSoulFlights} from './spell-feedback.js?build=b210d042c6ea';
+import * as T from './vendor/three.module.js?build=b210d042c6ea';
+import {groundHeight,islandId} from './island-layout.js?build=b210d042c6ea';
 // Animation time is simulation time: pausing, resuming and backgrounding stay in sync.
 export class SpellEffects{
  constructor(view){this.view=view;this.active=[];this.images={};this.spritePool=[];this.textures={};this.depth=0;for(const n of ['meteor','lightning','wheat','spirit']){const im=new Image();im.src=new URL('./assets/ui/compact/painted-'+n+'.webp',import.meta.url);this.images[n]=im;this.textures[n]=new T.TextureLoader().load(im.src);this.textures[n].colorSpace=T.SRGBColorSpace;}this.canvas=document.createElement('canvas');this.canvas.className='vfx-canvas';document.body.append(this.canvas);this.soulCanvas=document.createElement("canvas");this.soulCanvas.className="soul-flight-canvas";document.body.append(this.soulCanvas);}

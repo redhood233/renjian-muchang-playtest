@@ -1,5 +1,5 @@
-import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=a2168afe9bb0';
-import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=a2168afe9bb0';
+import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=b210d042c6ea';
+import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=b210d042c6ea';
 
 const center = bounds => ({x:(bounds[0][0]+bounds[1][0])/2,y:(bounds[0][1]+bounds[1][1])/2});
 const rect = (p,w,h) => ({min:[p.x-w/2,p.y-h/2],max:[p.x+w/2,p.y+h/2]});
@@ -33,11 +33,12 @@ function extensionLots(authored,country=0){
  }
  return lots;
 }
+const radial=(lots,id)=>lots.sort((a,b)=>(a.source==='extension')-(b.source==='extension')||Math.hypot(a.x-QINGHE.centers[id].x,a.y-QINGHE.centers[id].y)-Math.hypot(b.x-QINGHE.centers[id].x,b.y-QINGHE.centers[id].y)||a.id.localeCompare(b.id));
 const authored=fixedLots();
-export const FARM_LOTS=Object.freeze([...authored,...extensionLots(authored)].map(l=>Object.freeze(l)));
+export const FARM_LOTS=Object.freeze(radial([...authored,...extensionLots(authored)],0).map(l=>Object.freeze(l)));
 const pastoralFixed=QINGHE.objects.filter(o=>o.name.startsWith('牧场建筑 | ')).map((o,i,all)=>({id:'pasture-fixed-'+i,zone:'house',special:i===all.length-1?'academy':i===all.length-2?'granary':i===all.length-3?'hall':null,kind:'house',source:'authored',sourceNames:[o.name],...center(o.bounds),footprint:{min:o.bounds[0].slice(0,2),max:o.bounds[1].slice(0,2),baseY:o.bounds[0][2]},state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
 const penLots=H.pens.map((p,i)=>({id:p.id,zone:'pasture',special:null,kind:'pasture',source:'authored',sourceNames:[],x:p.x,y:p.y,footprint:rect(p,2,2),state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
-export const PASTURE_LOTS=Object.freeze([...pastoralFixed,...penLots,...extensionLots([...pastoralFixed,...penLots],1)].map(l=>Object.freeze(l)));
+export const PASTURE_LOTS=Object.freeze(radial([...pastoralFixed,...penLots,...extensionLots([...pastoralFixed,...penLots],1)],1).map(l=>Object.freeze(l)));
 export function initSettlement(w,c){
  c.buildings=structuredClone(c.id===0?FARM_LOTS:PASTURE_LOTS);c.buildCheck=0;c.research=0;
  for(const zone of ['house',c.id===0?'field':'pasture'])for(const lot of c.buildings.filter(l=>l.zone===zone&&l.source==='authored').slice(0,zone==='house'?S.initialHouses:c.id===0?S.initialFields:1))lot.state='complete';
@@ -45,8 +46,9 @@ export function initSettlement(w,c){
 export const complete=(c,kind)=>c.buildings?.filter(b=>b.state==='complete'&&b.kind===kind)||[];
 export const housing=c=>complete(c,'house').filter(b=>!b.upgrading).length*S.houseCapacity;
 export function nextLot(c,zone){
- const authored=c.buildings.filter(b=>b.zone===zone&&b.source==='authored');
- return authored.find(b=>b.state==='planned')||(!authored.some(b=>b.state!=='complete')?c.buildings.find(b=>b.zone===zone&&b.source==='extension'&&b.state==='planned'):undefined);
+ const distance=b=>Math.hypot(b.x-c.x,b.y-c.y),near=(a,b)=>distance(a)-distance(b)||a.id.localeCompare(b.id);
+ const authored=c.buildings.filter(b=>b.zone===zone&&b.source==='authored').sort(near);
+ return authored.find(b=>b.state==='planned')||(!authored.some(b=>b.state!=='complete')?c.buildings.filter(b=>b.zone===zone&&b.source==='extension'&&b.state==='planned').sort(near)[0]:undefined);
 }
 export function builders(w,c){const active=c.buildings?.find(b=>b.state==='clearing'||b.state==='building');return active?active.workers.filter(id=>w.get(id)&&w.available(w.get(id))):[];}
 export function advanceSettlement(w,c,dt){
@@ -54,15 +56,20 @@ export function advanceSettlement(w,c,dt){
  let job=c.buildings.find(b=>b.state==='clearing'||b.state==='building'||b.upgrading);
  if(job){
   const eligible=w.adults(c).filter(e=>w.available(e)&&e.role==='civilian');
-  job.workers=eligible.slice(0,S.builders).map(e=>e.id);
+  // Retain the assigned worker; replacing them each tick prevents arrival.
+  const retained=(job.workers||[]).filter(id=>eligible.some(e=>e.id===id));
+  job.workers=[...retained,...eligible.filter(e=>!retained.includes(e.id)).sort((a,b)=>Math.hypot(a.x-job.x,a.y-job.y)-Math.hypot(b.x-job.x,b.y-job.y)||a.id-b.id).map(e=>e.id)].slice(0,S.builders);
   for(const id of job.workers)w.get(id).workSite=job.id;
   const threat=w.animals.find(a=>!a.dead&&a.kind==='beast'&&Math.hypot(a.x-job.x,a.y-job.y)<S.beastBlockRadius);
   if(threat)for(const id of job.workers){const worker=w.get(id);w.move(worker,threat,dt,2);if(Math.hypot(worker.x-threat.x,worker.y-threat.y)<1.4&&worker.attack<=0){w.damage(threat,S.huntDamage,'hunting');worker.attack=S.huntInterval;}}
+  const at=nearestWalkable(job,c.id,w.blockers());
+  const arrived=[];
+  if(!threat&&at)for(const id of job.workers){const worker=w.get(id);worker.inside=false;w.move(worker,at,dt,S.workerSpeed);if(Math.hypot(worker.x-at.x,worker.y-at.y)<=S.workReach)arrived.push(id);worker.action=arrived.includes(id)?'现场施工':'前往工地';}
   if(job.upgrading){
-   if(job.workers.length&&w.housing(c)>=w.humans(c.id).length)job.upgradeProgress+=dt;
+   if(!threat&&arrived.length&&w.housing(c)>=w.humans(c.id).length)job.upgradeProgress+=dt;
    if(job.upgradeProgress>=S.upgradeSeconds){job.kind=job.special;job.upgrading=false;job.workers=[];w.change('building-promoted',{country:c.id,buildingId:job.id,kind:job.kind,placeholder:'house'});job=null;}
-  }else if(job.workers.length&&!threat){
-   const key=job.state==='clearing'?'clearProgress':'progress';job[key]+=dt*job.workers.length/S.builders;
+  }else if(arrived.length&&!threat){
+   const key=job.state==='clearing'?'clearProgress':'progress';job[key]+=dt*arrived.length/S.builders;
    for(const id of job.workers){const e=w.get(id);e.workSite=job.id;}
    if(job.state==='clearing'&&job.clearProgress>=S.clearSeconds){job.state='building';w.change('construction-started',{country:c.id,buildingId:job.id});}
    if(job.state==='building'&&job.progress>=S.buildSeconds){job.state='complete';job.health=1;job.workers=[];w.change('construction-completed',{country:c.id,buildingId:job.id,kind:job.kind});job=null;}
