@@ -8,5 +8,5 @@ export function visualState(e,speed,moving,hit=false){
  if(speed>(moving?.025:.055))return e.soldier||e.action==='守卫岛屿'?'run':'walk';
  return 'idle';
 }
-export function toolFor(e,look){if(!e.adult||e.sick>0||e.carryingStandard)return null;if(e.soldier||e.action==='守卫岛屿'||e.workSite&&e.action==='现场施工')return 'hammer';if(look.outfit%3)return null;return e.country===0?(look.outfit%2?'sickle':'basket_empty'):'basket_empty';}
+export function toolFor(e,look){if(!e.adult||e.sick>0||e.carryingStandard)return null;if(e.faithWork)return e.faithTask==='offering'?'basket_empty':'hammer';if(e.soldier||e.action==='守卫岛屿'||e.workSite&&e.action==='现场施工')return 'hammer';if(look.outfit%3)return null;return e.country===0?(look.outfit%2?'sickle':'basket_empty'):'basket_empty';}
 export function simulationDelta(time,previous){return previous===undefined||time<previous?0:Math.min(.25,time-previous);}

@@ -1,5 +1,5 @@
-import * as T from './vendor/three.module.js?build=1ae0e6c83866';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=1ae0e6c83866';
+import * as T from './vendor/three.module.js?build=ae7840b412f1';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=ae7840b412f1';
 // Combine only identical-material static decorations. Positions, UVs, normals and
 // vertex colors are copied unchanged; terrain stays separate for pointer picking.
 export function batchSourceDecorations(root){

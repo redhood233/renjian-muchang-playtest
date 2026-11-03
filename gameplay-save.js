@@ -1,5 +1,5 @@
-import {HUSBANDRY as H} from './config.js?build=1ae0e6c83866';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=1ae0e6c83866';
+import {HUSBANDRY as H} from './config.js?build=ae7840b412f1';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=ae7840b412f1';
 const finite=(v,min=0)=>Number.isFinite(v)&&v>=min;
 export function validGameplayState(s){
  if(!Array.isArray(s.animals)||!Array.isArray(s.islands?.[0]?.buildings)||!Array.isArray(s.islands?.[1]?.pens)||!Number.isInteger(s.navRevision)||s.navRevision<0||!Array.isArray(s.beastBirthCredit)||s.beastBirthCredit.length!==2||!s.beastBirthCredit.every(v=>finite(v)))return false;
@@ -13,8 +13,10 @@ export function validGameplayState(s){
   if(!expected||b.x!==expected.x||b.y!==expected.y||b.zone!==expected.zone||b.source!==expected.source||!['planned','clearing','building','complete'].includes(b.state)||!(b.zone==='field'?['field']:b.zone==='pasture'?['pasture']:expected.special?['house',expected.special]:['house']).includes(b.kind)||!finite(b.health??1)||b.health>1||!finite(b.progress)||!finite(b.clearProgress)||!finite(b.upgradeProgress)||!Array.isArray(b.workers))return false;
   for(const key of ['min','max'])if(!Array.isArray(b.footprint?.[key])||b.footprint[key].some((v,i)=>v!==expected.footprint[key][i])||b.footprint[key].length!==2)return false;
  }
+ if(c.cityCenter&&c.cityCenter.buildingId!==lots.find(b=>b.special==='hall')?.id)return false;
  if(!finite(c.research)||c.research>85||![0,1,2].includes(c.era)||!finite(c.panic)||c.panic>1||!finite(c.faith)||c.faith>100)return false;
  if(!c.project||!['locked','building','paused','complete'].includes(c.project.state)||!finite(c.project.progress)||typeof c.project.paid!=='boolean')return false;
+ if(c.shrine&&(!Number.isFinite(c.shrine.x)||!Number.isFinite(c.shrine.y)||c.shrine.offerings!==undefined&&(!Number.isInteger(c.shrine.offerings)||c.shrine.offerings<0)))return false;
  if(!c.shrine||!['none','building','repairing','complete'].includes(c.shrine.state)||!finite(c.shrine.health)||!finite(c.shrine.progress)||!finite(c.shrine.offering))return false;
  const homes=new Map();for(const e of s.entities.filter(e=>e.country===c.id&&e.kind==='human')){if(!finite(e.age)||typeof e.inside!=='boolean')return false;
   if(e.houseId!==null){const home=lots.find(b=>b.id===e.houseId);if(!home||home.state!=='complete'||home.kind!=='house'||home.upgrading)return false;homes.set(e.houseId,(homes.get(e.houseId)||0)+1);if(homes.get(e.houseId)>5)return false;}

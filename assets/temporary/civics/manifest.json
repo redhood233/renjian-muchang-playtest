@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "resources": [
+    {
+      "id": "temp.v09.pasture.hall",
+      "status": "temporary",
+      "source": "assets/islands/v09/island.gltf",
+      "sourceName": "Village Hall | MH_Church_01",
+      "purpose": "畜牧国古代城市中心，暂借农耕国特殊建筑",
+      "replacement": "古代城市中心美术，保持地块和国王门前驻点"
+    },
+    {
+      "id": "temp.v09.pasture.academy",
+      "status": "temporary",
+      "source": "assets/islands/v09/island.gltf",
+      "sourceName": "Academy | MH_School_01",
+      "purpose": "畜牧国古代学院，暂借农耕国特殊建筑",
+      "replacement": "古代学院美术，保持升级门槛和地块"
+    },
+    {
+      "id": "temp.civic.altar",
+      "status": "temporary",
+      "source": "civic-view.js:createAltar",
+      "purpose": "神明祭台低面数占位模型",
+      "replacement": "registerAltarModel(factory)"
+    },
+    {
+      "id": "temp.civic.offering",
+      "status": "temporary",
+      "source": "civic-view.js:createAltar",
+      "purpose": "供奉成功后暂时显示的粮食占位模型",
+      "replacement": "祭台模型下名为 offering 的子节点"
+    }
+  ]
+}

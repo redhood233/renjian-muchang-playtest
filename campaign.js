@@ -1,9 +1,10 @@
-import {World} from './engine.js?build=1ae0e6c83866';
-import {CONFIG as C, SKILLS} from './config.js?build=1ae0e6c83866';
-import {housing} from './settlement.js?build=1ae0e6c83866';
-import {spawnAnimal} from './husbandry.js?build=1ae0e6c83866';
-import {nearestWalkable} from './island-layout.js?build=1ae0e6c83866';
-import {PROLOGUE as P,DIALOGUES,PHASES} from './prologue-data.js?build=1ae0e6c83866';
+import {establishCity,kingPost} from './civic-sites.js?build=ae7840b412f1';
+import {World} from './engine.js?build=ae7840b412f1';
+import {CONFIG as C, SKILLS} from './config.js?build=ae7840b412f1';
+import {housing} from './settlement.js?build=ae7840b412f1';
+import {spawnAnimal} from './husbandry.js?build=ae7840b412f1';
+import {nearestWalkable} from './island-layout.js?build=ae7840b412f1';
+import {PROLOGUE as P,DIALOGUES,PHASES} from './prologue-data.js?build=ae7840b412f1';
 const harvestCauses=new Set(['lightning','meteor','plague','fire','undead']);
 const peaceful=new Set(['intro','peace','weather_intro','rain','stewardship','grow']);
 
@@ -16,11 +17,11 @@ export class CampaignWorld extends World {
    while(this.humans(c.id).length<P.initialPopulation)this.spawn('human',c,true);
    c.food=P.initialFood;c.era=0;
    if(c.buildings){
-    for(const b of c.buildings)b.state='planned';
+    for(const b of c.buildings)b.state='planned';establishCity(c);
     for(const b of c.buildings.filter(b=>b.source==='authored'&&b.kind==='house'&&!b.special).slice(0,P.initialHouses))b.state='complete';
     for(const b of c.buildings.filter(b=>b.source==='authored'&&b.kind===(c.id===0?'field':'pasture')).slice(0,c.id===0?P.initialFields:1))b.state='complete';
    }
-   const king=this.get(c.kingId);Object.assign(king,nearestWalkable({x:c.x+(c.id?-7:7),y:c.y},c.id));king.destination={x:king.x,y:king.y};
+   const king=this.get(c.kingId);Object.assign(king,kingPost(this,c));king.destination={x:king.x,y:king.y};
    this.armyStart(c,king);c.warIntent=30;
   }
   const c=this.islands[1];for(let i=this.animals.filter(a=>a.kind==='sheep').length;i<P.initialSheep;i++){const pen=c.pens[i%c.pens.length],angle=i*2.399;spawnAnimal(this,'sheep',c,{x:pen.x+Math.cos(angle),y:pen.y+Math.sin(angle)},true);}
@@ -38,7 +39,7 @@ export class CampaignWorld extends World {
  get timeLimit(){return !this.campaign||this.inPrologue?Infinity:this.campaign.challengeStart+P.challengeSeconds;}
  get speed(){return this.inPrologue&&['grow','harvest'].includes(this.phase)?P.speed:1;}
  birthRate(c){if(this.inPrologue&&peaceful.has(this.phase)&&this.phase!=='grow')return 0;const rate=super.birthRate(c);return rate*(this.phase==='grow'?P.birthFactor:1);}
- setPhase(phase){this.campaign.phase=phase;this.campaign.line=0;if(phase==='final_cast')this.cooldowns.meteor=0;this.saveRequested=true;}
+ setPhase(phase){this.campaign.phase=phase;this.campaign.line=0;if(phase==='final_cast'){this.cooldowns.meteor=0;this.mana=Math.max(this.mana,SKILLS.find(s=>s.id==='meteor').cost);}this.saveRequested=true;}
  advanceDialogue(skip=false){const d=DIALOGUES[this.phase];if(!d)return false;if(skip||++this.campaign.line>=d.lines.length)this.setPhase(d.next);return true;}
  allowedSkill(id){if(!this.inPrologue)return true;if(this.dialogue||['finale','ready'].includes(this.phase))return false;if(['peace'].includes(this.phase))return ['peace','bless','joy'].includes(id);if(['rain','grow'].includes(this.phase))return ['peace','bless','joy','weather'].includes(id);return SKILLS.some(s=>s.id===id);}
  visibleGod(group){if(!this.inPrologue)return true;if(['intro','peace'].includes(this.phase))return group===0;if(['weather_intro','rain','stewardship','grow'].includes(this.phase))return group!==2;return true;}

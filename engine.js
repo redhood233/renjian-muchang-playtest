@@ -1,13 +1,14 @@
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=1ae0e6c83866';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=1ae0e6c83866';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=1ae0e6c83866';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=1ae0e6c83866';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=1ae0e6c83866';
-import {CIVILIZATION as V} from './config.js?build=1ae0e6c83866';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets} from './civilization.js?build=1ae0e6c83866';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=1ae0e6c83866';
-import {strike,separate} from './combat.js?build=1ae0e6c83866';
-import {validGameplayState} from './gameplay-save.js?build=1ae0e6c83866';
+import {establishCity,kingPost,cityHall,shrineSite} from './civic-sites.js?build=ae7840b412f1';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=ae7840b412f1';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=ae7840b412f1';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=ae7840b412f1';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=ae7840b412f1';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=ae7840b412f1';
+import {CIVILIZATION as V} from './config.js?build=ae7840b412f1';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=ae7840b412f1';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=ae7840b412f1';
+import {strike,separate} from './combat.js?build=ae7840b412f1';
+import {validGameplayState} from './gameplay-save.js?build=ae7840b412f1';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {
@@ -50,7 +51,7 @@ export class World {
  blockers(){if(this._navCacheRevision!==this.navRevision){this._navCache=this.islands.flatMap(c=>(c.buildings||[]).filter(b=>b.source==='extension'&&b.zone==='house'&&b.state==='complete').map(b=>b.footprint));this._navCacheRevision=this.navRevision;}return this._navCache;}
  preview(id,p,weather='rain'){const s=SKILLS.find(s=>s.id===id);if(!s||this.validate(id,p,weather))return [];if(id==='undead')return [];if(id==='weather')return this.humans(this.islandAt(p)?.id).map(e=>e.id);if(id==='peace')return this.humans().filter(e=>e.soldier||e.role==='king'&&(e.rage>0||this.islands[e.country].warIntent>0)).map(e=>e.id);const targets=id==='meteor'?meteorTargets(this,p,s.r):this.legalTargets(id,p,s.r);return (id==='rage'||id==='lightning'?targets.slice(0,1):targets).map(e=>e.id);}
  change(type,data={}){if(type==='construction-completed'&&this.islands.some(c=>c.buildings.some(b=>b.id===data.buildingId&&b.source==='extension'&&b.zone==='house'))){this.navRevision++;const extra=this.blockers();for(const e of [...this.entities,...this.animals])if(!e.dead){if(!walkable(e,extra))Object.assign(e,nearestWalkable(e,e.country,extra));if(e.destination&&!walkable(e.destination,extra))e.destination=nearestWalkable(e.destination,e.country,extra);}}this.changes.push({sequence:++this.changeSerial,time:this.time,type,...data});if(this.changes.length>128)this.changes.shift();}
- gameplaySnapshot(){return {version:C.version,time:this.time,military:structuredClone(this.military),diplomacy:structuredClone(this.diplomacy),islands:this.islands.map(c=>({id:c.id,food:c.food,housing:Number.isFinite(this.housing(c))?this.housing(c):null,era:c.era,research:c.research,project:structuredClone(c.project),faith:c.faith,shrine:structuredClone(c.shrine),panic:c.panic,army:structuredClone(c.army),buildings:settlementSnapshot(c),pens:structuredClone(c.pens||[]),kingId:c.kingId,research:c.research||0,warIntent:c.warIntent,exhaustion:c.exhaustion,unrest:c.unrest,lastWarBlocker:c.lastWarBlocker||"",production:this.production(c),consumption:this.consumption(c)})),animals:structuredClone(this.animals),people:this.humans().map(e=>({id:e.id,country:e.country,x:e.x,y:e.y,hp:e.hp,houseId:e.houseId,inside:e.inside,weapon:V.weapons[this.islands[e.country].era],adult:e.adult,soldier:e.soldier,role:e.role,joy:e.joy,appetite:e.appetite,rage:e.rage,wounded:e.wounded,workSite:e.workSite,schoolId:e.schoolId})),sequence:this.changeSerial};}
+ gameplaySnapshot(){return {version:C.version,time:this.time,military:structuredClone(this.military),diplomacy:structuredClone(this.diplomacy),islands:this.islands.map(c=>({id:c.id,food:c.food,housing:Number.isFinite(this.housing(c))?this.housing(c):null,era:c.era,research:c.research,project:structuredClone(c.project),faith:c.faith,shrine:structuredClone(c.shrine),panic:c.panic,army:structuredClone(c.army),buildings:settlementSnapshot(c),pens:structuredClone(c.pens||[]),kingId:c.kingId,cityCenter:{buildingId:cityHall(c)?.id,post:kingPost(this,c),state:cityHall(c)?.state},research:c.research||0,warIntent:c.warIntent,exhaustion:c.exhaustion,unrest:c.unrest,lastWarBlocker:c.lastWarBlocker||"",production:this.production(c),consumption:this.consumption(c)})),animals:structuredClone(this.animals),people:this.humans().map(e=>({id:e.id,country:e.country,x:e.x,y:e.y,hp:e.hp,houseId:e.houseId,inside:e.inside,weapon:V.weapons[this.islands[e.country].era],adult:e.adult,soldier:e.soldier,role:e.role,joy:e.joy,appetite:e.appetite,rage:e.rage,wounded:e.wounded,workSite:e.workSite,schoolId:e.schoolId,faithWork:!!e.faithWork,faithTask:e.faithTask||null,faithAt:!!e.faithAt,action:e.action})),sequence:this.changeSerial};}
  islandAt(p){const id=islandId(p);return id===null?undefined:this.islands[id];}
  inWorld(p){return castable(p);}
  climate(c){return CLIMATE[c.weather.left>0?c.weather.kind:'normal'];}
@@ -167,6 +168,6 @@ export class World {
   if(!Array.isArray(s.animals)||!Array.isArray(s.islands[0].buildings)||!Array.isArray(s.islands[1].pens)||!Number.isInteger(s.changeSerial)||s.animals.some(a=>!s.islands[a.country]||!['sheep','beast'].includes(a.kind)||!Number.isFinite(a.hp)||!walkable(a)||!a.home||!walkable(a.home))||new Set([...s.entities,...s.animals].map(e=>e.id)).size!==s.entities.length+s.animals.length)throw Error('存档损坏，无法恢复');
   if(!validGameplayState(s))throw Error('存档损坏，无法恢复');
   for(const e of s.entities){e.king=e.role==='king';e.commanding=!!(e.king&&s.islands[e.country].army?.kingId===e.id&&!s.islands[e.country].army.returning);}
-  return Object.assign(Object.create(World.prototype),s,{paused:true,visualEvents:[],changes:[]});
+  const world=Object.assign(Object.create(World.prototype),s,{paused:true,visualEvents:[],changes:[]});for(const c of world.islands)if(!c.cityCenter){establishCity(c);if(c.shrine.state==='none')Object.assign(c.shrine,shrineSite(world,c));c.residenceClock=0;assignHomes(world,c);}return world;
  }
 }

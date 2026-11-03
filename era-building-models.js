@@ -1,6 +1,6 @@
-import * as T from './vendor/three.module.js?build=1ae0e6c83866';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=1ae0e6c83866';
-import {ERA_BUILDINGS as E} from './config.js?build=1ae0e6c83866';
+import * as T from './vendor/three.module.js?build=ae7840b412f1';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=ae7840b412f1';
+import {ERA_BUILDINGS as E} from './config.js?build=ae7840b412f1';
 // TEMPORARY: port of Godot world_view.gd _draw_era_building / agriculture.
 // Provenance and replacement slots: assets/temporary/era-buildings/manifest.json.
 const replacements=new Map();
@@ -41,7 +41,7 @@ export class EraBuildingView{
   if(record&&(record.key!==key||record.factory!==factory)){this.remove(lot.id);record=null;}
   if(!record){const root=factory({era,kind,country:c.id,lot}),materials=[];root.updateMatrixWorld(true);const bounds=new T.Box3().setFromObject(root),size=bounds.getSize(new T.Vector3()),centre=bounds.getCenter(new T.Vector3());
    const fit=Math.min((lot.footprint.max[0]-lot.footprint.min[0])/Math.max(.01,size.x),(lot.footprint.max[1]-lot.footprint.min[1])/Math.max(.01,size.z));
-   const holder=new T.Group();root.position.sub(new T.Vector3(centre.x,bounds.min.y,centre.z));holder.add(root);holder.position.set(lot.x,y,lot.y);holder.scale.setScalar(fit);holder.userData={resourceId:root.userData.resourceId||eraResourceId(era,kind),temporary:root.userData.temporary??!replacements.get(`${era}:${kind}`),era,kind,country:c.id,buildingId:lot.id};
+   const holder=new T.Group();root.position.sub(new T.Vector3(centre.x,bounds.min.y,centre.z));holder.add(root);holder.position.set(lot.x,y,lot.y);holder.scale.setScalar(fit);holder.userData={resourceId:root.userData.resourceId||eraResourceId(era,kind),temporary:root.userData.temporary??!replacements.get(`${era}:${kind}`),era,kind,country:c.id,buildingId:lot.id,entity:{kind:'building',country:c.id,buildingId:lot.id}};
    root.traverse(o=>{if(o.isMesh)materials.push(...(Array.isArray(o.material)?o.material:[o.material]));});record={root:holder,key,factory,materials,fit};this.models.set(lot.id,record);this.scene.add(holder);tint(holder);prepare?.(holder);
   }else tint(record.root);
   record.root.scale.y=record.fit*growth;

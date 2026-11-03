@@ -1,7 +1,8 @@
-import {CONFIG as C,SOCIETY as R} from './config.js?build=1ae0e6c83866';
-import {complete} from './settlement.js?build=1ae0e6c83866';
+import {kingPost,schoolPost,cityHall} from './civic-sites.js?build=ae7840b412f1';
+import {CONFIG as C,SOCIETY as R} from './config.js?build=ae7840b412f1';
+import {complete} from './settlement.js?build=ae7840b412f1';
 export function available(e){return !!e&&!e.dead&&e.adult&&!e.soldier&&e.sick<=0&&e.joy<=0&&e.rage<=0&&e.wounded<=0&&!e.faithWork&&e.action!=='守卫岛屿';}
-export function initSociety(w){for(const c of w.islands){c.kingId=w.humans(c.id)[0]?.id??null;c.warIntent=0;c.exhaustion=0;c.unrest=0;c.leaderVacancy=0;c.scholarClock=0;const king=w.get(c.kingId);if(king){king.role='king';king.king=true;}}}
+export function initSociety(w){for(const c of w.islands){c.kingId=w.humans(c.id)[0]?.id??null;c.warIntent=0;c.exhaustion=0;c.unrest=0;c.leaderVacancy=0;c.scholarClock=0;const king=w.get(c.kingId);if(king){king.role='king';king.king=true;Object.assign(king,kingPost(w,c));king.destination=kingPost(w,c);}}}
 export function enrage(w,target){
  target.rage=0;
  if(target.kind!=='human'){target.rage=C.rageSeconds;w.change('animal-enraged',{animalId:target.id,kind:target.kind});return;}
@@ -16,7 +17,7 @@ export function enrage(w,target){
 export function advanceSociety(w,dt){
  for(const c of w.islands){
   const king=w.get(c.kingId);
-  if(!king){c.kingId=null;c.warIntent=0;c.leaderVacancy+=dt;if(c.leaderVacancy>=R.successionSeconds){const successor=w.adults(c).find(e=>!e.soldier&&e.sick<=0);if(successor){successor.role='king';successor.king=true;c.kingId=successor.id;c.leaderVacancy=0;w.change('king-succeeded',{country:c.id,personId:successor.id});}}}
+  if(!king){c.kingId=null;c.warIntent=0;c.leaderVacancy+=dt;if(c.leaderVacancy>=R.successionSeconds){const successor=w.adults(c).find(e=>!e.soldier&&e.sick<=0);if(successor){successor.role='king';successor.king=true;successor.inside=false;successor.workSite=null;successor.schoolId=null;c.kingId=successor.id;c.leaderVacancy=0;w.change('king-succeeded',{country:c.id,personId:successor.id});}}}
   if(!c.army){c.exhaustion=Math.max(0,c.exhaustion-dt*(w.supply(c)>R.recoveryReserveSeconds?R.fedRecovery:R.hungryRecovery));c.unrest=Math.max(0,c.unrest-dt*R.unrestRecovery);}
   if(c.unrest>=R.revoltPressure&&king){w.kill(king,'revolt');c.warIntent=0;c.unrest=0;w.retreat(c);w.change('king-overthrown',{country:c.id,personId:king.id});}
   c.warIntent=Math.max(0,c.warIntent-dt);
@@ -33,7 +34,7 @@ export function advanceSociety(w,dt){
 }
 export function residentAction(w,e,c,dt){
  if(e.soldier)return false;
- if(e.faithWork){e.action='神像 · 建造与修缮';return true;}
+ if(e.faithWork){e.action=e.faithTask==='offering'?(e.faithAt?'供奉 · 献上粮食':'供奉 · 前往祭台'):(e.faithAt?'祭台 · 建造与修缮':'祭台 · 前往工地');return true;}
  if(e.sick>0){e.action='感染 · 停产';return true;}
  if(e.joy>0){e.action='享乐 · 停工';return true;}
  if(e.wounded>0){e.action='受伤 · 休养';return true;}
@@ -45,8 +46,8 @@ export function residentAction(w,e,c,dt){
   const victim=victims[0];if(victim){w.move(e,victim,dt,R.rageSpeed);if(Math.hypot(e.x-victim.x,e.y-victim.y)<R.rageReach&&e.attack<=0){w.damage(victim,R.rageDamage,'assault');victim.wounded=Math.max(victim.wounded,R.woundSeconds);e.attack=R.rageAttackInterval;}}
   return true;
  }
- if(e.role==='king'){e.action=e.commanding?'国王号令':e.rage>0?'国王 · 怒令征召':'国王 · 治理';return true;}
- if(e.role==='scholar'){e.action='学士 · 研究';return true;}
+ if(e.role==='king'){const post=kingPost(w,c);e.inside=false;if(Math.hypot(e.x-post.x,e.y-post.y)> .3){w.move(e,post,dt,C.walkSpeed);e.action='国王 · 返回城市中心';}else e.action=e.commanding?'国王号令':e.rage>0?'国王 · 怒令征召':cityHall(c)?.state==='complete'?'国王 · 城市中心治理':'国王 · 等待中心重建';return true;}
+ if(e.role==='scholar'){const school=c.buildings.find(b=>b.id===e.schoolId&&b.state==='complete'&&b.kind==='academy');if(school){const post=schoolPost(w,c,school,e.id);if(Math.hypot(e.x-post.x,e.y-post.y)>.5){w.move(e,post,dt,C.walkSpeed);e.action='学士 · 前往学院';}else e.action='学士 · 学院研究';}else e.action='学士 · 等待学院';return true;}
  if(e.workSite){if(!['现场施工','前往工地'].includes(e.action))e.action='前往工地';return true;}
  if(w.restResident?.(e,c,dt))return true;
  return false;

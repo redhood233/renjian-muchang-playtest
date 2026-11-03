@@ -1,5 +1,6 @@
-import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=1ae0e6c83866';
-import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=1ae0e6c83866';
+import {establishCity} from './civic-sites.js?build=ae7840b412f1';
+import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=ae7840b412f1';
+import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=ae7840b412f1';
 
 const center = bounds => ({x:(bounds[0][0]+bounds[1][0])/2,y:(bounds[0][1]+bounds[1][1])/2});
 const rect = (p,w,h) => ({min:[p.x-w/2,p.y-h/2],max:[p.x+w/2,p.y+h/2]});
@@ -40,8 +41,8 @@ const pastoralFixed=QINGHE.objects.filter(o=>o.name.startsWith('牧场建筑 | '
 const penLots=H.pens.map((p,i)=>({id:p.id,zone:'pasture',special:null,kind:'pasture',source:'authored',sourceNames:[],x:p.x,y:p.y,footprint:rect(p,2,2),state:'planned',progress:0,clearProgress:0,workers:[],upgradeProgress:0}));
 export const PASTURE_LOTS=Object.freeze(radial([...pastoralFixed,...penLots,...extensionLots([...pastoralFixed,...penLots],1)],1).map(l=>Object.freeze(l)));
 export function initSettlement(w,c){
- c.buildings=structuredClone(c.id===0?FARM_LOTS:PASTURE_LOTS);c.buildCheck=0;c.research=0;
- for(const zone of ['house',c.id===0?'field':'pasture'])for(const lot of c.buildings.filter(l=>l.zone===zone&&l.source==='authored').slice(0,zone==='house'?S.initialHouses:c.id===0?S.initialFields:1))lot.state='complete';
+ c.buildings=structuredClone(c.id===0?FARM_LOTS:PASTURE_LOTS);c.buildCheck=0;c.research=0;establishCity(c);
+ for(const zone of ['house',c.id===0?'field':'pasture'])for(const lot of c.buildings.filter(l=>l.zone===zone&&l.source==='authored'&&l.special!=='hall').slice(0,zone==='house'?S.initialHouses:c.id===0?S.initialFields:1))lot.state='complete';
 }
 export const complete=(c,kind)=>c.buildings?.filter(b=>b.state==='complete'&&b.kind===kind)||[];
 export const housing=c=>complete(c,'house').filter(b=>!b.upgrading).length*S.houseCapacity;
@@ -91,7 +92,7 @@ export function advanceSettlement(w,c,dt){
  }
  const flock=w.animals.filter(a=>a.kind==='sheep'&&!a.dead).length,penCapacity=complete(c,'pasture').length*32;
  const needsPasture=c.id===1&&(flock>=penCapacity*.7||penCapacity<Math.ceil(w.consumption(c)*3));
- const lot=nextLot(c,needsHomes?'house':needsFields?'field':needsPasture?'pasture':'');
+ const lot=c.buildings.find(b=>b.special==='hall'&&b.state==='planned')||nextLot(c,needsHomes?'house':needsFields?'field':needsPasture?'pasture':'');
  if(lot&&workers>S.builders&&c.food>=S.buildFood+w.consumption(c)*S.buildReserveSeconds){
   c.food-=S.buildFood;lot.state=lot.source==='extension'?'clearing':'building';lot.progress=0;lot.clearProgress=0;
   w.change('construction-planned',{country:c.id,buildingId:lot.id,source:lot.source,x:lot.x,y:lot.y});

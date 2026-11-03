@@ -1,6 +1,7 @@
-import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js?build=1ae0e6c83866';
-import {complete} from './settlement.js?build=1ae0e6c83866';
-import {nearestWalkable} from './island-layout.js?build=1ae0e6c83866';
+import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js?build=ae7840b412f1';
+import {complete} from './settlement.js?build=ae7840b412f1';
+import {nearestWalkable} from './island-layout.js?build=ae7840b412f1';
+import {shrinePost,shrineSite} from './civic-sites.js?build=ae7840b412f1';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const roofHit=(b,p,r)=>Math.hypot(Math.max(b.footprint.min[0],Math.min(p.x,b.footprint.max[0]))-p.x,Math.max(b.footprint.min[1],Math.min(p.y,b.footprint.max[1]))-p.y)<=r;
 export function meteorTargets(w,p,r){
@@ -10,7 +11,7 @@ export function meteorTargets(w,p,r){
 export function initCivilization(w){
  w.civicClock=0;w.diplomacy={relation:20,clock:0,tradeTotal:0};
  for(const c of w.islands){c.research=0;c.era=0;c.technologyProduction=1;c.faith=V.faithInitial;c.panic=0;c.residenceClock=0;
-  c.project={state:'locked',progress:0,paid:false};c.shrine={state:'none',progress:0,health:1,offering:0,...nearestWalkable({x:c.x,y:c.y-4},c.id,w.blockers())};}
+  c.project={state:'locked',progress:0,paid:false};c.shrine={state:'none',progress:0,health:1,offering:0,...shrineSite(w,c)};}
 }
 export function assignHomes(w,c){
  const houses=complete(c,'house').filter(b=>!b.upgrading),count=new Map(houses.map(b=>[b.id,0]));
@@ -37,7 +38,7 @@ export function structureDamage(w,p,r,amount,cause='meteor'){
   if(Math.hypot(x-p.x,y-p.y)>r)continue;
   hit++;b.health=Math.max(0,(b.health??1)-amount);
   if(cause==='meteor')for(const e of w.humans(c.id).filter(e=>e.inside&&e.houseId===b.id))w.kill(e,cause);
-  if(b.health<=0){b.state='planned';b.progress=0;b.clearProgress=0;b.kind=b.zone==='house'?'house':b.zone;b.upgrading=false;
+  if(b.health<=0){b.state='planned';b.progress=0;b.clearProgress=0;b.kind=b.special==='hall'?'hall':b.zone==='house'?'house':b.zone;b.upgrading=false;
    for(const e of w.humans(c.id).filter(e=>e.houseId===b.id)){e.inside=false;e.houseId=null;Object.assign(e,nearestWalkable(b,c.id,w.blockers()));}
    if(b.source==='extension'){w.navRevision++;}w.change('building-destroyed',{country:c.id,buildingId:b.id,cause});
   }else w.change('building-damaged',{country:c.id,buildingId:b.id,health:b.health,cause});
@@ -45,7 +46,7 @@ export function structureDamage(w,p,r,amount,cause='meteor'){
  return hit;
 }
 export function advanceCivilization(w,dt){
- for(const e of w.humans())e.faithWork=false;
+ for(const e of w.humans()){e.faithWork=false;e.faithTask=null;e.faithAt=false;}
  for(const c of w.islands){
   c.residenceClock-=dt;if(c.residenceClock<=0){assignHomes(w,c);c.residenceClock=1;}
   const scholars=w.adults(c).filter(e=>e.role==='scholar'&&w.available(e)&&!e.inside),academy=complete(c,'academy')[0];
@@ -66,14 +67,14 @@ export function advanceCivilization(w,dt){
   }else if(project.paid)project.state='paused';
   const s=c.shrine,scientific=c.research>=V.faithCutoff;
   c.faith=Math.max(0,Math.min(100,c.faith-dt*(scientific?1:w.supply(c)>20?.03:0)));
-  if(s.state==='none'&&c.faith>=V.faithThreshold&&c.food>=V.shrineCost+w.consumption(c)*15&&w.workers(c).length>2){c.food-=V.shrineCost;s.state='building';w.change('shrine-started',{country:c.id});}
+  if(s.state==='none'&&!scientific&&c.faith>=V.faithThreshold&&c.food>=V.shrineCost+w.consumption(c)*15&&w.workers(c).length>2){c.food-=V.shrineCost;s.state='building';w.change('shrine-started',{country:c.id});}
   if(s.state==='repairing'&&!s.repairPaid&&c.food>2+w.consumption(c)*8){c.food-=2;s.repairPaid=true;}
   if(s.state==='building'||s.state==='repairing'&&s.repairPaid){
-   const worker=w.workers(c).find(e=>!e.workSite);if(worker){worker.faithWork=true;s.progress+=dt;if(s.progress>=V.shrineSeconds){s.state='complete';s.health=1;w.change('shrine-completed',{country:c.id});}}
+   if(faithWorker(w,c,dt,'build')){s.progress+=dt;if(s.progress>=V.shrineSeconds){s.state='complete';s.health=1;w.change('shrine-completed',{country:c.id});}}
   }
-  s.offering+=dt;
-  if(s.offering>=V.offeringSeconds){s.offering%=V.offeringSeconds;
-   if(s.state==='complete'&&!scientific&&c.faith>=20&&c.food>=V.offeringFood+w.consumption(c)*15){c.food-=V.offeringFood;w.mana+=V.offeringMana;w.change('offering',{country:c.id,food:V.offeringFood,mana:V.offeringMana});}
+  s.offering=Math.min(V.offeringSeconds,s.offering+dt);
+  if(s.offering>=V.offeringSeconds){
+   if(s.state==='complete'&&!scientific&&c.faith>=20&&c.food>=V.offeringFood+w.consumption(c)*15&&faithWorker(w,c,dt,'offering')){s.offering=0;c.food-=V.offeringFood;w.mana+=V.offeringMana;s.offerings=(s.offerings||0)+1;s.lastOffering=w.time;w.change('offering',{country:c.id,personId:s.workerId,x:s.x,y:s.y,food:V.offeringFood,mana:V.offeringMana});}
   }
   // Residents age independently; medicine changes lifespan and epidemic fatality.
   if(!w.inPrologue)for(const e of w.humans(c.id)){e.age=(e.age||0)+dt;if(e.age>=V.lifespan[c.era])w.kill(e,'natural');}
@@ -89,4 +90,9 @@ export function advanceCivilization(w,dt){
    }
   }
  }
+}
+function faithWorker(w,c,dt,task){
+ const s=c.shrine,workers=w.workers(c),post=shrinePost(w,c);let worker=workers.find(e=>e.id===s.workerId);
+ worker??=workers.sort((a,b)=>distance(a,post)-distance(b,post)||a.id-b.id)[0];s.workerId=worker?.id??null;if(!worker)return false;
+ worker.faithWork=true;worker.faithTask=task;worker.inside=false;w.move(worker,post,dt,V.faithWorkerSpeed);worker.faithAt=distance(worker,post)<=V.faithWorkReach;return worker.faithAt;
 }

@@ -1,7 +1,8 @@
-import {World} from './engine.js?build=1ae0e6c83866';
-import {CampaignWorld} from './campaign.js?build=1ae0e6c83866';
-import {CONFIG as C,MODES} from './config.js?build=1ae0e6c83866';
-import {assignHomes} from './civilization.js?build=1ae0e6c83866';
+import {establishCity} from './civic-sites.js?build=ae7840b412f1';
+import {World} from './engine.js?build=ae7840b412f1';
+import {CampaignWorld} from './campaign.js?build=ae7840b412f1';
+import {CONFIG as C,MODES} from './config.js?build=ae7840b412f1';
+import {assignHomes} from './civilization.js?build=ae7840b412f1';
 export const MODE_NAMES={prologue:'序章',level1:'第一关',sandbox:'沙盒模式'};
 export function modeOf(world){return world.campaign?(world.inPrologue?'prologue':'level1'):world.session?.mode==='sandbox'?'sandbox':world.session?.entryMode||'level1';}
 export function createGame(mode,seed=Date.now()){
@@ -13,7 +14,8 @@ export function createGame(mode,seed=Date.now()){
   while(world.humans(c.id).length<rule.initialPopulation)world.spawn('human',c,true);
   if(world.humans(c.id).length!==rule.initialPopulation)throw Error('模式开局人口不能少于基础世界人口');
   for(const b of c.buildings){b.state='planned';b.progress=0;b.clearProgress=0;b.kind=b.zone==='house'?'house':b.zone;b.upgrading=false;b.health=1;}
-  for(const b of c.buildings.filter(b=>b.source==='authored'&&b.zone==='house').slice(0,rule.initialHouses))b.state='complete';
+  establishCity(c);
+  for(const b of c.buildings.filter(b=>b.source==='authored'&&b.zone==='house'&&b.special!=='hall').slice(0,rule.initialHouses))b.state='complete';
   for(const b of c.buildings.filter(b=>b.source==='authored'&&b.zone===(c.id===0?'field':'pasture')).slice(0,c.id===0?rule.initialFields:rule.initialPastures))b.state='complete';
   c.food=rule.initialFood;c.army=null;c.warIntent=0;assignHomes(world,c);
  }

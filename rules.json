@@ -465,7 +465,11 @@
     "offeringSeconds": 15,
     "offeringFood": 4,
     "offeringMana": 3,
-    "tradeSeconds": 12
+    "tradeSeconds": 12,
+    "kingPostOffset": 0.9,
+    "shrineApproach": 1.1,
+    "faithWorkerSpeed": 2.5,
+    "faithWorkReach": 1.0
   },
   "modes": {
     "level1": {
