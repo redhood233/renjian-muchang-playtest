@@ -1,7 +1,9 @@
-import {HUSBANDRY as H} from './config.js?build=b9a20aa89d31';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=b9a20aa89d31';
+import {HUSBANDRY as H} from './config.js?build=dc9885d9b997';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=dc9885d9b997';
 const finite=(v,min=0)=>Number.isFinite(v)&&v>=min;
 export function validGameplayState(s){
+ if(s.social&&(!Array.isArray(s.social.messages)||s.social.messages.length>80||!Array.isArray(s.social.parties)||s.social.parties.length>2||!Number.isSafeInteger(s.social.readId)||s.social.readId<0||s.social.messages.some(m=>!Number.isSafeInteger(m.id)||typeof m.text!=='string'||m.text.length>500)||s.social.parties.some(p=>!Array.isArray(p.ids)||!Array.isArray(p.slots)||p.ids.length!==p.slots.length||!Array.isArray(p.attended)||!Number.isFinite(p.left)||p.slots.some(q=>!Number.isFinite(q.x)||!Number.isFinite(q.y)))))return false;
+
  if(!s.life||!Array.isArray(s.life.drops)||!Array.isArray(s.life.shipments)||!Array.isArray(s.life.burned)||[...s.life.drops,...s.life.shipments].some(d=>!Number.isFinite(d.x)||!Number.isFinite(d.y)||!finite(d.food)||!finite(d.left))||s.islands.some(c=>!c.volcano||!Number.isFinite(c.volcano.x)||!Number.isFinite(c.volcano.y)))return false;
  if(!Array.isArray(s.animals)||!Array.isArray(s.islands?.[0]?.buildings)||!Array.isArray(s.islands?.[1]?.pens)||!Number.isInteger(s.navRevision)||s.navRevision<0||!Array.isArray(s.beastBirthCredit)||s.beastBirthCredit.length!==2||!s.beastBirthCredit.every(v=>finite(v)))return false;
  if(!Number.isSafeInteger(s.serial)||s.serial<Math.max(0,...s.entities.map(e=>e.id),...s.animals.map(a=>a.id)))return false;

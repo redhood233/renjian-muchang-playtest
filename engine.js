@@ -1,15 +1,16 @@
-import {initLife,assignWork,advanceLife,lifeAction,dropMeat,ignite,projectDamage,erupt} from './living-world.js?build=b9a20aa89d31';
-import {kingPost,cityHall} from './civic-sites.js?build=b9a20aa89d31';
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=b9a20aa89d31';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=b9a20aa89d31';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=b9a20aa89d31';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=b9a20aa89d31';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=b9a20aa89d31';
-import {CIVILIZATION as V} from './config.js?build=b9a20aa89d31';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=b9a20aa89d31';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=b9a20aa89d31';
-import {strike,separate} from './combat.js?build=b9a20aa89d31';
-import {validGameplayState} from './gameplay-save.js?build=b9a20aa89d31';
+import {advanceSocial,noteSocialCast,socialState} from './social-life.js?build=dc9885d9b997';
+import {initLife,assignWork,advanceLife,lifeAction,dropMeat,ignite,projectDamage,erupt} from './living-world.js?build=dc9885d9b997';
+import {kingPost,cityHall} from './civic-sites.js?build=dc9885d9b997';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=dc9885d9b997';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=dc9885d9b997';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=dc9885d9b997';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=dc9885d9b997';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=dc9885d9b997';
+import {CIVILIZATION as V} from './config.js?build=dc9885d9b997';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=dc9885d9b997';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=dc9885d9b997';
+import {strike,separate} from './combat.js?build=dc9885d9b997';
+import {validGameplayState} from './gameplay-save.js?build=dc9885d9b997';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {
@@ -18,7 +19,7 @@ export class World {
    visualEvents:[],cooldowns:{},entities:[],corpses:[],effects:[],events:[],islands:[],pending:[],fires:[],
    truce:0,births:0,milestones:{},saveRequested:false,animals:[],changes:[],changeSerial:0,navRevision:0});
   for(let id=0;id<2;id++) this.createIsland(id);
-  initSociety(this);initAnimals(this);initCivilization(this);initMilitary(this);initLife(this);this.session={mode:options.mode||'challenge',seconds:options.duration||C.duration,souls:options.goal||C.goal};
+  initSociety(this);initAnimals(this);initCivilization(this);initMilitary(this);initLife(this);socialState(this);this.session={mode:options.mode||'challenge',seconds:options.duration||C.duration,souls:options.goal||C.goal};
  }
  get goal(){return this.session?.mode==='sandbox'?Infinity:this.session?.souls||C.goal;}
  get score(){return this.souls;}
@@ -107,7 +108,7 @@ export class World {
   const error=this.validate(id,p,weather);if(error)return {ok:false,message:error};
   const s=SKILLS.find(s=>s.id===id),c=this.islandAt(p),all=this.legalTargets(id,p,s.r),targets=id==='rage'||id==='lightning'?all.slice(0,1):all;
   this.visualEvents??=[];this.visualEvents.push({id,x:p.x,y:p.y,time:this.time,weather,extinguished:id==='weather'&&weather==='rain'?this.fires.filter(f=>this.islandAt(f)?.id===c.id).map(f=>({x:f.x,y:f.y})):[],targets:(id==='peace'?this.humans().filter(e=>e.soldier||e.commanding):targets).map(e=>({id:e.id,x:e.x,y:e.y})),corpses:id==='undead'?this.corpses.filter(b=>b.life>0&&distance(b,p)<=s.r).slice(0,C.undeadLimit).map(b=>({x:b.x,y:b.y})):[]});
-  this.mana-=s.cost;this.cooldowns[id]=s.cd;
+  this.mana-=s.cost;this.cooldowns[id]=s.cd;noteSocialCast(this,id,c?.id??null);
   if(id==='peace')this.peace();
   if(id==='bless')for(const e of targets)e.bless=C.blessSeconds;
   if(id==='joy'){for(const e of targets)e.joy=C.joySeconds;this.change('joy-applied',{ids:targets.map(e=>e.id)});}
@@ -140,7 +141,7 @@ export class World {
   this.effects=this.effects.filter(e=>e.life>0);this.corpses=this.corpses.filter(e=>e.life>0);
   for(const p of this.pending){p.left-=dt;if(p.left<=0)this.impact(p);}this.pending=this.pending.filter(p=>p.left>0);
   if(this.score>=this.goal||!this.humans().length){this.judge();if(this.result)return;}
-  advanceSociety(this,dt);assignWork(this,dt);advanceLife(this,dt);advanceCivilization(this,dt);advanceMilitary(this,dt);
+  advanceSociety(this,dt);advanceSocial(this,dt);assignWork(this,dt);advanceLife(this,dt);advanceCivilization(this,dt);advanceMilitary(this,dt);
   for(const c of this.islands){advanceSettlement(this,c,dt);this.economy(c,dt);c.weather.left=Math.max(0,c.weather.left-dt);}
   for(const e of [...this.entities]){
    if(e.dead)continue;e.attack=Math.max(0,e.attack-dt);
@@ -154,6 +155,7 @@ export class World {
    if(e.dead)continue;
    if(e.soldier)this.soldier(e,c,dt);
    else if(residentAction(this,e,c,dt)){}
+   else if(e.gathering){}
    else if(lifeAction(e)){}
    else if(e.adult){const invader=this.entities.find(v=>!v.dead&&(v.kind==='undead'||v.soldier&&!v.garrison)&&!v.returning&&v.country!==c.id&&distance(v,c)<24&&distance(v,e)<8);if(invader&&this.truce<=0){e.action='躲避入侵';const refuge=nearestWalkable({x:c.x+(c.id?8:-8),y:c.y+(e.id%5-2)*1.1},c.id,this.blockers());this.move(e,refuge,dt,C.walkSpeed);}else{e.action=e.bless>0?'祝福增产':e.joy>0?'繁衍加速':'自动生产';if(distance(e,e.destination)<.3)e.destination=this.point(c);this.move(e,e.destination,dt,.6);}}
    else e.action='成长中';

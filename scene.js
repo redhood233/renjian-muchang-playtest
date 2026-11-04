@@ -1,32 +1,32 @@
-import {LifeView} from './life-view.js?build=b9a20aa89d31';
-import {CombatEffects} from './combat-presentation.js?build=b9a20aa89d31';
-import {CIVILIZATION as V} from './config.js?build=b9a20aa89d31';
-import {CivicView} from './civic-view.js?build=b9a20aa89d31';
-import {ARMY_PRESENTATION as AP} from './config.js?build=b9a20aa89d31';
-import {installFollowVisibility} from './follow-visibility.js?build=b9a20aa89d31';
-import {ArmyStandards} from './army-standards.js?build=b9a20aa89d31';
-import {TrackingCamera} from './tracking-camera.js?build=b9a20aa89d31';
-import {expandBridgeMesh} from './world-geometry.js?build=b9a20aa89d31';
-import {FallenResidents} from './fallen-residents.js?build=b9a20aa89d31';
-import {SettlementView} from './settlement-view.js?build=b9a20aa89d31';
-import {loadModel,mobileMode,pixelRatio} from './mobile-runtime.js?build=b9a20aa89d31';
-import {WeatherPresentation} from './weather-presentation.js?build=b9a20aa89d31';
-import {previewRing} from './target-preview.js?build=b9a20aa89d31';
-import {Gravestones} from './gravestones.js?build=b9a20aa89d31';
-import {installEnvironment} from './environment-v16.js?v=16.3&build=b9a20aa89d31';
-import {batchSourceDecorations} from './source-batching.js?build=b9a20aa89d31';
-import {SourceSheep} from './source-sheep.js?build=b9a20aa89d31';
-import {HarvestEffects} from './harvest-effects.js?build=b9a20aa89d31';
-import {updateCharacterPalettes} from './character-palette.js?build=b9a20aa89d31';
-import {loadCharacters} from './character-assets.js?build=b9a20aa89d31';
-import {CharacterView} from './character-view.js?build=b9a20aa89d31';
-import {SpellEffects} from './spell-effects.js?build=b9a20aa89d31';
-import {SourceColorPipeline} from './source-color.js?v=16.3&build=b9a20aa89d31';
-import {SceneryMotion} from './scenery-motion.js?v=16.3&build=b9a20aa89d31';
-import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=b9a20aa89d31';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=b9a20aa89d31';
-import {QINGHE,BRIDGE,groundHeight,islandId} from './island-layout.js?build=b9a20aa89d31';
-import * as T from './vendor/three.module.js?build=b9a20aa89d31';
+import {LifeView} from './life-view.js?build=dc9885d9b997';
+import {CombatEffects} from './combat-presentation.js?build=dc9885d9b997';
+import {CIVILIZATION as V} from './config.js?build=dc9885d9b997';
+import {CivicView} from './civic-view.js?build=dc9885d9b997';
+import {ARMY_PRESENTATION as AP} from './config.js?build=dc9885d9b997';
+import {installFollowVisibility} from './follow-visibility.js?build=dc9885d9b997';
+import {ArmyStandards} from './army-standards.js?build=dc9885d9b997';
+import {TrackingCamera} from './tracking-camera.js?build=dc9885d9b997';
+import {expandBridgeMesh} from './world-geometry.js?build=dc9885d9b997';
+import {FallenResidents} from './fallen-residents.js?build=dc9885d9b997';
+import {SettlementView} from './settlement-view.js?build=dc9885d9b997';
+import {loadModel,mobileMode,pixelRatio} from './mobile-runtime.js?build=dc9885d9b997';
+import {WeatherPresentation} from './weather-presentation.js?build=dc9885d9b997';
+import {previewRing} from './target-preview.js?build=dc9885d9b997';
+import {Gravestones} from './gravestones.js?build=dc9885d9b997';
+import {installEnvironment} from './environment-v16.js?v=16.3&build=dc9885d9b997';
+import {batchSourceDecorations} from './source-batching.js?build=dc9885d9b997';
+import {SourceSheep} from './source-sheep.js?build=dc9885d9b997';
+import {HarvestEffects} from './harvest-effects.js?build=dc9885d9b997';
+import {updateCharacterPalettes} from './character-palette.js?build=dc9885d9b997';
+import {loadCharacters} from './character-assets.js?build=dc9885d9b997';
+import {CharacterView} from './character-view.js?build=dc9885d9b997';
+import {SpellEffects} from './spell-effects.js?build=dc9885d9b997';
+import {SourceColorPipeline} from './source-color.js?v=16.3&build=dc9885d9b997';
+import {SceneryMotion} from './scenery-motion.js?v=16.3&build=dc9885d9b997';
+import {mergeGeometries} from './vendor/BufferGeometryUtils.js?build=dc9885d9b997';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=dc9885d9b997';
+import {QINGHE,BRIDGE,groundHeight,islandId} from './island-layout.js?build=dc9885d9b997';
+import * as T from './vendor/three.module.js?build=dc9885d9b997';
 const materials=new Map();
 const mat=color=>{if(!materials.has(color))materials.set(color,new T.MeshStandardMaterial({color,roughness:1,flatShading:true}));return materials.get(color);};
 const box=new T.BoxGeometry(1,1,1),orb=new T.IcosahedronGeometry(1,1);
@@ -62,7 +62,7 @@ export class WorldView{
  pick(p){this.ray.setFromCamera(new T.Vector2(p.x/this.w*2-1,1-p.y/this.h*2),this.camera);for(const hit of this.ray.intersectObjects([...this.objects.values(),...this.standards.nodes.values(),...[...this.settlements.originals.values()].flat(),...this.settlements.clones.values(),...[...this.settlements.eraBuildings.models.values()].map(m=>m.root),...this.civics.nodes.values(),...this.lifeView.models.values()].filter(o=>o.visible),true)){let o=hit.object;while(o&&!o.userData.entity)o=o.parent;if(o?.userData.entity?.kind)return o.userData.entity;}return null;}
  render(world,camera,skill,target){if(!this.ready)return;this.standards.update(world);this.trackingCamera=this.follow.update(world,this.w,this.h,id=>this.objects.get('e'+id)?.rotation.y);if(this.followVisibility)this.followVisibility.value=this.trackingCamera?AP.followClearance:0;this.cameraAt(camera);this.settlements.update(world);this.civics.update(world);this.lifeView.update(world);
  const entries=[];
- for(const e of [...world.entities,...world.animals])if(!e.dead&&!e.inside)entries.push(['e'+e.id,e.kind==='human'?'actor.human':'actor.'+e.kind,e]);const live=new Set();for(const [key,id,e]of entries){if(e.hp<=0)continue;live.add(key);let obj=this.objects.get(key);if(obj?.userData.assetId!==id){if(obj)this.releaseActor(obj);if(id==='actor.human'){obj=new CharacterView(this.characters[e.country],e).root;}else{obj=new T.Group();obj.userData.assetId=id;let asset;{const cacheKey=id+((e.id||0)%2);if(!this.templates.has(cacheKey))this.templates.set(cacheKey,model(id,e.id||0));asset=this.templates.get(cacheKey).clone(true);}asset.traverse(m=>{if(m.isMesh)m.material=m.material.clone();});obj.add(asset);}this.objects.set(key,obj);this.group.add(obj);}const secondary=this.selection?.secondary?.includes(e.id);const lit=this.selection?.resident===e.id||this.selection?.affected?.includes(e.id)||secondary;const status=e.sick>0?'#71845c':e.soldier?'#9e5648':e.bless>0?'#a28e52':e.joy>0?'#a76d7b':null;const tint=lit?(this.selection?.resident===e.id?'#bda568':this.selection.color):status||'#000000',intensity=lit?(secondary?.4:1.15):status?.2:0;if(obj.userData.tint!==tint||obj.userData.intensity!==intensity){obj.userData.tint=tint;obj.userData.intensity=intensity;if(!obj.userData.character)obj.traverse(m=>{if(m.isMesh&&m.material.emissive){m.material.emissive.set(tint);m.material.emissiveIntensity=intensity;}});}obj.userData.entity=e;obj.position.set(e.x,groundHeight(e),e.y);const scale=e.kind==='human'?(e.adult?.65:.4):e.kind==='undead'?.65:e.kind==='sheep'?(e.adult?.55:.32):.7;obj.scale.setScalar(e.construction?.6:scale);if(e.construction)obj.position.y=-.6; if(obj.userData.character){const actor=obj.userData.character;for(const hit of world.visualEvents||[])if(hit.id==='actor-hit'&&hit.attackerId===e.id)actor.hit(hit);actor.update({...e,weapon:V.weapons[world.islands[e.country].era||0],carryingStandard:this.standards.nodes.get(e.country)?.userData.era===0&&this.standards.nodes.get(e.country)?.userData.entity.carrierId===e.id},world.time);actor.highlight(tint,intensity,world.time);}else if(e.kind==='sheep'||e.kind==='undead'){obj.position.y=groundHeight(e);const prev=obj.userData.previous;if(prev&&Math.hypot(e.x-prev.x,e.y-prev.y)>.001)obj.rotation.y=Math.atan2(e.x-prev.x,e.y-prev.y);obj.userData.previous={x:e.x,y:e.y};}}
+ for(const e of [...world.entities,...world.animals])if(!e.dead&&!e.inside)entries.push(['e'+e.id,e.kind==='human'?'actor.human':'actor.'+e.kind,e]);const live=new Set();for(const [key,id,e]of entries){if(e.hp<=0)continue;live.add(key);let obj=this.objects.get(key);if(obj?.userData.assetId!==id){if(obj)this.releaseActor(obj);if(id==='actor.human'){obj=new CharacterView(this.characters[e.country],e).root;}else{obj=new T.Group();obj.userData.assetId=id;let asset;{const cacheKey=id+((e.id||0)%2);if(!this.templates.has(cacheKey))this.templates.set(cacheKey,model(id,e.id||0));asset=e.kind==='sheep'?this.sheep.create():this.templates.get(cacheKey).clone(true);}asset.traverse(m=>{if(m.isMesh)m.material=m.material.clone();});obj.add(asset);}this.objects.set(key,obj);this.group.add(obj);}const secondary=this.selection?.secondary?.includes(e.id);const lit=this.selection?.resident===e.id||this.selection?.affected?.includes(e.id)||secondary;const status=e.sick>0?'#71845c':e.soldier?'#9e5648':e.bless>0?'#a28e52':e.joy>0?'#a76d7b':null;const tint=lit?(this.selection?.resident===e.id?'#bda568':this.selection.color):status||'#000000',intensity=lit?(secondary?.4:1.15):status?.2:0;if(obj.userData.tint!==tint||obj.userData.intensity!==intensity){obj.userData.tint=tint;obj.userData.intensity=intensity;if(!obj.userData.character)obj.traverse(m=>{if(m.isMesh&&m.material.emissive){m.material.emissive.set(tint);m.material.emissiveIntensity=intensity;}});}obj.userData.entity=e;obj.position.set(e.x,groundHeight(e),e.y);const scale=e.kind==='human'?(e.adult?.65:.4):e.kind==='undead'?.65:e.kind==='sheep'?(e.adult?.55:.32):.7;obj.scale.setScalar(e.construction?.6:scale);if(e.construction)obj.position.y=-.6; if(obj.userData.character){const actor=obj.userData.character;for(const hit of world.visualEvents||[])if(hit.id==='actor-hit'&&hit.attackerId===e.id)actor.hit(hit);actor.update({...e,weapon:V.weapons[world.islands[e.country].era||0],carryingStandard:this.standards.nodes.get(e.country)?.userData.era===0&&this.standards.nodes.get(e.country)?.userData.entity.carrierId===e.id},world.time);actor.highlight(tint,intensity,world.time);}else if(e.kind==='sheep'||e.kind==='undead'){obj.position.y=groundHeight(e);const prev=obj.userData.previous;if(prev&&Math.hypot(e.x-prev.x,e.y-prev.y)>.001)obj.rotation.y=Math.atan2(e.x-prev.x,e.y-prev.y);obj.userData.previous={x:e.x,y:e.y};}}
 
  this.bodies.update(world,this.objects,this.characters);for(const [key,obj]of this.objects)if(!live.has(key)){this.releaseActor(obj);this.objects.delete(key);}if(this.islands.size>world.islands.length){for(const [id,o]of this.islands)if(!world.islands[id]){this.scene.remove(o);this.islands.delete(id);}}
  this.harvest.update(world);this.scenery.update(world.time);this.lastTime=world.time;this.renderEffects(world);this.ring.visible=!!(skill&&target)&&previewRing(skill.id);this.ring.material.opacity=skill?.id==='meteor'?.8:.16;this.ring.material.color.set(this.selection?.valid?this.selection.color:'#8f9691');if(target&&skill&&(this.ringX!==target.x||this.ringY!==target.y||this.ringRadius!==(skill.r||4))){this.ringX=target.x;this.ringY=target.y;this.ringRadius=skill.r||4;this.ring.position.set(target.x,0,target.y);this.ring.scale.setScalar(1);const pos=this.ring.geometry.attributes.position;this.ringBase??=pos.array.slice();for(let i=0;i<pos.count;i++){const x=this.ringBase[i*3]*(skill.r||4),z=-this.ringBase[i*3+1]*(skill.r||4);pos.setXYZ(i,x,-z,groundHeight({x:target.x+x,y:target.y+z})+.12);}pos.needsUpdate=true;this.ring.geometry.computeBoundingSphere();}const climateEvents=(world.visualEvents||[]).filter(e=>e.id==='lightning');this.combatEffects.update(world);this.vfx.render(world,skill,target);updateCharacterPalettes(this.scene);this.weatherPresentation.update(world,this.scene,climateEvents);if(this.colorPipeline)this.colorPipeline.render(this.scene,this.camera);else this.renderer.render(this.scene,this.camera);const info=this.renderer.info;const now=performance.now();this.frames=(this.frames||0)+1;this.fpsStart??=now;if(now-this.fpsStart>=2000){this.fps=this.frames*1000/(now-this.fpsStart);this.frames=0;this.fpsStart=now;}this.renderer.domElement.dataset.metrics=JSON.stringify({fps:Math.round(this.fps||0),population:world.humans().length,loadMs:Math.round(this.loadMs),triangles:info.render.triangles,drawCalls:info.render.calls,geometries:info.memory.geometries,textures:info.memory.textures,animatedPlants:this.scenery.plantMeshes,sourcePlantCount:this.scenery.plantCount,plantShadersReady:this.scenery.diagnostics?.every(d=>d.compiled&&d.colorChunk),sceneryTime:this.scenery.time.value,sheepCount:this.sheep.actors.length,sheepAnimationTime:this.sheep.actors[0]?.mixer.time,batchedDraws:this.batchedDraws,environmentVersion:this.environmentVersion});}

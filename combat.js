@@ -1,5 +1,5 @@
-import {BRIDGE,walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js?build=b9a20aa89d31';
-import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js?build=b9a20aa89d31';
+import {BRIDGE,walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js?build=dc9885d9b997';
+import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js?build=dc9885d9b997';
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const formationCache=new WeakMap();
 export function weapon(w,e){const era=e.kind==='human'?(w.islands[e.country].era||0):0;return {range:V.weaponRange[era],cooldown:V.weaponCooldown[era],kind:V.weapons[era]};}
@@ -44,10 +44,10 @@ export function separate(w,dt){
  for(let iteration=0;iteration<2;iteration++){
   const buckets=new Map();for(const e of actors){const key=Math.floor(e.x/size)+','+Math.floor(e.y/size);if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(e);}
   for(const e of actors){const ix=Math.floor(e.x/size),iy=Math.floor(e.y/size);for(let x=ix-1;x<=ix+1;x++)for(let y=iy-1;y<=iy+1;y++)for(const other of buckets.get(x+','+y)||[]){
-   if(other.id<=e.id||!(e.soldier||other.soldier||e.kind==='undead'||other.kind==='undead'))continue;
-   const d=dist(e,other);if(d>=size)continue;
+   if(other.id<=e.id||!(e.soldier||other.soldier||e.kind==='undead'||other.kind==='undead'||e.workDuty||other.workDuty||e.gathering||other.gathering))continue;
+   const spacing=e.soldier||other.soldier||e.kind==='undead'||other.kind==='undead'?size:.6,d=dist(e,other);if(d>=spacing)continue;
    const a=d>.0001?Math.atan2(e.y-other.y,e.x-other.x):((e.id*97+other.id*31)%360)*Math.PI/180;
-   const amount=Math.min((size-d)*.5,dt*M.separationSpeed),dx=Math.cos(a)*amount,dy=Math.sin(a)*amount;
+   const amount=Math.min((spacing-d)*.5,dt*M.separationSpeed),dx=Math.cos(a)*amount,dy=Math.sin(a)*amount;
    for(const [actor,sign] of [[e,1],[other,-1]]){const q={x:actor.x+dx*sign,y:actor.y+dy*sign};if(reachable(q,w.blockers())&&segmentClear(actor,q,w.blockers())){actor.x=q.x;actor.y=q.y;if(actor._route)actor._route.dirty=true;}}
   }}
  }

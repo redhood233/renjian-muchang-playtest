@@ -1,7 +1,7 @@
-import * as T from './vendor/three.module.js?build=b9a20aa89d31';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=b9a20aa89d31';
-import {corpseStage} from './death-stages.js?build=b9a20aa89d31';
-import {groundHeight} from './island-layout.js?build=b9a20aa89d31';
+import * as T from './vendor/three.module.js?build=dc9885d9b997';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=dc9885d9b997';
+import {corpseStage} from './death-stages.js?build=dc9885d9b997';
+import {groundHeight} from './island-layout.js?build=dc9885d9b997';
 export class Gravestones{
  constructor(scene){this.group=new T.Group();this.group.name='CorpseGravestones';scene.add(this.group);this.pool=[];}
  async load(){const gltf=await new GLTFLoader().loadAsync(new URL('./assets/props/gravestone/gravestone.glb',import.meta.url).href);this.source=gltf.scene;const box=new T.Box3().setFromObject(this.source),size=box.getSize(new T.Vector3()),center=box.getCenter(new T.Vector3()),scale=.85/size.y;this.source.scale.multiplyScalar(scale);this.source.position.set(-center.x*scale,-box.min.y*scale,-center.z*scale);this.source.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});}

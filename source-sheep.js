@@ -1,21 +1,17 @@
-import {GEOGRAPHY as G} from './config.js?build=b9a20aa89d31';
-import {loadModel,environmentTexture} from './mobile-runtime.js?build=b9a20aa89d31';
-import * as T from './vendor/three.module.js?build=b9a20aa89d31';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=b9a20aa89d31';
-import {clone} from './vendor/SkeletonUtils.js?build=b9a20aa89d31';
+import {loadModel} from './mobile-runtime.js?build=dc9885d9b997';
+import * as T from './vendor/three.module.js?build=dc9885d9b997';
+// Reuse the approved sheep asset. Bake its idle pose once; residents' sheep
+// share static geometry rather than paying for a skeleton and mixer each frame.
 export class SourceSheep {
- async load(root,meta){
+ async load(){
   const gltf=await loadModel(new URL('./assets/islands/v09/sheep.glb',import.meta.url).href,'sheep');
-  const clip=gltf.animations.find(a=>a.name.includes('Sheep_Idle'));
-  if(!clip)throw new Error('羊群待机动作缺失');
-  this.actors=[];const basis=new T.Matrix4().makeRotationX(-Math.PI/2);
-  for(const [i,p] of meta.sheep.entries()){
-   const holder=new T.Group(),model=clone(gltf.scene),m=new T.Matrix4().set(...p.matrix.flat());
-   m.multiply(new T.Matrix4().makeTranslation(...p.offset.map(x=>-x)));
-   holder.applyMatrix4(basis.clone().multiply(m).multiply(basis.clone().invert()));
-   model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-   model.scale.multiplyScalar(1/G.scale);holder.add(model);holder.visible=false;root.add(holder);const mixer=new T.AnimationMixer(model);mixer.clipAction(clip).play();this.actors.push({mixer,phase:(i%3)*clip.duration/3});
-  }
+  const clip=gltf.animations.find(a=>a.name.includes('Sheep_Idle'));if(!clip)throw Error('羊群待机动作缺失');
+  const mixer=new T.AnimationMixer(gltf.scene);mixer.clipAction(clip).play();mixer.setTime(.35);gltf.scene.updateMatrixWorld(true);gltf.scene.traverse(o=>{if(o.isSkinnedMesh)o.skeleton.update();});
+  const root=new T.Group(),v=new T.Vector3();gltf.scene.traverse(o=>{if(!o.isMesh)return;const geometry=o.geometry.clone(),position=geometry.attributes.position;for(let i=0;i<position.count;i++){o.getVertexPosition(i,v);v.applyMatrix4(o.matrixWorld);position.setXYZ(i,v.x,v.y,v.z);}for(const name of ['skinIndex','skinWeight'])geometry.deleteAttribute(name);geometry.morphAttributes={};geometry.computeVertexNormals();geometry.computeBoundingBox();geometry.computeBoundingSphere();const mesh=new T.Mesh(geometry,o.material);mesh.castShadow=mesh.receiveShadow=true;root.add(mesh);});
+  const bounds=new T.Box3().setFromObject(root),size=bounds.getSize(new T.Vector3()),centre=bounds.getCenter(new T.Vector3()),scale=1.4/Math.max(.01,size.y);
+  for(const mesh of root.children){mesh.geometry.translate(-centre.x,-bounds.min.y,-centre.z);mesh.geometry.scale(scale,scale,scale);mesh.geometry.computeBoundingBox();mesh.geometry.computeBoundingSphere();}
+  this.template=root;this.actors=[];mixer.stopAllAction();mixer.uncacheRoot(gltf.scene);
  }
- update(time){for(const a of this.actors||[])a.mixer.setTime(time+a.phase);}
+ create(){const root=this.template.clone(true);root.userData={resourceId:'approved.sheep',source:'assets/islands/v09/sheep.glb'};return root;}
+ update(){}
 }

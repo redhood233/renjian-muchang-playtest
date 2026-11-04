@@ -1,5 +1,5 @@
-import * as T from './vendor/three.module.js?build=b9a20aa89d31';
-import {groundHeight} from './island-layout.js?build=b9a20aa89d31';
+import * as T from './vendor/three.module.js?build=dc9885d9b997';
+import {groundHeight} from './island-layout.js?build=dc9885d9b997';
 const replacements=new Map();
 export function registerLifeModel(kind,factory){replacements.set(kind,factory);}
 function prototype(kind,country){const root=new T.Group(),color=country?'#608ba6':'#b76b4f',add=(geo,tint,x,y,z)=>{const m=new T.Mesh(geo,new T.MeshStandardMaterial({color:tint,roughness:1}));m.position.set(x,y,z);root.add(m);return m;};

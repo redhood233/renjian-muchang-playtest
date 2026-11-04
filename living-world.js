@@ -1,7 +1,8 @@
-import {nearestWalkable,islandId} from './island-layout.js?build=b9a20aa89d31';
-import {schoolPost,kingPost,shrineSite} from './civic-sites.js?build=b9a20aa89d31';
-import {structureDamage} from './civilization.js?build=b9a20aa89d31';
-import {WORLD_LIFE as L,CONFIG as C,SETTLEMENT as S} from './config.js?build=b9a20aa89d31';
+import {fieldSlots,assignFieldSlots} from './work-slots.js?build=dc9885d9b997';
+import {nearestWalkable,islandId} from './island-layout.js?build=dc9885d9b997';
+import {schoolPost,kingPost,shrineSite} from './civic-sites.js?build=dc9885d9b997';
+import {structureDamage} from './civilization.js?build=dc9885d9b997';
+import {WORLD_LIFE as L,CONFIG as C,SETTLEMENT as S} from './config.js?build=dc9885d9b997';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const pointCache=new WeakMap();
 function workPoint(w,p,id){let cache=pointCache.get(w);if(!cache||cache.revision!==w.navRevision){cache={revision:w.navRevision,points:new Map()};pointCache.set(w,cache);}const key=id+':'+p.x+','+p.y;if(!cache.points.has(key)){if(cache.points.size>2048)cache.points.clear();cache.points.set(key,nearestWalkable(p,id,w.blockers()));}return cache.points.get(key);}
@@ -11,7 +12,7 @@ export function erupt(w,c){const v=c.volcano;if(v.cooldown>0)return false;v.cool
 export function projectDamage(w,p,r,amount){for(const c of w.islands){const q=c.project;if(q.paid&&q.site&&distance(q.site,p)<r+1){q.health=Math.max(0,(q.health??1)-amount);if(q.health===0){Object.assign(q,{state:'locked',paid:false,progress:0,health:1});w.change('soul-project-destroyed',{country:c.id});}}}}
 export function dropMeat(w,e,food){w.life.drops.push({id:++w.life.serial,x:e.x,y:e.y,country:e.country,food,left:L.meatLifetime});w.change('meat-dropped',{country:e.country,food,x:e.x,y:e.y});}
 export function assignWork(w,dt){if(!w.life)return;for(const e of w.humans()){e.workDuty=null;e.workReady=false;}
- for(const c of w.islands){const pool=w.workers(c).filter(e=>!e.workSite),fires=w.fires.filter(f=>w.islandAt(f)?.id===c.id);let offset=0;
+ for(const c of w.islands){const pool=w.workers(c).filter(e=>!e.workSite&&!e.gathering),fires=w.fires.filter(f=>w.islandAt(f)?.id===c.id);let offset=0;
   const send=(e,p,task,reach=1.5)=>{e.workDuty=task;e.workTarget={x:p.x,y:p.y};e.inside=false;w.move(e,p,dt,2.5);e.workReady=distance(e,p)<reach;e.action=e.workReady?task:'前往'+task;return e.workReady;};
   if(fires.length&&w.supply(c)>2)for(const e of pool.slice(0,L.firefighters)){const f=fires[offset++%fires.length],p=workPoint(w,{x:f.x+2,y:f.y},c.id);if(send(e,p,'提水灭火',2))f.left-=dt*L.extinguishRate;}
   const project=c.project;if(project.paid&&project.state!=='complete'&&pool[offset]){const e=pool[offset++];project.workerReady=send(e,project.site,'封魂工程施工',2);}else project.workerReady=false;
@@ -23,7 +24,10 @@ export function assignWork(w,dt){if(!w.life)return;for(const e of w.humans()){e.
    if(d.carrier){const post=kingPost(w,c);if(send(e,post,'搬运肉食')){c.food=Math.max(c.food,Math.min(C.foodLimit*(c.buildings.some(b=>b.kind==='granary'&&b.state==='complete')?S.granaryStorage:1),c.food+d.food));d.left=0;w.change('meat-delivered',{country:c.id,food:d.food,personId:e.id});}else{d.x=e.x;d.y=e.y;}}
   }
   const plots=c.buildings.filter(b=>b.state==='complete'&&b.kind===(c.id===0?'field':'pasture'));
-  for(const [i,e] of pool.filter(e=>!used.has(e.id)).entries()){const b=plots[Math.floor(i/(c.id===0?4:10))%Math.max(1,plots.length)];const animal=c.id===1?w.animals.filter(a=>a.country===c.id&&a.kind==='sheep'&&!a.dead)[i%Math.max(1,w.animals.filter(a=>a.kind==='sheep'&&!a.dead).length)]:null;if(b)send(e,workPoint(w,animal||{x:b.x+(i%2?1:-1),y:b.y},c.id),c.id===0?'田间劳作':'照料羊群',3);}
+  const remaining=pool.filter(e=>!used.has(e.id));
+  if(c.id===0){const assigned=assignFieldSlots(remaining,fieldSlots(w,c,plots));for(const e of remaining){const slot=assigned.get(e.id);if(slot){e.fieldSlot=slot.id;send(e,slot,'田间劳作',.25);}else{e.fieldSlot=null;e.workDuty='等待工作';e.workReady=false;const rest=workPoint(w,{x:c.x-4+(e.id%4)*.8,y:c.y+5+Math.floor(e.id%12/4)*.8},c.id);w.move(e,rest,dt,2);e.action='等待空闲农田';}}}
+  else {const flock=w.animals.filter(a=>a.country===c.id&&a.kind==='sheep'&&!a.dead);for(const [i,e] of remaining.entries()){const b=plots[Math.floor(i/10)%Math.max(1,plots.length)],animal=flock[i%Math.max(1,flock.length)];if(b)send(e,workPoint(w,animal?{x:animal.x+Math.cos(e.id*2.4),y:animal.y+Math.sin(e.id*2.4)}:b,c.id),'照料羊群',3);}}
+
  }
 }
 export function lifeAction(e){return !!e.workDuty;}

@@ -1,4 +1,4 @@
-import {drawRageBubbles} from './rage-bubbles.js?build=b9a20aa89d31';
+import {drawRageBubbles} from './rage-bubbles.js?build=dc9885d9b997';
 // Bounded, deterministic presentation: all ages come from simulation time.
 const TAU=Math.PI*2,clamp=x=>Math.max(0,Math.min(1,x));
 function ellipse(g,x,y,rx,ry,color,alpha=1){if(rx<=0||ry<=0)return;g.globalAlpha=clamp(alpha);g.fillStyle=color;g.beginPath();g.ellipse(x,y,rx,ry,0,0,TAU);g.fill();}
@@ -46,7 +46,7 @@ export function drawSpellFeedback(g,v,world,events,scale){
  }
 
  g.restore();
- drawRageBubbles(g,v,world,scale);
+ if(!v.socialEmojis)drawRageBubbles(g,v,world,scale);
 }
 
 export function drawSoulFlights(g,v,world,scale){const s=scale;g.save();

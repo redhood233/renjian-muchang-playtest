@@ -1,22 +1,24 @@
-import {civicDetails} from './civic-details.js?build=b9a20aa89d31';
-import {GameLibrary,MODE_NAMES,createGame,restoreGame,modeOf,clockLabel} from './game-modes.js?build=b9a20aa89d31';
-import {releaseHint,positionReleaseHint} from './release-hint.js?build=b9a20aa89d31';
-import {pixelRatio} from './mobile-runtime.js?build=b9a20aa89d31';
-import {targetPreview} from './target-preview.js?build=b9a20aa89d31';
-import {GameAudio} from './game-audio.js?build=b9a20aa89d31';
-import {PROLOGUE} from './prologue-data.js?build=b9a20aa89d31';
-import {CampaignWorld} from './campaign.js?build=b9a20aa89d31';
-import {PrologueView} from './prologue-view.js?build=b9a20aa89d31';
-import {PauseState} from './pause-state.js?build=b9a20aa89d31';
-import {CameraControls,DEFAULT_CAMERA} from './camera-controls.js?build=b9a20aa89d31';
-import {WorldView} from './scene.js?v=16.3&build=b9a20aa89d31';
-import {World,distance} from './engine.js?build=b9a20aa89d31';
-import {CONFIG as C,SKILLS} from './config.js?build=b9a20aa89d31';
-import {GameInput} from './input.js?build=b9a20aa89d31';
-import {$,art,palettes,islandName,showHome,dialog,guide,ending,buildCards} from './ui.js?build=b9a20aa89d31';
+import {SocialPanel} from './social-panel.js?build=dc9885d9b997';
+import {civicDetails} from './civic-details.js?build=dc9885d9b997';
+import {GameLibrary,MODE_NAMES,createGame,restoreGame,modeOf,clockLabel} from './game-modes.js?build=dc9885d9b997';
+import {releaseHint,positionReleaseHint} from './release-hint.js?build=dc9885d9b997';
+import {pixelRatio} from './mobile-runtime.js?build=dc9885d9b997';
+import {targetPreview} from './target-preview.js?build=dc9885d9b997';
+import {GameAudio} from './game-audio.js?build=dc9885d9b997';
+import {PROLOGUE} from './prologue-data.js?build=dc9885d9b997';
+import {CampaignWorld} from './campaign.js?build=dc9885d9b997';
+import {PrologueView} from './prologue-view.js?build=dc9885d9b997';
+import {PauseState} from './pause-state.js?build=dc9885d9b997';
+import {CameraControls,DEFAULT_CAMERA} from './camera-controls.js?build=dc9885d9b997';
+import {WorldView} from './scene.js?v=16.3&build=dc9885d9b997';
+import {World,distance} from './engine.js?build=dc9885d9b997';
+import {CONFIG as C,SKILLS} from './config.js?build=dc9885d9b997';
+import {GameInput} from './input.js?build=dc9885d9b997';
+import {$,art,palettes,islandName,showHome,dialog,guide,ending,buildCards} from './ui.js?build=dc9885d9b997';
 const canvas=$('world'),view=new WorldView(canvas),saveKey=`rjmc-full-save-v${C.version}`;
 let world=new World(),running=false,group=0,selected=null,target=null,selectedResident=null,selectedBuilding=null,hoverSkill=null,expanded=false,weather='rain',resultShown=false,lastFrame=0,lastSave=0,lastSoul=0,toastEnd=0,saved=null,settings={sound:true,music:true,vibration:true};
 const camera={...DEFAULT_CAMERA};
+const socialPanel=new SocialPanel(view);
 const followExit=document.createElement('button');followExit.hidden=true;followExit.id='followExit';followExit.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 240px);z-index:25;padding:9px 15px';document.body.append(followExit);
 function stopFollowing(){view.follow.clear();view.trackingCamera=null;followExit.hidden=true;view.cameraAt(camera);}
 followExit.onclick=stopFollowing;
@@ -97,5 +99,5 @@ document.addEventListener('keydown',e=>{
  if(e.code==='Space'&&running&&!world.result){e.preventDefault();if(!e.repeat&&!modalKind)togglePause();}
 });
 const soulArrivals=new WeakSet();
-let uiTime=0;function frame(now){const dt=lastFrame?Math.min(.25,(now-lastFrame)/1000):0;lastFrame=now;if(running)story.update(world,dt,camera);if(running&&!world.paused){world.step(dt*(world.speed||1));world.advancePresentation?.(dt);syncPause();if(!world.inPrologue&&(world.time-lastSave>=C.saveInterval||world.saveRequested&&!world.pending.length))save();}if(world.effects.some(e=>{if(!e.soul||e.life>=.18||soulArrivals.has(e))return false;soulArrivals.add(e);return true;})){$('soulBottle').animate([{filter:'brightness(1.8)',transform:'translateY(-3px)'},{filter:'brightness(1)',transform:'translateY(0)'}],{duration:550});lastSoul=world.souls;}if(now>toastEnd)$('toast').hidden=true;world.events.length=0;controls.update(dt);const soulRect=$('soulBottle').getBoundingClientRect();view.soulTarget={x:soulRect.x+soulRect.width/2,y:soulRect.y+soulRect.height/2};view.selection={resident:selectedResident,...targetPreview(world,selected,target,weather),color:palettes[group][2],valid:target&&!world.validate(selected,target,weather)};const top=document.querySelector('.altar-bar').getBoundingClientRect().bottom+12,bottom=document.querySelector('footer').getBoundingClientRect().top-20;view.safeRegion=running?{top,bottom}:null;gameAudio.update(world.visualEvents||[],{paused:running&&!world.result&&(pauseState.paused||world.phase==='ready'),hidden:document.hidden,world:running?world:null});view.render(world,camera,SKILLS.find(s=>s.id===selected),target);followExit.hidden=!running||!!modalKind||!!story?.blocksInput||!view.follow.target;followExit.textContent='退出跟随 · '+(view.follow.target?.kind==='king'?'国王越肩':'随军视角');if(running){if(selectedResident!==null||selectedBuilding)detail();}uiTime+=dt;if(uiTime>.12){updateUI();uiTime=0;}requestAnimationFrame(frame);}requestAnimationFrame(frame);
+let uiTime=0;function frame(now){const dt=lastFrame?Math.min(.25,(now-lastFrame)/1000):0;lastFrame=now;if(running)story.update(world,dt,camera);if(running&&!world.paused){world.step(dt*(world.speed||1));world.advancePresentation?.(dt);syncPause();if(!world.inPrologue&&(world.time-lastSave>=C.saveInterval||world.saveRequested&&!world.pending.length))save();}if(world.effects.some(e=>{if(!e.soul||e.life>=.18||soulArrivals.has(e))return false;soulArrivals.add(e);return true;})){$('soulBottle').animate([{filter:'brightness(1.8)',transform:'translateY(-3px)'},{filter:'brightness(1)',transform:'translateY(0)'}],{duration:550});lastSoul=world.souls;}if(now>toastEnd)$('toast').hidden=true;world.events.length=0;controls.update(dt);const soulRect=$('soulBottle').getBoundingClientRect();view.soulTarget={x:soulRect.x+soulRect.width/2,y:soulRect.y+soulRect.height/2};view.selection={resident:selectedResident,...targetPreview(world,selected,target,weather),color:palettes[group][2],valid:target&&!world.validate(selected,target,weather)};const top=document.querySelector('.altar-bar').getBoundingClientRect().bottom+12,bottom=document.querySelector('footer').getBoundingClientRect().top-20;view.safeRegion=running?{top,bottom}:null;gameAudio.update(world.visualEvents||[],{paused:running&&!world.result&&(pauseState.paused||world.phase==='ready'),hidden:document.hidden,world:running?world:null});view.render(world,camera,SKILLS.find(s=>s.id===selected),target);socialPanel.update(world,{running,blocked:!!modalKind||!!story?.blocksInput,dt,header:document.querySelector('.altar-bar').getBoundingClientRect(),footer:document.querySelector('footer').getBoundingClientRect()});followExit.hidden=!running||!!modalKind||!!story?.blocksInput||!view.follow.target;followExit.textContent='退出跟随 · '+(view.follow.target?.kind==='king'?'国王越肩':'随军视角');if(running){if(selectedResident!==null||selectedBuilding)detail();}uiTime+=dt;if(uiTime>.12){updateUI();uiTime=0;}requestAnimationFrame(frame);}requestAnimationFrame(frame);
 async function loadIsland(){$('assetLoading').hidden=false;$('assetRetry').hidden=true;try{await view.load();$('assetLoading').hidden=true;}catch(e){console.error(e);$('assetStatus').textContent='岛屿加载失败，请重试。';$('assetRetry').hidden=false;}}$('assetRetry').onclick=loadIsland;renderHome();loadIsland();

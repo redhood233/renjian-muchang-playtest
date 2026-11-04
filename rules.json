@@ -584,5 +584,20 @@
     "volcanoRadius": 10,
     "diplomacySeconds": 10,
     "shipmentSeconds": 12
+  },
+  "social": {
+    "minPopulation": 25,
+    "foodCost": 4,
+    "reserveSeconds": 15,
+    "participation": 0.22,
+    "maxParticipants": 16,
+    "duration": 18,
+    "cooldown": 90,
+    "firstGathering": 35,
+    "retrySeconds": 10,
+    "afterglow": 8,
+    "messageLimit": 80,
+    "messageCooldown": 24,
+    "maxEmojis": 18
   }
 }

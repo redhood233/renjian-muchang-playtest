@@ -39,8 +39,9 @@
     },
     {
       "id": "actor.sheep",
-      "source": "scene.js:model",
-      "status": "temporary"
+      "source": "assets/islands/v09/sheep.glb",
+      "status": "approved-runtime",
+      "runtime": "source-sheep.js: baked static idle pose"
     },
     {
       "id": "actor.beast",

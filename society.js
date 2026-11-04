@@ -1,7 +1,7 @@
-import {kingPost,schoolPost,cityHall} from './civic-sites.js?build=b9a20aa89d31';
-import {CONFIG as C,SOCIETY as R} from './config.js?build=b9a20aa89d31';
-import {complete} from './settlement.js?build=b9a20aa89d31';
-export function available(e){return !!e&&!e.dead&&e.adult&&!e.soldier&&e.sick<=0&&e.joy<=0&&e.rage<=0&&e.wounded<=0&&!e.faithWork&&e.action!=='守卫岛屿';}
+import {kingPost,schoolPost,cityHall} from './civic-sites.js?build=dc9885d9b997';
+import {CONFIG as C,SOCIETY as R} from './config.js?build=dc9885d9b997';
+import {complete} from './settlement.js?build=dc9885d9b997';
+export function available(e){return !!e&&!e.dead&&!e.gathering&&e.adult&&!e.soldier&&e.sick<=0&&e.joy<=0&&e.rage<=0&&e.wounded<=0&&!e.faithWork&&e.action!=='守卫岛屿';}
 export function initSociety(w){for(const c of w.islands){c.kingId=w.humans(c.id)[0]?.id??null;c.warIntent=0;c.exhaustion=0;c.unrest=0;c.leaderVacancy=0;c.scholarClock=0;const king=w.get(c.kingId);if(king){king.role='king';king.king=true;Object.assign(king,kingPost(w,c));king.destination=kingPost(w,c);}}}
 export function enrage(w,target){
  target.rage=0;
@@ -46,6 +46,7 @@ export function residentAction(w,e,c,dt){
   const victim=victims[0];if(victim){w.move(e,victim,dt,R.rageSpeed);if(Math.hypot(e.x-victim.x,e.y-victim.y)<R.rageReach&&e.attack<=0){w.damage(victim,R.rageDamage,'assault');victim.wounded=Math.max(victim.wounded,R.woundSeconds);e.attack=R.rageAttackInterval;}}
   return true;
  }
+ if(e.gathering)return true;
  if(e.role==='king'){const post=kingPost(w,c);e.inside=false;if(Math.hypot(e.x-post.x,e.y-post.y)> .3){w.move(e,post,dt,C.walkSpeed);e.action='国王 · 返回城市中心';}else e.action=e.commanding?'国王号令':e.rage>0?'国王 · 怒令征召':cityHall(c)?.state==='complete'?'国王 · 城市中心治理':'国王 · 等待中心重建';return true;}
  if(e.role==='scholar'){const school=c.buildings.find(b=>b.id===e.schoolId&&b.state==='complete'&&b.kind==='academy');if(school){const post=schoolPost(w,c,school,e.id);if(Math.hypot(e.x-post.x,e.y-post.y)>.5){w.move(e,post,dt,C.walkSpeed);e.action='学士 · 前往学院';}else e.action='学士 · 学院研究';}else e.action='学士 · 等待学院';return true;}
  if(e.workDuty)return true;
