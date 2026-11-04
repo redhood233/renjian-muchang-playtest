@@ -1,7 +1,8 @@
-import {HUSBANDRY as H} from './config.js?build=bf17b8d54899';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=bf17b8d54899';
+import {HUSBANDRY as H} from './config.js?build=b9a20aa89d31';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=b9a20aa89d31';
 const finite=(v,min=0)=>Number.isFinite(v)&&v>=min;
 export function validGameplayState(s){
+ if(!s.life||!Array.isArray(s.life.drops)||!Array.isArray(s.life.shipments)||!Array.isArray(s.life.burned)||[...s.life.drops,...s.life.shipments].some(d=>!Number.isFinite(d.x)||!Number.isFinite(d.y)||!finite(d.food)||!finite(d.left))||s.islands.some(c=>!c.volcano||!Number.isFinite(c.volcano.x)||!Number.isFinite(c.volcano.y)))return false;
  if(!Array.isArray(s.animals)||!Array.isArray(s.islands?.[0]?.buildings)||!Array.isArray(s.islands?.[1]?.pens)||!Number.isInteger(s.navRevision)||s.navRevision<0||!Array.isArray(s.beastBirthCredit)||s.beastBirthCredit.length!==2||!s.beastBirthCredit.every(v=>finite(v)))return false;
  if(!Number.isSafeInteger(s.serial)||s.serial<Math.max(0,...s.entities.map(e=>e.id),...s.animals.map(a=>a.id)))return false;
  for(const e of s.entities){if(!['civilian','king','scholar'].includes(e.role)||!['joy','rage','wounded','appetite'].every(key=>finite(e[key])))return false;

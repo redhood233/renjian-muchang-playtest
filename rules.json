@@ -1,7 +1,7 @@
 {
   "status": "农牧经营、固定地编优先扩张、身份神力；表现层由独立协作者接入",
   "config": {
-    "version": 10,
+    "version": 11,
     "duration": 300,
     "goal": 60,
     "mana": 30,
@@ -111,7 +111,7 @@
       "cd": 12,
       "r": 0,
       "unlock": 0,
-      "desc": "选择晴天、降雨、酷热或寒冷，再选择岛屿。降雨增产并扑灭本岛火场。",
+      "desc": "温度与云量组合：恒温多云降雨，低温多云降雪；高温持续45秒触发火山，陨石击中火山也可引爆。",
       "number": 4
     },
     {
@@ -191,6 +191,14 @@
     "cold": {
       "field": 0.75,
       "human": 0.8
+    },
+    "coldDry": {
+      "field": 0.75,
+      "human": 0.8
+    },
+    "hotCloud": {
+      "field": 0.6,
+      "human": 0.7
     }
   },
   "texts": {
@@ -559,5 +567,22 @@
       "_draw_era_building",
       "_draw_era_agriculture"
     ]
+  },
+  "worldLife": {
+    "treesPerLot": 4,
+    "maxFires": 24,
+    "fireLifetime": 12,
+    "fireSpreadSeconds": 2,
+    "fireSpreadRadius": 4,
+    "fireBuildingDamage": 0.12,
+    "firefighters": 2,
+    "extinguishRate": 3,
+    "meatLifetime": 90,
+    "volcanoCooldown": 90,
+    "volcanoHeat": 45,
+    "volcanoStrikes": 8,
+    "volcanoRadius": 10,
+    "diplomacySeconds": 10,
+    "shipmentSeconds": 12
   }
 }

@@ -1,5 +1,5 @@
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=bf17b8d54899';
-import {decodeModelPayload} from './model-payload.js?build=bf17b8d54899';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=b9a20aa89d31';
+import {decodeModelPayload} from './model-payload.js?build=b9a20aa89d31';
 export const mobileMode=typeof window!=='undefined'&&(matchMedia('(pointer:coarse)').matches||Math.min(screen.width,screen.height)<=820||innerWidth<=600);
 export const pixelRatio=()=>Math.min(devicePixelRatio||1,mobileMode?1.25:2);
 // Public static build: the same lightweight, self-contained models on every device.

@@ -1,6 +1,6 @@
-import {establishCity} from './civic-sites.js?build=bf17b8d54899';
-import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=bf17b8d54899';
-import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=bf17b8d54899';
+import {establishCity} from './civic-sites.js?build=b9a20aa89d31';
+import {QINGHE,islandId,groundHeight,nearestWalkable} from './island-layout.js?build=b9a20aa89d31';
+import {CONFIG as C,SETTLEMENT as S,HUSBANDRY as H} from './config.js?build=b9a20aa89d31';
 
 const center = bounds => ({x:(bounds[0][0]+bounds[1][0])/2,y:(bounds[0][1]+bounds[1][1])/2});
 const rect = (p,w,h) => ({min:[p.x-w/2,p.y-h/2],max:[p.x+w/2,p.y+h/2]});
@@ -72,7 +72,7 @@ export function advanceSettlement(w,c,dt){
   }else if(arrived.length&&!threat){
    const key=job.state==='clearing'?'clearProgress':'progress';job[key]+=dt*arrived.length/S.builders;
    for(const id of job.workers){const e=w.get(id);e.workSite=job.id;}
-   if(job.state==='clearing'&&job.clearProgress>=S.clearSeconds){job.state='building';w.change('construction-started',{country:c.id,buildingId:job.id});}
+   if(job.state==='clearing'&&job.clearProgress>=S.clearSeconds){job.state='building';job.trees=0;w.change('construction-started',{country:c.id,buildingId:job.id});}
    if(job.state==='building'&&job.progress>=S.buildSeconds){job.state='complete';job.health=1;job.workers=[];w.change('construction-completed',{country:c.id,buildingId:job.id,kind:job.kind});job=null;}
   }
  }

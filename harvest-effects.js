@@ -1,6 +1,6 @@
-import * as T from './vendor/three.module.js?build=bf17b8d54899';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=bf17b8d54899';
-import {groundHeight} from './island-layout.js?build=bf17b8d54899';
+import * as T from './vendor/three.module.js?build=b9a20aa89d31';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=b9a20aa89d31';
+import {groundHeight} from './island-layout.js?build=b9a20aa89d31';
 // Cosmetic production cues only. No inventory, food or simulation state is changed.
 export class HarvestEffects {
  constructor(scene){this.scene=scene;this.items=[];this.lastTime=null;this.elapsed=0;this.cycle=0;}
@@ -29,11 +29,7 @@ export class HarvestEffects {
   const c=world.islands[1];
   const working=c&&world.production(c)>0;
   if(working&&!world.result)this.elapsed+=dt;
-  if(this.elapsed>=12){
-   this.elapsed%=12;this.cycle++;
-   if(this.cycle%2)this.spawn('wool',c.x-7,c.y-2,world.time);
-   else {this.spawn('meat',c.x+1.5,c.y+6,world.time);this.spawn('bone',c.x+3.1,c.y+6.4,world.time,.8);}
-  }
+  // Food drops are now rendered from world.life.drops, never a decorative timer.
   this.items=this.items.filter(e=>{
    const age=world.time-e.time;
    if(age>=4){this.scene.remove(e.root);e.root.traverse(o=>{if(o.isMesh)o.material.dispose();});return false;}

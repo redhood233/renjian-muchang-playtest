@@ -1,9 +1,9 @@
-import {MILITARY as M,CONFIG as C,SETTLEMENT as S} from './config.js?build=bf17b8d54899';
-import {complete} from './settlement.js?build=bf17b8d54899';
-import {BRIDGE,islandId,nearestWalkable} from './island-layout.js?build=bf17b8d54899';
-import {formation,strike,weapon} from './combat.js?build=bf17b8d54899';
-import {structureDamage} from './civilization.js?build=bf17b8d54899';
-import {kingPost} from './civic-sites.js?build=bf17b8d54899';
+import {MILITARY as M,CONFIG as C,SETTLEMENT as S} from './config.js?build=b9a20aa89d31';
+import {complete} from './settlement.js?build=b9a20aa89d31';
+import {BRIDGE,islandId,nearestWalkable,walkable} from './island-layout.js?build=b9a20aa89d31';
+import {formation,strike,weapon} from './combat.js?build=b9a20aa89d31';
+import {structureDamage} from './civilization.js?build=b9a20aa89d31';
+import {kingPost} from './civic-sites.js?build=b9a20aa89d31';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const living=(w,a)=>a.ids.map(id=>w.get(id)).filter(e=>e?.soldier&&!e.garrison);
 const fighting=e=>e&&!e.dead&&e.soldier&&!e.returning;
@@ -46,7 +46,7 @@ export function draft(w,c,operation=null){
 
 function returning(w,c,a,dt){
  const troops=living(w,a),slots=formation(w,c,a.ids,kingPost(w,c));
- for(const e of troops){e.returning=true;e.returnOrder??=slots[a.ids.indexOf(e.id)];e.order=e.returnOrder;
+ for(const e of troops){e.returning=true;if(!e.returnOrder||!walkable(e.returnOrder,w.blockers()))e.returnOrder=slots[a.ids.indexOf(e.id)];e.order=e.returnOrder;
   if(distance(e,e.order)<1.8){const share=1/Math.max(1,living(w,a).length),loot=a.cargo*share,rations=a.rations*share;
    const capacity=C.foodLimit*(complete(c,'granary').length?S.granaryStorage:1);c.food=Math.max(c.food,Math.min(capacity,c.food+loot+rations));a.cargo-=loot;a.rations-=rations;
    e.soldier=false;e.returning=false;e.targetId=null;e.order=null;e.returnOrder=null;e.action='自动生产';a.delivered=(a.delivered||0)+loot;

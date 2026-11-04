@@ -1,10 +1,10 @@
-import {createCrown,updateCrown} from './royal-crown.js?build=bf17b8d54899';
-import {createWeapon} from './combat-presentation.js?build=bf17b8d54899';
-import {attachPalette} from './character-palette.js?build=bf17b8d54899';
-import {batchOpaque} from './character-batch.js?build=bf17b8d54899';
-import * as T from './vendor/three.module.js?build=bf17b8d54899';
-import {clone} from './vendor/SkeletonUtils.js?build=bf17b8d54899';
-import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=bf17b8d54899';
+import {createCrown,updateCrown} from './royal-crown.js?build=b9a20aa89d31';
+import {createWeapon} from './combat-presentation.js?build=b9a20aa89d31';
+import {attachPalette} from './character-palette.js?build=b9a20aa89d31';
+import {batchOpaque} from './character-batch.js?build=b9a20aa89d31';
+import * as T from './vendor/three.module.js?build=b9a20aa89d31';
+import {clone} from './vendor/SkeletonUtils.js?build=b9a20aa89d31';
+import {appearance,CLIPS,visualState,toolFor,simulationDelta} from './character-animation.js?build=b9a20aa89d31';
 export class CharacterView {
  constructor(source,e){
   this.look=appearance(e.id,e.country);if(e.king)this.look.hat=-1;this.root=new T.Group();this.root.userData.assetId='actor.human';this.root.userData.character=this;

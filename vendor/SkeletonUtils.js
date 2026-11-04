@@ -7,7 +7,7 @@ import {
 	SkeletonHelper,
 	Vector3,
 	VectorKeyframeTrack
-} from './three.module.js?build=bf17b8d54899';
+} from './three.module.js?build=b9a20aa89d31';
 
 /**
  * @module SkeletonUtils

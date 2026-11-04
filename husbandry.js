@@ -1,6 +1,6 @@
-import {CONFIG as C,HUSBANDRY as H,WILDLIFE as B} from './config.js?build=bf17b8d54899';
-import {complete} from './settlement.js?build=bf17b8d54899';
-import {nearestWalkable} from './island-layout.js?build=bf17b8d54899';
+import {CONFIG as C,HUSBANDRY as H,WILDLIFE as B} from './config.js?build=b9a20aa89d31';
+import {complete} from './settlement.js?build=b9a20aa89d31';
+import {nearestWalkable} from './island-layout.js?build=b9a20aa89d31';
 export function spawnAnimal(w,kind,c,p,adult=true){
  const at=nearestWalkable(p,c.id,w.blockers());const a={id:++w.serial,kind,country:c.id,...at,home:{...at},adult,age:adult?H.matureSeconds:0,hp:kind==='sheep'?H.hp:B.hp,dead:false,joy:0,rage:0,attack:0,life:0,destination:{...at}};w.animals.push(a);return a;
 }
@@ -35,11 +35,12 @@ export function advanceHusbandry(w,c,dt){
  if(flock.length>=capacity||adults.length<2)c.sheepBirthCredit=Math.min(c.sheepBirthCredit,.99);
  c.harvestCredit=Math.min(2,c.harvestCredit+dt*workers.reduce((n,e)=>n+H.slaughterPerWorker*(e.bless>0?C.blessFactor:1),0));
  const reserve=w.consumption(c)*H.reserveSeconds;
- while(c.harvestCredit>=1&&c.food<reserve&&flock.length){
+ const inTransit=w.life.drops.filter(d=>d.country===c.id).reduce((n,d)=>n+d.food,0);
+ while(c.harvestCredit>=1&&c.food+inTransit<reserve&&flock.length){
   const mature=flock.filter(a=>a.adult),sustainable=Math.min(Math.floor(capacity/(1+H.birthRate*rain*temperature*H.matureSeconds)),Math.ceil(w.consumption(c)*H.breederMargin/(H.birthRate*H.meatFood*rain*temperature)));
   const floor=c.food<w.consumption(c)*H.emergencySeconds?H.emergencyBreeders:Math.max(H.keepBreeders,sustainable);
   if(mature.length<=floor)break;
-  const animal=mature[0];c.harvestCredit--;w.kill(animal,'slaughter');flock=flock.filter(a=>!a.dead);
+  const animal=mature.find(a=>workers.some(e=>Math.hypot(e.x-a.x,e.y-a.y)<3));if(!animal)break;c.harvestCredit--;w.kill(animal,'slaughter');flock=flock.filter(a=>!a.dead);
  }
 }
 export function advanceAnimals(w,dt){

@@ -1,8 +1,8 @@
-import {GEOGRAPHY as G} from './config.js?build=bf17b8d54899';
-import {loadModel,environmentTexture} from './mobile-runtime.js?build=bf17b8d54899';
-import * as T from './vendor/three.module.js?build=bf17b8d54899';
-import {GLTFLoader} from './vendor/GLTFLoader.js?build=bf17b8d54899';
-import {clone} from './vendor/SkeletonUtils.js?build=bf17b8d54899';
+import {GEOGRAPHY as G} from './config.js?build=b9a20aa89d31';
+import {loadModel,environmentTexture} from './mobile-runtime.js?build=b9a20aa89d31';
+import * as T from './vendor/three.module.js?build=b9a20aa89d31';
+import {GLTFLoader} from './vendor/GLTFLoader.js?build=b9a20aa89d31';
+import {clone} from './vendor/SkeletonUtils.js?build=b9a20aa89d31';
 export class SourceSheep {
  async load(root,meta){
   const gltf=await loadModel(new URL('./assets/islands/v09/sheep.glb',import.meta.url).href,'sheep');
@@ -14,7 +14,7 @@ export class SourceSheep {
    m.multiply(new T.Matrix4().makeTranslation(...p.offset.map(x=>-x)));
    holder.applyMatrix4(basis.clone().multiply(m).multiply(basis.clone().invert()));
    model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-   model.scale.multiplyScalar(1/G.scale);holder.add(model);root.add(holder);const mixer=new T.AnimationMixer(model);mixer.clipAction(clip).play();this.actors.push({mixer,phase:(i%3)*clip.duration/3});
+   model.scale.multiplyScalar(1/G.scale);holder.add(model);holder.visible=false;root.add(holder);const mixer=new T.AnimationMixer(model);mixer.clipAction(clip).play();this.actors.push({mixer,phase:(i%3)*clip.duration/3});
   }
  }
  update(time){for(const a of this.actors||[])a.mixer.setTime(time+a.phase);}

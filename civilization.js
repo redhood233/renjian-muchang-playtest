@@ -1,7 +1,8 @@
-import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js?build=bf17b8d54899';
-import {complete} from './settlement.js?build=bf17b8d54899';
-import {nearestWalkable} from './island-layout.js?build=bf17b8d54899';
-import {shrinePost,shrineSite} from './civic-sites.js?build=bf17b8d54899';
+import {shipFood} from './living-world.js?build=b9a20aa89d31';
+import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js?build=b9a20aa89d31';
+import {complete} from './settlement.js?build=b9a20aa89d31';
+import {nearestWalkable} from './island-layout.js?build=b9a20aa89d31';
+import {shrinePost,shrineSite} from './civic-sites.js?build=b9a20aa89d31';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const roofHit=(b,p,r)=>Math.hypot(Math.max(b.footprint.min[0],Math.min(p.x,b.footprint.max[0]))-p.x,Math.max(b.footprint.min[1],Math.min(p.y,b.footprint.max[1]))-p.y)<=r;
 export function meteorTargets(w,p,r){
@@ -49,7 +50,7 @@ export function advanceCivilization(w,dt){
  for(const e of w.humans()){e.faithWork=false;e.faithTask=null;e.faithAt=false;}
  for(const c of w.islands){
   c.residenceClock-=dt;if(c.residenceClock<=0){assignHomes(w,c);c.residenceClock=1;}
-  const scholars=w.adults(c).filter(e=>e.role==='scholar'&&w.available(e)&&!e.inside),academy=complete(c,'academy')[0];
+  const scholars=w.adults(c).filter(e=>e.role==='scholar'&&w.available(e)&&!e.inside&&e.action==='学士 · 学院研究'),academy=complete(c,'academy')[0];
   if(!w.inPrologue&&academy&&scholars.length){
    c.research=Math.min(V.researchLimit,c.research+scholars.length*V.researchPerScholar*dt);
    const era=c.research>=V.thresholds[1]?2:c.research>=V.thresholds[0]?1:0;
@@ -60,7 +61,7 @@ export function advanceCivilization(w,dt){
   if(c.research>=V.researchLimit&&academy){
    if(!project.paid&&scholars.length>=V.projectScholars&&c.food>=V.projectFood+w.consumption(c)*8){c.food-=V.projectFood;project.paid=true;project.state='building';w.change('soul-project-started',{country:c.id});}
    if(project.paid&&project.state!=='complete'){
-    if(scholars.length>=V.projectScholars&&w.supply(c)>8&&c.panic<.1){project.progress=Math.min(V.projectSeconds,project.progress+dt);project.state='building';}
+    if(scholars.length>=V.projectScholars&&project.workerReady&&w.supply(c)>8&&c.panic<.1){project.progress=Math.min(V.projectSeconds,project.progress+dt*((c.federated)?1.12:1));project.state='building';}
     else project.state='paused';
     if(project.progress>=V.projectSeconds){project.state='complete';w.change('soul-project-completed',{country:c.id});}
    }
@@ -86,7 +87,7 @@ export function advanceCivilization(w,dt){
    if(!a.army&&!b.army&&w.humans(0).length&&w.humans(1).length&&!w.military.occupation.some(Boolean)){
     const donor=w.supply(a)>w.supply(b)?a:b,receiver=donor===a?b:a;
     const food=Math.min(5,Math.max(0,donor.food-w.consumption(donor)*20),Math.max(0,C.foodLimit-receiver.food));
-    if(food>0){donor.food-=food;receiver.food+=food;w.diplomacy.tradeTotal+=food;w.diplomacy.relation=Math.min(100,w.diplomacy.relation+1);w.change('trade-delivered',{from:donor.id,to:receiver.id,food});}
+    if(food>0){donor.food-=food;shipFood(w,donor,receiver,food);w.diplomacy.tradeTotal+=food;w.diplomacy.relation=Math.min(100,w.diplomacy.relation+1);w.change('trade-delivered',{from:donor.id,to:receiver.id,food});}
    }
   }
  }

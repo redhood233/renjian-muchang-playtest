@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "resources": [
+    {
+      "id": "temp.life.trees",
+      "source": "life-view.js",
+      "replacement": "registerLifeModel(kind,factory)",
+      "status": "temporary"
+    },
+    {
+      "id": "temp.life.camp",
+      "source": "life-view.js",
+      "replacement": "registerLifeModel(kind,factory)",
+      "status": "temporary"
+    },
+    {
+      "id": "temp.life.project",
+      "source": "life-view.js",
+      "replacement": "registerLifeModel(kind,factory)",
+      "status": "temporary"
+    },
+    {
+      "id": "temp.life.volcano",
+      "source": "life-view.js",
+      "replacement": "registerLifeModel(kind,factory)",
+      "status": "temporary"
+    },
+    {
+      "id": "temp.life.meat",
+      "source": "life-view.js",
+      "replacement": "registerLifeModel(kind,factory)",
+      "status": "temporary"
+    },
+    {
+      "id": "temp.life.shipment",
+      "source": "life-view.js",
+      "replacement": "registerLifeModel(kind,factory)",
+      "status": "temporary"
+    },
+    {
+      "id": "actor.sheep",
+      "source": "scene.js:model",
+      "status": "temporary"
+    },
+    {
+      "id": "actor.beast",
+      "source": "scene.js:model",
+      "status": "temporary"
+    }
+  ]
+}

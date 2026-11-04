@@ -1,8 +1,8 @@
-import {EraBuildingView} from './era-building-models.js?build=bf17b8d54899';
-import * as T from './vendor/three.module.js?build=bf17b8d54899';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=bf17b8d54899';
-import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=bf17b8d54899';
-import {groundHeight,buildingPlacement} from './island-layout.js?build=bf17b8d54899';
+import {EraBuildingView} from './era-building-models.js?build=b9a20aa89d31';
+import * as T from './vendor/three.module.js?build=b9a20aa89d31';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=b9a20aa89d31';
+import {GEOGRAPHY as G,SETTLEMENT as S} from './config.js?build=b9a20aa89d31';
+import {groundHeight,buildingPlacement} from './island-layout.js?build=b9a20aa89d31';
 // Bind existing authored models to gameplay slots; no asset transforms are edited.
 export class SettlementView {
  constructor(root,scene){

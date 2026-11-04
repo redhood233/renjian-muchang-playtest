@@ -1,5 +1,5 @@
-import {cloudGLSL} from './environment-v16.js?v=16.3&build=bf17b8d54899';
-import * as T from './vendor/three.module.js?build=bf17b8d54899';
+import {cloudGLSL} from './environment-v16.js?v=16.3&build=b9a20aa89d31';
+import * as T from './vendor/three.module.js?build=b9a20aa89d31';
 // Exact source color ramps (linear RGB), sampled with the source's Blender noise fields.
 export const sourceColorGLSL=`
 vec3 meadowBase(float n){return mix(vec3(.24,.33,.075),vec3(.49,.54,.18),clamp((n-.2)/.6,0.,1.));}

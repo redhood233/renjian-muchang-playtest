@@ -1,14 +1,15 @@
-import {kingPost,cityHall} from './civic-sites.js?build=bf17b8d54899';
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=bf17b8d54899';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=bf17b8d54899';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=bf17b8d54899';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=bf17b8d54899';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=bf17b8d54899';
-import {CIVILIZATION as V} from './config.js?build=bf17b8d54899';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=bf17b8d54899';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=bf17b8d54899';
-import {strike,separate} from './combat.js?build=bf17b8d54899';
-import {validGameplayState} from './gameplay-save.js?build=bf17b8d54899';
+import {initLife,assignWork,advanceLife,lifeAction,dropMeat,ignite,projectDamage,erupt} from './living-world.js?build=b9a20aa89d31';
+import {kingPost,cityHall} from './civic-sites.js?build=b9a20aa89d31';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=b9a20aa89d31';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=b9a20aa89d31';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=b9a20aa89d31';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=b9a20aa89d31';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=b9a20aa89d31';
+import {CIVILIZATION as V} from './config.js?build=b9a20aa89d31';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=b9a20aa89d31';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=b9a20aa89d31';
+import {strike,separate} from './combat.js?build=b9a20aa89d31';
+import {validGameplayState} from './gameplay-save.js?build=b9a20aa89d31';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {
@@ -17,7 +18,7 @@ export class World {
    visualEvents:[],cooldowns:{},entities:[],corpses:[],effects:[],events:[],islands:[],pending:[],fires:[],
    truce:0,births:0,milestones:{},saveRequested:false,animals:[],changes:[],changeSerial:0,navRevision:0});
   for(let id=0;id<2;id++) this.createIsland(id);
-  initSociety(this);initAnimals(this);initCivilization(this);initMilitary(this);this.session={mode:options.mode||'challenge',seconds:options.duration||C.duration,souls:options.goal||C.goal};
+  initSociety(this);initAnimals(this);initCivilization(this);initMilitary(this);initLife(this);this.session={mode:options.mode||'challenge',seconds:options.duration||C.duration,souls:options.goal||C.goal};
  }
  get goal(){return this.session?.mode==='sandbox'?Infinity:this.session?.souls||C.goal;}
  get score(){return this.souls;}
@@ -51,12 +52,12 @@ export class World {
  blockers(){if(this._navCacheRevision!==this.navRevision){this._navCache=this.islands.flatMap(c=>(c.buildings||[]).filter(b=>b.source==='extension'&&b.zone==='house'&&b.state==='complete').map(b=>b.footprint));this._navCacheRevision=this.navRevision;}return this._navCache;}
  preview(id,p,weather='rain'){const s=SKILLS.find(s=>s.id===id);if(!s||this.validate(id,p,weather))return [];if(id==='undead')return [];if(id==='weather')return this.humans(this.islandAt(p)?.id).map(e=>e.id);if(id==='peace')return this.humans().filter(e=>e.soldier||e.role==='king'&&(e.rage>0||this.islands[e.country].warIntent>0)).map(e=>e.id);const targets=id==='meteor'?meteorTargets(this,p,s.r):this.legalTargets(id,p,s.r);return (id==='rage'||id==='lightning'?targets.slice(0,1):targets).map(e=>e.id);}
  change(type,data={}){if(type==='construction-completed'&&this.islands.some(c=>c.buildings.some(b=>b.id===data.buildingId&&b.source==='extension'&&b.zone==='house'))){this.navRevision++;const extra=this.blockers();for(const e of [...this.entities,...this.animals])if(!e.dead){if(!walkable(e,extra))Object.assign(e,nearestWalkable(e,e.country,extra));if(e.destination&&!walkable(e.destination,extra))e.destination=nearestWalkable(e.destination,e.country,extra);}}this.changes.push({sequence:++this.changeSerial,time:this.time,type,...data});if(this.changes.length>128)this.changes.shift();}
- gameplaySnapshot(){return {version:C.version,time:this.time,military:structuredClone(this.military),diplomacy:structuredClone(this.diplomacy),islands:this.islands.map(c=>({id:c.id,food:c.food,housing:Number.isFinite(this.housing(c))?this.housing(c):null,era:c.era,research:c.research,project:structuredClone(c.project),faith:c.faith,shrine:structuredClone(c.shrine),panic:c.panic,army:structuredClone(c.army),buildings:settlementSnapshot(c),pens:structuredClone(c.pens||[]),kingId:c.kingId,cityCenter:{buildingId:cityHall(c)?.id,post:kingPost(this,c),state:cityHall(c)?.state},research:c.research||0,warIntent:c.warIntent,exhaustion:c.exhaustion,unrest:c.unrest,lastWarBlocker:c.lastWarBlocker||"",production:this.production(c),consumption:this.consumption(c)})),animals:structuredClone(this.animals),people:this.humans().map(e=>({id:e.id,country:e.country,x:e.x,y:e.y,hp:e.hp,houseId:e.houseId,inside:e.inside,weapon:V.weapons[this.islands[e.country].era],adult:e.adult,soldier:e.soldier,role:e.role,joy:e.joy,appetite:e.appetite,rage:e.rage,wounded:e.wounded,workSite:e.workSite,schoolId:e.schoolId,faithWork:!!e.faithWork,faithTask:e.faithTask||null,faithAt:!!e.faithAt,action:e.action})),sequence:this.changeSerial};}
+ gameplaySnapshot(){return {version:C.version,time:this.time,life:structuredClone(this.life),military:structuredClone(this.military),diplomacy:structuredClone(this.diplomacy),islands:this.islands.map(c=>({id:c.id,food:c.food,housing:Number.isFinite(this.housing(c))?this.housing(c):null,era:c.era,research:c.research,project:structuredClone(c.project),faith:c.faith,shrine:structuredClone(c.shrine),panic:c.panic,army:structuredClone(c.army),buildings:settlementSnapshot(c),pens:structuredClone(c.pens||[]),kingId:c.kingId,cityCenter:{buildingId:cityHall(c)?.id,post:kingPost(this,c),state:cityHall(c)?.state},research:c.research||0,warIntent:c.warIntent,exhaustion:c.exhaustion,unrest:c.unrest,lastWarBlocker:c.lastWarBlocker||"",production:this.production(c),consumption:this.consumption(c)})),animals:structuredClone(this.animals),people:this.humans().map(e=>({id:e.id,country:e.country,x:e.x,y:e.y,hp:e.hp,houseId:e.houseId,inside:e.inside,weapon:V.weapons[this.islands[e.country].era],adult:e.adult,soldier:e.soldier,role:e.role,joy:e.joy,appetite:e.appetite,rage:e.rage,wounded:e.wounded,workSite:e.workSite,schoolId:e.schoolId,faithWork:!!e.faithWork,faithTask:e.faithTask||null,faithAt:!!e.faithAt,action:e.action})),sequence:this.changeSerial};}
  islandAt(p){const id=islandId(p);return id===null?undefined:this.islands[id];}
  inWorld(p){return castable(p);}
  climate(c){return CLIMATE[c.weather.left>0?c.weather.kind:'normal'];}
  consumption(c){return this.humans(c.id).reduce((n,e)=>n+C.foodUse*(e.appetite>0&&e.joy<=0?C.joyFoodFactor:1),0);}
- production(c){if(c.id===1)return pastureForecast(this,c);const workers=this.workers(c).slice(0,complete(c,'field').length*S.workersPerField);return workers.reduce((n,e)=>n+C.foodRate*(e.bless>0?C.blessFactor:1)*(e.starve>0?.5:1),0)*this.climate(c).field*(c.technologyProduction||1)*(1-(c.panic||0))*(complete(c,"windmill").length?S.windmillProduction:1);}
+ production(c){if(c.id===1)return pastureForecast(this,c);const workers=this.workers(c).filter(e=>!e.workDuty||e.workReady&&e.workDuty==='田间劳作').slice(0,complete(c,'field').length*S.workersPerField);return workers.reduce((n,e)=>n+C.foodRate*(e.bless>0?C.blessFactor:1)*(e.starve>0?.5:1),0)*this.climate(c).field*(c.technologyProduction||1)*(c.tradeBonus||1)*(1-(c.panic||0))*(complete(c,"windmill").length?S.windmillProduction:1);}
  netFood(c){return this.production(c)-this.consumption(c);}
  supply(c){const use=this.consumption(c);return use?c.food/use:Infinity;}
  birthRate(c){const adults=this.adults(c).filter(e=>!e.soldier&&e.sick<=0&&e.joy<=0&&e.rage<=0&&e.wounded<=0);if(adults.length<C.keepAdults||this.production(c)<this.consumption(c)*C.birthProductionMargin||c.food<this.consumption(c)*C.birthFoodSeconds||this.humans(c.id).length>=Math.min(this.populationLimit,this.housing(c)))return 0;return adults.length/C.keepAdults*this.climate(c).human;}
@@ -66,7 +67,7 @@ export class World {
  fx(x,y,text,color='#f4d58a'){this.effects.push({x,y,text,color,life:1.8});}
  kill(e,cause='divine'){
   if(!e||e.dead)return;this.visualEvents.push({id:'death',x:e.x,y:e.y,time:this.time,king:!!e.king,human:e.kind==='human',cause});e.dead=true;if(e.commanding)this.retreat(this.islands[e.country]);
-   if(e.kind==='beast'||e.kind==='sheep'){const c=this.islands[e.country];if(e.kind==='beast')c.faith=Math.min(100,(c.faith||0)+3);const food=e.kind==='beast'?B.meatFood:H.meatFood;c.food=Math.min(C.foodLimit*(complete(c,'granary').length?S.granaryStorage:1),c.food+food);if(e.kind==='sheep'){c.harvested++;c.meatCollected+=food;}this.change('animal-killed',{animalId:e.id,country:e.country,kind:e.kind,cause,food});return;}
+   if(e.kind==='beast'||e.kind==='sheep'){const c=this.islands[e.country];if(e.kind==='beast')c.faith=Math.min(100,(c.faith||0)+3);const food=e.kind==='beast'?B.meatFood:H.meatFood;dropMeat(this,e,food);if(e.kind==='sheep'){c.harvested++;c.meatCollected+=food;}this.change('animal-killed',{animalId:e.id,country:e.country,kind:e.kind,cause,food});return;}
   if(e.kind==='human'){
    if(e.king||e.role==='king'){const nation=this.islands[e.country];nation.warIntent=0;this.retreat(nation);this.change('royal-expedition-cancelled',{country:e.country,kingId:e.id,cause});}
    this.souls++;this.mana+=C.soulMana;
@@ -100,7 +101,7 @@ export class World {
   if(id==='peace'&&!this.entities.some(e=>!e.dead&&(e.soldier&&!e.returning||e.role==='king'&&(e.rage>0||this.islands[e.country].warIntent>0||this.islands[e.country].army))&&distance(e,p)<=s.r))return '范围内没有出征居民或正在下令的国王';
   if(id==='undead'&&!this.corpses.some(b=>b.life>0&&distance(b,p)<=s.r))return '范围内没有可用尸体';
   if(['bless','joy','lightning','plague','rage'].includes(id)&&!targets.length)return '范围内没有有效居民';
-  if(id==='meteor'&&!this.targets(p,s.r).length&&!this.islands.some(c=>c.buildings.some(b=>b.state==='complete'&&distance(b,p)<=s.r+4))&&!this.islands.some(c=>c.buildings?.some(b=>b.state==='clearing'&&distance(b,p)<=s.r)))return '范围内没有生物或正在清理的扩张地块';return '';
+  if(id==='meteor'&&!this.islands.some(c=>distance(c.volcano,p)<3)&&!this.targets(p,s.r).length&&!this.islands.some(c=>c.buildings.some(b=>b.state==='complete'&&distance(b,p)<=s.r+4))&&!this.islands.some(c=>c.buildings?.some(b=>b.state==='clearing'&&distance(b,p)<=s.r)))return '范围内没有生物或正在清理的扩张地块';return '';
  }
  cast(id,p,weather='rain'){
   const error=this.validate(id,p,weather);if(error)return {ok:false,message:error};
@@ -111,14 +112,14 @@ export class World {
   if(id==='bless')for(const e of targets)e.bless=C.blessSeconds;
   if(id==='joy'){for(const e of targets)e.joy=C.joySeconds;this.change('joy-applied',{ids:targets.map(e=>e.id)});}
   if(id==='weather'){c.weather={kind:weather,left:C.weatherSeconds};if(weather==='rain')this.fires=this.fires.filter(f=>this.islandAt(f)?.id!==c.id);}
-  if(id==='lightning')this.kill(targets.sort((a,b)=>distance(a,p)-distance(b,p))[0],'lightning');
+  if(id==='lightning'){this.kill(targets.sort((a,b)=>distance(a,p)-distance(b,p))[0],'lightning');ignite(this,p);}
   if(id==='rage')enrage(this,targets[0]);
   if(id==='plague')for(const e of targets){e.sick=C.plagueSeconds;e.spread=C.plagueSpreadSeconds;}
   if(id==='undead')for(const b of this.corpses.filter(b=>b.life>0&&distance(b,p)<=s.r).slice(0,C.undeadLimit)){this.spawn('undead',this.islands[b.country],true,b);b.life=0;}
   if(id==='meteor')this.pending.push({x:p.x,y:p.y,left:.7});
   this.fx(p.x,p.y,`－${s.cost}灵力`);this.judge();return {ok:true,message:id==='peace'?'双方停止交战，正在返乡':`${s.name}已施放`};
  }
- impact(p){this.visualEvents??=[];this.visualEvents.push({id:'impact',x:p.x,y:p.y,time:this.time});const before=this.souls;for(const b of this.islands.flatMap(c=>c.buildings))if(b.state==='clearing'&&distance(b,p)<=SKILLS.find(s=>s.id==='meteor').r){b.clearProgress=S.clearSeconds;b.state='building';this.change('land-cleared',{buildingId:b.id,source:'meteor'});}for(const e of meteorTargets(this,p,SKILLS.find(s=>s.id==='meteor').r))this.damage(e,C.meteorDamage,'meteor');structureDamage(this,p,SKILLS.find(s=>s.id==='meteor').r,1,'meteor');const c=this.islandAt(p);if(!c||c.weather.kind!=='rain'||c.weather.left<=0)this.fires.push({...p,left:C.fireSeconds});this.message(`陨石：实际死亡${this.souls-before}人，＋${this.souls-before}魂，＋${(this.souls-before)*C.soulMana}灵力`);}
+ impact(p){projectDamage(this,p,SKILLS.find(s=>s.id==='meteor').r,1);if(!p.volcanic)for(const c of this.islands)if(distance(c.volcano,p)<3)erupt(this,c);this.visualEvents??=[];this.visualEvents.push({id:'impact',x:p.x,y:p.y,time:this.time});const before=this.souls;for(const b of this.islands.flatMap(c=>c.buildings))if(b.state==='clearing'&&distance(b,p)<=SKILLS.find(s=>s.id==='meteor').r){b.clearProgress=S.clearSeconds;b.trees=0;b.state='building';this.change('land-cleared',{buildingId:b.id,source:'meteor'});}for(const e of meteorTargets(this,p,SKILLS.find(s=>s.id==='meteor').r))this.damage(e,C.meteorDamage,'meteor');structureDamage(this,p,SKILLS.find(s=>s.id==='meteor').r,1,'meteor');const c=this.islandAt(p);if(!c||c.weather.kind!=='rain'||c.weather.left<=0)ignite(this,p);this.message(`陨石：实际死亡${this.souls-before}人，＋${this.souls-before}魂，＋${(this.souls-before)*C.soulMana}灵力`);}
  economy(c,dt){
   advanceHusbandry(this,c,dt);const harvest=c.id===0?this.production(c)*dt:0;
   const needed=this.consumption(c)*dt,availableFood=c.food+harvest;c.foodCoverage=needed>0?Math.min(1,availableFood/needed):1;
@@ -139,7 +140,7 @@ export class World {
   this.effects=this.effects.filter(e=>e.life>0);this.corpses=this.corpses.filter(e=>e.life>0);
   for(const p of this.pending){p.left-=dt;if(p.left<=0)this.impact(p);}this.pending=this.pending.filter(p=>p.left>0);
   if(this.score>=this.goal||!this.humans().length){this.judge();if(this.result)return;}
-  advanceSociety(this,dt);advanceCivilization(this,dt);advanceMilitary(this,dt);
+  advanceSociety(this,dt);assignWork(this,dt);advanceLife(this,dt);advanceCivilization(this,dt);advanceMilitary(this,dt);
   for(const c of this.islands){advanceSettlement(this,c,dt);this.economy(c,dt);c.weather.left=Math.max(0,c.weather.left-dt);}
   for(const e of [...this.entities]){
    if(e.dead)continue;e.attack=Math.max(0,e.attack-dt);
@@ -153,6 +154,7 @@ export class World {
    if(e.dead)continue;
    if(e.soldier)this.soldier(e,c,dt);
    else if(residentAction(this,e,c,dt)){}
+   else if(lifeAction(e)){}
    else if(e.adult){const invader=this.entities.find(v=>!v.dead&&(v.kind==='undead'||v.soldier&&!v.garrison)&&!v.returning&&v.country!==c.id&&distance(v,c)<24&&distance(v,e)<8);if(invader&&this.truce<=0){e.action='躲避入侵';const refuge=nearestWalkable({x:c.x+(c.id?8:-8),y:c.y+(e.id%5-2)*1.1},c.id,this.blockers());this.move(e,refuge,dt,C.walkSpeed);}else{e.action=e.bless>0?'祝福增产':e.joy>0?'繁衍加速':'自动生产';if(distance(e,e.destination)<.3)e.destination=this.point(c);this.move(e,e.destination,dt,.6);}}
    else e.action='成长中';
   }

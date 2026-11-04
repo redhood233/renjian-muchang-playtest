@@ -1,7 +1,7 @@
-import * as T from './vendor/three.module.js?build=bf17b8d54899';
-import {CharacterView} from './character-view.js?build=bf17b8d54899';
-import {corpseStage,corpseAge} from './death-stages.js?build=bf17b8d54899';
-import {groundHeight} from './island-layout.js?build=bf17b8d54899';
+import * as T from './vendor/three.module.js?build=b9a20aa89d31';
+import {CharacterView} from './character-view.js?build=b9a20aa89d31';
+import {corpseStage,corpseAge} from './death-stages.js?build=b9a20aa89d31';
+import {groundHeight} from './island-layout.js?build=b9a20aa89d31';
 export class FallenResidents{
  constructor(scene){this.group=new T.Group();scene.add(this.group);this.models=new Map();}
  update(world,objects,characters){

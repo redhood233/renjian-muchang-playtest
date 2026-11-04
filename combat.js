@@ -1,5 +1,5 @@
-import {BRIDGE,walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js?build=bf17b8d54899';
-import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js?build=bf17b8d54899';
+import {BRIDGE,walkable,reachable,segmentClear,onBridge,nearestWalkable} from './island-layout.js?build=b9a20aa89d31';
+import {MILITARY as M,CIVILIZATION as V,CONFIG as C} from './config.js?build=b9a20aa89d31';
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const formationCache=new WeakMap();
 export function weapon(w,e){const era=e.kind==='human'?(w.islands[e.country].era||0):0;return {range:V.weaponRange[era],cooldown:V.weaponCooldown[era],kind:V.weapons[era]};}
