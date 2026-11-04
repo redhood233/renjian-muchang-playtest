@@ -1,8 +1,8 @@
-import {shipFood} from './living-world.js?build=dc9885d9b997';
-import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js?build=dc9885d9b997';
-import {complete} from './settlement.js?build=dc9885d9b997';
-import {nearestWalkable} from './island-layout.js?build=dc9885d9b997';
-import {shrinePost,shrineSite} from './civic-sites.js?build=dc9885d9b997';
+import {shipFood} from './living-world.js?build=fa5b535c1d7e';
+import {CIVILIZATION as V,SETTLEMENT as S,CONFIG as C} from './config.js?build=fa5b535c1d7e';
+import {complete} from './settlement.js?build=fa5b535c1d7e';
+import {nearestWalkable} from './island-layout.js?build=fa5b535c1d7e';
+import {shrinePost,shrineSite} from './civic-sites.js?build=fa5b535c1d7e';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const roofHit=(b,p,r)=>Math.hypot(Math.max(b.footprint.min[0],Math.min(p.x,b.footprint.max[0]))-p.x,Math.max(b.footprint.min[1],Math.min(p.y,b.footprint.max[1]))-p.y)<=r;
 export function meteorTargets(w,p,r){

@@ -1,8 +1,8 @@
-import {fieldSlots,assignFieldSlots} from './work-slots.js?build=dc9885d9b997';
-import {nearestWalkable,islandId} from './island-layout.js?build=dc9885d9b997';
-import {schoolPost,kingPost,shrineSite} from './civic-sites.js?build=dc9885d9b997';
-import {structureDamage} from './civilization.js?build=dc9885d9b997';
-import {WORLD_LIFE as L,CONFIG as C,SETTLEMENT as S} from './config.js?build=dc9885d9b997';
+import {fieldSlots,assignFieldSlots} from './work-slots.js?build=fa5b535c1d7e';
+import {nearestWalkable,islandId} from './island-layout.js?build=fa5b535c1d7e';
+import {schoolPost,kingPost,shrineSite} from './civic-sites.js?build=fa5b535c1d7e';
+import {structureDamage} from './civilization.js?build=fa5b535c1d7e';
+import {WORLD_LIFE as L,CONFIG as C,SETTLEMENT as S} from './config.js?build=fa5b535c1d7e';
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const pointCache=new WeakMap();
 function workPoint(w,p,id){let cache=pointCache.get(w);if(!cache||cache.revision!==w.navRevision){cache={revision:w.navRevision,points:new Map()};pointCache.set(w,cache);}const key=id+':'+p.x+','+p.y;if(!cache.points.has(key)){if(cache.points.size>2048)cache.points.clear();cache.points.set(key,nearestWalkable(p,id,w.blockers()));}return cache.points.get(key);}

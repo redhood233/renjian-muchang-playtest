@@ -1,5 +1,5 @@
-import {loadModel} from './mobile-runtime.js?build=dc9885d9b997';
-import * as T from './vendor/three.module.js?build=dc9885d9b997';
+import {loadModel} from './mobile-runtime.js?build=fa5b535c1d7e';
+import * as T from './vendor/three.module.js?build=fa5b535c1d7e';
 // Reuse the approved sheep asset. Bake its idle pose once; residents' sheep
 // share static geometry rather than paying for a skeleton and mixer each frame.
 export class SourceSheep {

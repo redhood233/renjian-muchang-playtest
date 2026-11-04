@@ -1,5 +1,5 @@
-import {HUSBANDRY as H} from './config.js?build=dc9885d9b997';
-import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=dc9885d9b997';
+import {HUSBANDRY as H} from './config.js?build=fa5b535c1d7e';
+import {FARM_LOTS,PASTURE_LOTS} from './settlement.js?build=fa5b535c1d7e';
 const finite=(v,min=0)=>Number.isFinite(v)&&v>=min;
 export function validGameplayState(s){
  if(s.social&&(!Array.isArray(s.social.messages)||s.social.messages.length>80||!Array.isArray(s.social.parties)||s.social.parties.length>2||!Number.isSafeInteger(s.social.readId)||s.social.readId<0||s.social.messages.some(m=>!Number.isSafeInteger(m.id)||typeof m.text!=='string'||m.text.length>500)||s.social.parties.some(p=>!Array.isArray(p.ids)||!Array.isArray(p.slots)||p.ids.length!==p.slots.length||!Array.isArray(p.attended)||!Number.isFinite(p.left)||p.slots.some(q=>!Number.isFinite(q.x)||!Number.isFinite(q.y)))))return false;

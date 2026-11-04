@@ -1,20 +1,20 @@
-import {SocialPanel} from './social-panel.js?build=dc9885d9b997';
-import {civicDetails} from './civic-details.js?build=dc9885d9b997';
-import {GameLibrary,MODE_NAMES,createGame,restoreGame,modeOf,clockLabel} from './game-modes.js?build=dc9885d9b997';
-import {releaseHint,positionReleaseHint} from './release-hint.js?build=dc9885d9b997';
-import {pixelRatio} from './mobile-runtime.js?build=dc9885d9b997';
-import {targetPreview} from './target-preview.js?build=dc9885d9b997';
-import {GameAudio} from './game-audio.js?build=dc9885d9b997';
-import {PROLOGUE} from './prologue-data.js?build=dc9885d9b997';
-import {CampaignWorld} from './campaign.js?build=dc9885d9b997';
-import {PrologueView} from './prologue-view.js?build=dc9885d9b997';
-import {PauseState} from './pause-state.js?build=dc9885d9b997';
-import {CameraControls,DEFAULT_CAMERA} from './camera-controls.js?build=dc9885d9b997';
-import {WorldView} from './scene.js?v=16.3&build=dc9885d9b997';
-import {World,distance} from './engine.js?build=dc9885d9b997';
-import {CONFIG as C,SKILLS} from './config.js?build=dc9885d9b997';
-import {GameInput} from './input.js?build=dc9885d9b997';
-import {$,art,palettes,islandName,showHome,dialog,guide,ending,buildCards} from './ui.js?build=dc9885d9b997';
+import {SocialPanel} from './social-panel.js?build=fa5b535c1d7e';
+import {civicDetails} from './civic-details.js?build=fa5b535c1d7e';
+import {GameLibrary,MODE_NAMES,createGame,restoreGame,modeOf,clockLabel} from './game-modes.js?build=fa5b535c1d7e';
+import {releaseHint,positionReleaseHint} from './release-hint.js?build=fa5b535c1d7e';
+import {pixelRatio} from './mobile-runtime.js?build=fa5b535c1d7e';
+import {targetPreview} from './target-preview.js?build=fa5b535c1d7e';
+import {GameAudio} from './game-audio.js?build=fa5b535c1d7e';
+import {PROLOGUE} from './prologue-data.js?build=fa5b535c1d7e';
+import {CampaignWorld} from './campaign.js?build=fa5b535c1d7e';
+import {PrologueView} from './prologue-view.js?build=fa5b535c1d7e';
+import {PauseState} from './pause-state.js?build=fa5b535c1d7e';
+import {CameraControls,DEFAULT_CAMERA} from './camera-controls.js?build=fa5b535c1d7e';
+import {WorldView} from './scene.js?v=16.3&build=fa5b535c1d7e';
+import {World,distance} from './engine.js?build=fa5b535c1d7e';
+import {CONFIG as C,SKILLS} from './config.js?build=fa5b535c1d7e';
+import {GameInput} from './input.js?build=fa5b535c1d7e';
+import {$,art,palettes,islandName,showHome,dialog,guide,ending,buildCards} from './ui.js?build=fa5b535c1d7e';
 const canvas=$('world'),view=new WorldView(canvas),saveKey=`rjmc-full-save-v${C.version}`;
 let world=new World(),running=false,group=0,selected=null,target=null,selectedResident=null,selectedBuilding=null,hoverSkill=null,expanded=false,weather='rain',resultShown=false,lastFrame=0,lastSave=0,lastSoul=0,toastEnd=0,saved=null,settings={sound:true,music:true,vibration:true};
 const camera={...DEFAULT_CAMERA};
@@ -63,8 +63,8 @@ function cards(){buildCards(group,g=>{
  if(g===group){const b=$('gods').querySelector('.active');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)b.animate([{translate:'0 0'},{translate:'0 -7px'},{translate:'0 0'}],{duration:260});return;}
  group=g;clearPick();cards();
 },id=>{if(modalKind||story?.blocksInput||world.inPrologue&&!world.allowedSkill(id))return;if(world.paused){toast('已暂停，继续游戏后可选择技能');return;}stopFollowing();const next=selected===id?null:id;clearPick();selected=next;expanded=false;updateUI();},id=>{hoverSkill=id;note();});updateUI();}
-function note(){const id=selected||hoverSkill,s=SKILLS.find(s=>s.id===id);const box=$('skillNote');box.hidden=!s||!!target||selected==='weather'||!running||!$('dialog').hidden;if(box.hidden)return;const noteKey=s.id+':'+expanded;if(box.dataset.key===noteKey)return;box.dataset.key=noteKey;box.innerHTML=`<button class="x" aria-label="关闭技能说明">×</button><div class="skill-note-heading"><h3>${s.name}</h3><small>冷却 ${s.cd} 秒</small></div><p class="skill-note-summary">${s.desc}</p><button class="secondary" aria-expanded="${expanded}">${expanded?'收起详情':'查看详情'}</button>${expanded?`<p class="skill-note-extra">${s.id==='rage'?'单体 · 瞄准最近的健康成年人':'范围 '+(s.r===0?'整座岛屿':s.r+' 米')} · 消耗 ${s.cost} 灵力<br>无效释放不扣费。</p>`:''}`;box.querySelector('.x').onclick=clearPick;box.querySelector('.secondary').onclick=()=>{expanded=!expanded;note();};}
-function detail(){if(selectedBuilding&&!selected){const info=civicDetails(world,selectedBuilding);if(info){const box=$('detail'),key='civic:'+JSON.stringify([info.title,info.lines]);if(box.dataset.key!==key){box.dataset.key=key;box.innerHTML='<button class="x" aria-label="关闭建筑详情">×</button><h3>'+info.title+'</h3>'+info.lines.filter(Boolean).map(line=>'<p>'+line+'</p>').join('');box.querySelector('button').onclick=()=>{selectedBuilding=null;box.hidden=true;};}box.hidden=false;box.style.left='12px';box.style.top=Math.max(95,Math.min(170,innerHeight-300))+'px';box.style.maxHeight=Math.max(120,innerHeight-220)+'px';box.style.overflowY='auto';return;}selectedBuilding=null;}const e=world.get(selectedResident);if(!e||e.dead||e.hp<=0||selected){selectedResident=null;$('detail').hidden=true;return;}const states=[e.sick>0?'染病 '+Math.ceil(e.sick)+'秒':'',e.starve>0?'饥饿':'',e.bless>0?'增产 '+Math.ceil(e.bless)+'秒':'',e.joy>0?'欢愉 '+Math.ceil(e.joy)+'秒':''].filter(Boolean);const detailKey=[e.id,e.hp,e.action,e.adult,Math.ceil(e.growth),...states].join('|');if($('detail').dataset.key!==detailKey){$('detail').dataset.key=detailKey;$('detail').innerHTML=`<button class="x" aria-label="关闭居民详情">×</button><h3>${e.kind==='sheep'?'羊':e.kind==='beast'?'野兽':e.kind==='undead'?'亡灵':e.king?'国王':e.soldier?'士兵':e.role==='scholar'?'学士':e.adult?'成年居民':'幼年居民'} · ${islandName(e.country)}</h3><p>${e.action||'活动中'}</p><p>生命 ${Math.ceil(e.hp)}${e.kind==='human'&&!e.adult?' · '+Math.max(0,Math.ceil(C.growthSeconds-e.growth))+'秒成年':''}</p>${states.length?'<p>'+states.join(' · ')+'</p>':''}`;$('detail').querySelector('button').onclick=()=>{selectedResident=null;detail();};}$('detail').hidden=false;const p=view.project(e);$('detail').style.left=Math.max(12,Math.min(innerWidth-292,p.x+20))+'px';$('detail').style.top=Math.max(165,Math.min(innerHeight-260,p.y-90))+'px';}
+function note(){const id=selected||hoverSkill,s=SKILLS.find(s=>s.id===id);const box=$('skillNote');box.hidden=socialPanel.open||!s||!!target||selected==='weather'||!running||!$('dialog').hidden;if(box.hidden)return;const noteKey=s.id+':'+expanded;if(box.dataset.key===noteKey)return;box.dataset.key=noteKey;box.innerHTML=`<button class="x" aria-label="关闭技能说明">×</button><div class="skill-note-heading"><h3>${s.name}</h3><small>冷却 ${s.cd} 秒</small></div><p class="skill-note-summary">${s.desc}</p><button class="secondary" aria-expanded="${expanded}">${expanded?'收起详情':'查看详情'}</button>${expanded?`<p class="skill-note-extra">${s.id==='rage'?'单体 · 瞄准最近的健康成年人':'范围 '+(s.r===0?'整座岛屿':s.r+' 米')} · 消耗 ${s.cost} 灵力<br>无效释放不扣费。</p>`:''}`;box.querySelector('.x').onclick=clearPick;box.querySelector('.secondary').onclick=()=>{expanded=!expanded;note();};}
+function detail(){if(socialPanel.open&&innerHeight<=500){$('detail').hidden=true;return;}if(selectedBuilding&&!selected){const info=civicDetails(world,selectedBuilding);if(info){const box=$('detail'),key='civic:'+JSON.stringify([info.title,info.lines]);if(box.dataset.key!==key){box.dataset.key=key;box.innerHTML='<button class="x" aria-label="关闭建筑详情">×</button><h3>'+info.title+'</h3>'+info.lines.filter(Boolean).map(line=>'<p>'+line+'</p>').join('');box.querySelector('button').onclick=()=>{selectedBuilding=null;box.hidden=true;};}box.hidden=false;box.style.left='12px';box.style.top=Math.max(95,Math.min(170,innerHeight-300))+'px';box.style.maxHeight=Math.max(120,innerHeight-220)+'px';box.style.overflowY='auto';return;}selectedBuilding=null;}const e=world.get(selectedResident);if(!e||e.dead||e.hp<=0||selected){selectedResident=null;$('detail').hidden=true;return;}const states=[e.sick>0?'染病 '+Math.ceil(e.sick)+'秒':'',e.starve>0?'饥饿':'',e.bless>0?'增产 '+Math.ceil(e.bless)+'秒':'',e.joy>0?'欢愉 '+Math.ceil(e.joy)+'秒':''].filter(Boolean);const detailKey=[e.id,e.hp,e.action,e.adult,Math.ceil(e.growth),...states].join('|');if($('detail').dataset.key!==detailKey){$('detail').dataset.key=detailKey;$('detail').innerHTML=`<button class="x" aria-label="关闭居民详情">×</button><h3>${e.kind==='sheep'?'羊':e.kind==='beast'?'野兽':e.kind==='undead'?'亡灵':e.king?'国王':e.soldier?'士兵':e.role==='scholar'?'学士':e.adult?'成年居民':'幼年居民'} · ${islandName(e.country)}</h3><p>${e.action||'活动中'}</p><p>生命 ${Math.ceil(e.hp)}${e.kind==='human'&&!e.adult?' · '+Math.max(0,Math.ceil(C.growthSeconds-e.growth))+'秒成年':''}</p>${states.length?'<p>'+states.join(' · ')+'</p>':''}`;$('detail').querySelector('button').onclick=()=>{selectedResident=null;detail();};}$('detail').hidden=false;const p=view.project(e);$('detail').style.left=Math.max(12,Math.min(innerWidth-292,p.x+20))+'px';$('detail').style.top=Math.max(165,Math.min(innerHeight-260,p.y-90))+'px';}
 function point(p){view.cameraAt(camera);return view.unproject(p);}
 function aim(p){target=p&&selected&&document.elementFromPoint(p.x,p.y)===canvas?point(p):null;note();}
 function cast(p){if(!selected||world.paused||story?.blocksInput||document.elementFromPoint(p.x,p.y)!==canvas)return;const loc=point(p);if(!loc)return;const id=selected,r=world.cast(id,loc,weather);if(!r.ok){toast(r.message);return;}if(settings.vibration)navigator.vibrate?.(id==='meteor'?25:10);clearPick();}

@@ -1,4 +1,4 @@
-import {CIVILIZATION as V,SOCIETY as R} from './config.js?build=dc9885d9b997';
+import {CIVILIZATION as V,SOCIETY as R} from './config.js?build=fa5b535c1d7e';
 const state=b=>({none:'尚未建造',planned:'等待重建',clearing:'清理地块',building:'建造中',repairing:'修缮中',complete:'已完工'}[b.state]||b.state);
 export function civicDetails(w,pick){const c=w.islands[pick?.country];if(!c)return null;
  if(pick.kind==='project')return {title:'封魂工程',point:c.project.site,lines:[c.project.state==='complete'?'已经完成':`实际施工 ${Math.floor(c.project.progress/45*100)}%`,c.project.workerReady?'工人已到场':'等待工人到场',`需两位在院学士、余粮与施工人员；陨石可摧毁设施并清空工程进度。`]};

@@ -1,6 +1,6 @@
-import {CONFIG as C,HUSBANDRY as H,WILDLIFE as B} from './config.js?build=dc9885d9b997';
-import {complete} from './settlement.js?build=dc9885d9b997';
-import {nearestWalkable} from './island-layout.js?build=dc9885d9b997';
+import {CONFIG as C,HUSBANDRY as H,WILDLIFE as B} from './config.js?build=fa5b535c1d7e';
+import {complete} from './settlement.js?build=fa5b535c1d7e';
+import {nearestWalkable} from './island-layout.js?build=fa5b535c1d7e';
 export function spawnAnimal(w,kind,c,p,adult=true){
  const at=nearestWalkable(p,c.id,w.blockers());const a={id:++w.serial,kind,country:c.id,...at,home:{...at},adult,age:adult?H.matureSeconds:0,hp:kind==='sheep'?H.hp:B.hp,dead:false,joy:0,rage:0,attack:0,life:0,destination:{...at}};w.animals.push(a);return a;
 }

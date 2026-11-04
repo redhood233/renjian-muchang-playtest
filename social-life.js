@@ -1,6 +1,6 @@
-import {nearestWalkable} from './island-layout.js?build=dc9885d9b997';
-import {kingPost} from './civic-sites.js?build=dc9885d9b997';
-import {SOCIAL as S} from './config.js?build=dc9885d9b997';
+import {nearestWalkable} from './island-layout.js?build=fa5b535c1d7e';
+import {kingPost} from './civic-sites.js?build=fa5b535c1d7e';
+import {SOCIAL as S} from './config.js?build=fa5b535c1d7e';
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 export function socialState(w){return w.social??={serial:0,readId:0,messages:[],cooldowns:{},lastSequence:0,clock:0,next:w.islands.map(()=>S.firstGathering),parties:[]};}
 export function say(w,role,text,country=null,emoji=null,key=null){const s=socialState(w);if(key&&(s.cooldowns[key]??-Infinity)>w.time)return false;if(key)s.cooldowns[key]=w.time+S.messageCooldown;const faces={king:'👑',scholar:'🎓',citizen:country===1?'🧑‍🌾':'👩‍🌾',life:'🌸',weather:'🌧️',death:'💀'};s.messages.push({id:++s.serial,time:w.time,role,country,emoji:emoji||faces[role],text});if(s.messages.length>S.messageLimit)s.messages.splice(0,s.messages.length-S.messageLimit);return true;}

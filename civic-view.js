@@ -1,7 +1,7 @@
-import * as T from './vendor/three.module.js?build=dc9885d9b997';
-import {CIVILIZATION as V} from './config.js?build=dc9885d9b997';
-import {groundHeight} from './island-layout.js?build=dc9885d9b997';
-import {cityHall} from './civic-sites.js?build=dc9885d9b997';
+import * as T from './vendor/three.module.js?build=fa5b535c1d7e';
+import {CIVILIZATION as V} from './config.js?build=fa5b535c1d7e';
+import {groundHeight} from './island-layout.js?build=fa5b535c1d7e';
+import {cityHall} from './civic-sites.js?build=fa5b535c1d7e';
 // Temporary altar/offerings; replace createAltar via registerAltarModel.
 let altarFactory=null;
 export function registerAltarModel(factory){altarFactory=factory;}

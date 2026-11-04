@@ -1,7 +1,7 @@
-import * as T from './vendor/three.module.js?build=dc9885d9b997';
-import {armyBearer} from './army-standards.js?build=dc9885d9b997';
-import {groundHeight} from './island-layout.js?build=dc9885d9b997';
-import {ARMY_PRESENTATION as P} from './config.js?build=dc9885d9b997';
+import * as T from './vendor/three.module.js?build=fa5b535c1d7e';
+import {armyBearer} from './army-standards.js?build=fa5b535c1d7e';
+import {groundHeight} from './island-layout.js?build=fa5b535c1d7e';
+import {ARMY_PRESENTATION as P} from './config.js?build=fa5b535c1d7e';
 export class TrackingCamera{
  constructor(){this.camera=new T.PerspectiveCamera(58,1,.08,2000);this.target=null;this.resetOrbit();}
  resetOrbit(){this.orbit={yaw:0,pitch:0,zoom:1};}

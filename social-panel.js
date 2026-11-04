@@ -1,6 +1,6 @@
-import {emotionFor} from './social-life.js?build=dc9885d9b997';
-import {SOCIAL as S} from './config.js?build=dc9885d9b997';
-import * as T from './vendor/three.module.js?build=dc9885d9b997';
+import {emotionFor} from './social-life.js?build=fa5b535c1d7e';
+import {SOCIAL as S} from './config.js?build=fa5b535c1d7e';
+import * as T from './vendor/three.module.js?build=fa5b535c1d7e';
 const roles={king:'国王',scholar:'学士',citizen:'民众',life:'生命之神',weather:'天气之神',death:'死亡之神'};
 export class SocialPanel{
  constructor(view){this.view=view;view.socialEmojis=true;this.world=null;this.open=false;this.displayed=0;this.elapsed=0;this.rows=[];this.emojis=new Map();
@@ -17,7 +17,7 @@ export class SocialPanel{
  update(world,{running,blocked=false,footer,header,dt=0}={}){if(this.world!==world){this.world=world;this.toggle(false);this.log.replaceChildren();this.rows=[];this.empty.hidden=false;this.displayed=world.social?.readId||0;for(const m of (world.social?.messages||[]).filter(m=>m.id<=this.displayed).slice(-12))this.append(m);for(const n of this.emojis.values())n.remove();this.emojis.clear();}
   const visible=running&&!blocked;this.button.hidden=!visible;this.panel.hidden=!visible||!this.open;this.emotionLayer.hidden=!visible;for(const n of this.partyLabels.values())n.hidden=true;
   const unread=(world.social?.messages||[]).filter(m=>m.id>(world.social?.readId||0)).length;this.dot.hidden=!unread;this.button.classList.toggle('has-new',unread>0);this.button.setAttribute('aria-label','人间心声'+(unread?'，'+unread+'条未读':''));
-  if(!visible)return;const bottom=Math.max(12,innerHeight-(footer?.top??innerHeight-170)+12),top=header?.bottom??100,available=Math.max(110,innerHeight-bottom-top-58);this.button.style.bottom=bottom+'px';this.panel.style.bottom=(bottom+48)+'px';this.panel.style.maxHeight=available+'px';
+  if(!visible)return;const short=innerHeight<=500&&innerWidth>innerHeight,bottom=short?12:Math.max(12,innerHeight-(footer?.top??innerHeight-170)+12),top=header?.bottom??100,available=Math.max(80,innerHeight-bottom-top-58);this.panel.style.width=short?Math.min(300,innerWidth*.32)+'px':'';this.button.style.bottom=bottom+'px';this.panel.style.bottom=(bottom+48)+'px';this.panel.style.maxHeight=available+'px';
   this.elapsed+=dt;if(this.open&&this.elapsed>=.65){this.elapsed=0;this.renderMessages();}
   const candidates=world.entities.filter(e=>!e.dead&&!e.inside).map(e=>({e,emotion:emotionFor(world,e)})).filter(v=>v.emotion).sort((a,b)=>Number(b.e.id===this.view.selection?.resident)-Number(a.e.id===this.view.selection?.resident)||Number(b.e.sick>0||b.e.starve>2)-Number(a.e.sick>0||a.e.starve>2)||a.e.id-b.e.id),placed=[],active=new Set();
   // Clip in camera space, cap DOM nodes, and avoid stacking emoji over neighbours.

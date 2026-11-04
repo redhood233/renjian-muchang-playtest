@@ -1,10 +1,10 @@
-import {establishCity,kingPost} from './civic-sites.js?build=dc9885d9b997';
-import {World} from './engine.js?build=dc9885d9b997';
-import {CONFIG as C, SKILLS} from './config.js?build=dc9885d9b997';
-import {housing} from './settlement.js?build=dc9885d9b997';
-import {spawnAnimal} from './husbandry.js?build=dc9885d9b997';
-import {nearestWalkable} from './island-layout.js?build=dc9885d9b997';
-import {PROLOGUE as P,DIALOGUES,PHASES} from './prologue-data.js?build=dc9885d9b997';
+import {establishCity,kingPost} from './civic-sites.js?build=fa5b535c1d7e';
+import {World} from './engine.js?build=fa5b535c1d7e';
+import {CONFIG as C, SKILLS} from './config.js?build=fa5b535c1d7e';
+import {housing} from './settlement.js?build=fa5b535c1d7e';
+import {spawnAnimal} from './husbandry.js?build=fa5b535c1d7e';
+import {nearestWalkable} from './island-layout.js?build=fa5b535c1d7e';
+import {PROLOGUE as P,DIALOGUES,PHASES} from './prologue-data.js?build=fa5b535c1d7e';
 const harvestCauses=new Set(['lightning','meteor','plague','fire','undead']);
 const peaceful=new Set(['intro','peace','weather_intro','rain','stewardship','grow']);
 

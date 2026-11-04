@@ -1,16 +1,16 @@
-import {advanceSocial,noteSocialCast,socialState} from './social-life.js?build=dc9885d9b997';
-import {initLife,assignWork,advanceLife,lifeAction,dropMeat,ignite,projectDamage,erupt} from './living-world.js?build=dc9885d9b997';
-import {kingPost,cityHall} from './civic-sites.js?build=dc9885d9b997';
-import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=dc9885d9b997';
-import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=dc9885d9b997';
-import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=dc9885d9b997';
-import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=dc9885d9b997';
-import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=dc9885d9b997';
-import {CIVILIZATION as V} from './config.js?build=dc9885d9b997';
-import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=dc9885d9b997';
-import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=dc9885d9b997';
-import {strike,separate} from './combat.js?build=dc9885d9b997';
-import {validGameplayState} from './gameplay-save.js?build=dc9885d9b997';
+import {advanceSocial,noteSocialCast,socialState} from './social-life.js?build=fa5b535c1d7e';
+import {initLife,assignWork,advanceLife,lifeAction,dropMeat,ignite,projectDamage,erupt} from './living-world.js?build=fa5b535c1d7e';
+import {kingPost,cityHall} from './civic-sites.js?build=fa5b535c1d7e';
+import {QINGHE,reachable,islandId,castable,walkable,nearestWalkable,moveAlong} from './island-layout.js?build=fa5b535c1d7e';
+import {CONFIG as C, SKILLS, CLIMATE,SETTLEMENT as S,HUSBANDRY as H,SOCIETY as R,WILDLIFE as B} from './config.js?build=fa5b535c1d7e';
+import {initSettlement,advanceSettlement,complete,housing,settlementSnapshot} from './settlement.js?build=fa5b535c1d7e';
+import {initAnimals,advanceAnimals,advanceHusbandry,pastureForecast} from './husbandry.js?build=fa5b535c1d7e';
+import {available,initSociety,enrage,advanceSociety,residentAction} from './society.js?build=fa5b535c1d7e';
+import {CIVILIZATION as V} from './config.js?build=fa5b535c1d7e';
+import {initCivilization,advanceCivilization,structureDamage,restResident,meteorTargets,assignHomes} from './civilization.js?build=fa5b535c1d7e';
+import {initMilitary,advanceMilitary,draft,armyCheck as checkArmy,startArmy,soldierAction,activeInvaders} from './military.js?build=fa5b535c1d7e';
+import {strike,separate} from './combat.js?build=fa5b535c1d7e';
+import {validGameplayState} from './gameplay-save.js?build=fa5b535c1d7e';
 export const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 
 export class World {
